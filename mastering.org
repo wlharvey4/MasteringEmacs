@@ -14,7 +14,7 @@
 #+TEXINFO_PRINTED_TITLE:Mastering Emacs
 * Overview
 ** In The Beginning
-   + Emacs began in 1976 [[https://www.gnu.org/software/emacs/manual/html_mono/efaq. htmlOrigin-of-the-term-Emacs]]
+   + Emacs began in 1976 [[https://www.gnu.org/software/emacs/manual/html_mono/efaq. html#Origin-of-the-term-Emacs]]
    + Came from an editor called Teco
 ** Some Implementations
 :CP:
@@ -91,6 +91,97 @@ And yet Emacs never  crashes — not really, anyway. Emacs  has an uptime counte
 to prove  that it doesn’t  (~M-x emacs-uptime~)  — multi-month uptimes  are not
 uncommon.
 
+So when you ask Emacs a question – as I will show you how to do later – you are
+asking your Emacs  what its state is.  Because of this, Emacs  has an excellent
+elisp debugger and un-limited access to  every facet of Emacs’s own interpreter
+and state — so  it has excellent code completion too. Any  time you encounter a
+lisp expression  you can tell  Emacs to evaluate it,  and it will:  from adding
+numbers to setting variables to downloading packages.
+*** Concepts
+**** Buffer
+:CP:
+#+CINDEX: buffer
+:END:
+In Emacs, all files are buffers, but not all buffers are files.
+
+Emacs uses these buffers for more than  just editing text. It can also act like
+an I/O device  and talk to another process,  such as a shell like  bash or even
+Python.
+
+Almost all of Emacs’s own commands act  on buffers.  So when you tell Emacs to,
+for example, search & replace it will actually search and replace on a buffer –
+maybe the active  buffer you’re writing in, or perhaps  a temporary duplicate –
+and not an internal data structure like you might think.
+
+In Emacs, the buffer is the /data structure/.
+
+This is an extremely powerful concept because the very same commands you use to
+move  around  and edit  in  Emacs  are almost  always  the  same ones  you  use
+behind-the-scenes in elisp. So once you memorize Emacs’s own user commands, you
+can use them in a simple function call to mimic what you’d do by hand.
+**** Windows and Frames
+:CP:
+#+CINDEX: windows
+#+CINDEX: frames
+:END:
+The /frame/ is the window and the /window/  is the frame.  That is, a frame has
+at least one  window, but can have  multiple windows, and each  window can have
+one /buffer/.  That is, a /buffer/ must  be viewed in a /window/, which must be
+in a /frame/.  A /frame/ is made up of /window/ panes.
+
+You are  free to create as  many frames as you  like, and to tile  up the frame
+into as many windows  as you like.  This allows you to  see multiple buffers on
+the screen at one time.
+**** Modeline Echo Area Minibuffer
+:CP:
+#+CINDEX: modeline
+#+CINDEX: minibuffer
+#+CINDEX: echo area
+:END:
+Emacs uses the /modeline/ to communicate facts about Emacs and the buffer you
+are in.  This is equivalent to a /status bar/.  Many different kinds of
+information can be displayed in the modeline.
+
+The /minibuffer/ is below the modeline.  This is where errors and general
+information is displayed.  It is nearly identical to a normal buffer; the
+one-line minibuffer will expand to multiple lines if necessary.  It is how you
+communicate with Emacs.
+
+The /echo area/ and the /minibuffer/ share the same spot on the screen.
+**** Point and Mark
+:CP:
+#+CINDEX: point
+#+CINDEX: mark
+#+CINDEX: region
+#+CINDEX: transient mark mode
+:END:
+/Point/ is  your current cursor position  in a buffer.  Each  buffer tracks its
+own point separately,  so each buffer has a different  position for point.  The
+``current buffer'' is  that buffer which currently ``has the  point.''  This is
+the buffer that you can write and move  around in.  Only one buffer can ever be
+the ``current buffer'' at any one time.
+
+The point  is one part of  a duo called /point  and mark/.  The point  and mark
+represent the boundaries of a /region/, which is a contiguous block of text.
+Emacs can show you the region.  This is called /transient mark mode/.
+**** Killing Yanking and CUA
+/Killing/ is cutting, /yanking/ is pasting, and copying is known as /saving to
+the kill ring/.
+**** Init Files
+     + ~.emacs.d~
+     + ~init.el~
+     + ~.emacs~
+**** Modes
+Major modes in Emacs control how  buffers behave.  Each buffer will always have
+a major  mode.  You are  free to change  a buffer’s major  mode at any  time by
+typing the command for another one.  Each buffer can have just one major mode.
+
+Minor modes, by contrast, are typically optional add-ons that you enable for
+some (or all) of your buffers.
+
+The major mode is  always displayed in the modeline. Some  minor modes are also
+displayed in the modeline,  but usually only the ones that  alter the buffer or
+how you interact with it in some way.
 * Concept Index
   :PROPERTIES:
   :INDEX:    cp
