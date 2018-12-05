@@ -1,0 +1,97 @@
+#+TITLE:Mastering Emacs Notes
+#+AUTHOR:WLHarvey4
+#+DATE:2018-12-04
+#+VERSION:0.0.1
+#+TEXINFO_FILENAME:mastering.info
+#+TEXINFO_CLASS: info
+#+TEXINFO_HEADER:
+#+TEXINFO_POST_HEADER:
+#+SUBTITLE:Notes and Outine
+#+SUBAUTHOR:
+#+TEXINFO_DIR_CATEGORY:Emacs
+#+TEXINFO_DIR_TITLE:Mastering
+#+TEXINFO_DIR_DESC:notes about mastering Emacs
+#+TEXINFO_PRINTED_TITLE:Mastering Emacs
+* Overview
+** In The Beginning
+   + Emacs began in 1976 [[https://www.gnu.org/software/emacs/manual/html_mono/efaq. htmlOrigin-of-the-term-Emacs]]
+   + Came from an editor called Teco
+** Some Implementations
+:CP:
+#+CINDEX: xemacs
+#+CINDEX: sxemacs
+:END:
+   + XEmacs fork
+     - [[http://www.xemacs.org]]
+     - [[https://www.jwz.org/doc/lemacs.html]]
+   + SXEmacs fork of XEmacs
+     - [[http://www.sxemacs.org]]
+   + and Gnu Emacs
+     - [[https://www.gnu.org/software/emacs/]]
+** Starter Packages
+:CP:
+#+CINDEX: starter packages
+#+CINDEX: packages, starter
+:END:
+*** Steve Purcell’s .emacs.d
+:CP:
+#+CINDEX:Steve Purcell @code{.emacs.d}
+:END:
+    + [[https://github.com/purcell/emacs.d]]
+*** Bozhidar Batzov’s Prelude
+:CP:
+#+CINDEX: Batzov Prelude
+#+CINDEX: Prelude from Batzov
+:END:
+    + [[https://github.com/bbatsov/prelude]]
+*** Awesome Emacs
+:CP:
+#+CINDEX: Awesome Emacs
+:END:
+    + [[https://github.com/emacs-tw/awesome-emacs]]
+** Lisp
+*** eLisp Introduction
+    + [[https://www.gnu.org/software/emacs/manual/eintr.html]]
+:CP:
+#+CINDEX: elisp
+:END:
+** Emacs as OS
+*** C Core
+When you run Emacs you are in fact  launching a tiny C core responsible for the
+low-level interactions with your operating system’s ABI.  That includes mundane
+things like  file-system and network  access; drawing  things to the  screen or
+printing control codes to the terminal.
+*** Elisp Interpreter
+:CP:
+#+CINDEX: elisp interpreter
+#+CINDEX: ui thread
+#+CINDEX: uptime
+#+CINDEX: @code{M-x emacs-uptime}
+:END:
+The cornerstone of Emacs though is the elisp interpreter — without it, there is
+no Emacs; speed  and asynchrony are the two main  issues.  The interpreter runs
+in a single thread  and intensive tasks will lock the UI  thread. But there are
+workarounds.
+
+When  you write  elisp you  are not  just  writing snippets  of code  run in  a
+sandbox,  isolated from  everything  — you  are altering  a  living system;  an
+operating system running on an operating  system.  Every variable you alter and
+every function  you call is  carried out by the  very same interpreter  you use
+when you edit text.
+
+Emacs  is  a hacker’s  dream  because  it is  one  giant,  mutable state.   Its
+simplicity is  both a blessing and  a curse. You can  re-define live functions;
+change variables left and right; and you  can query the system for its state at
+any time — state that changes with every key stroke as Emacs responds to events
+from your keyboard to your network  stack. Emacs is self-documenting because it
+is the document. There  are no other editors that can do  that. No editor comes
+close.
+
+And yet Emacs never  crashes — not really, anyway. Emacs  has an uptime counter
+to prove  that it doesn’t  (~M-x emacs-uptime~)  — multi-month uptimes  are not
+uncommon.
+
+* Concept Index
+  :PROPERTIES:
+  :INDEX:    cp
+  :END:
