@@ -12,6 +12,8 @@
 #+TEXINFO_DIR_TITLE:Mastering
 #+TEXINFO_DIR_DESC:notes about mastering Emacs
 #+TEXINFO_PRINTED_TITLE:Mastering Emacs
+#+OPTIONS: H:4
+
 * Overview
 ** In The Beginning
    + Emacs began in 1976 [[https://www.gnu.org/software/emacs/manual/html_mono/efaq. html#Origin-of-the-term-Emacs]]
@@ -182,6 +184,221 @@ some (or all) of your buffers.
 The major mode is  always displayed in the modeline. Some  minor modes are also
 displayed in the modeline,  but usually only the ones that  alter the buffer or
 how you interact with it in some way.
+* First Steps
+** Installing
+*** Version
+#+CINDEX: version
+To check Emacs' version, type: ~emacs --version~
+
+As of 2015 the upcoming version is GNU Emacs 25. If your version of Emacs is
+version 23.x or older --- upgrade.
+
+#+BEGIN_EXAMPLE
+$ /usr/bin/emacs --version
+GNU Emacs 22.1.1
+Copyright (C) 2007 Free Software Foundation, Inc.
+GNU Emacs comes with ABSOLUTELY NO WARRANTY.
+You may redistribute copies of Emacs
+under the terms of the GNU General Public License.
+For more information about these matters, see the file named COPYING.
+#+END_EXAMPLE
+
+*** Emacs on Mac OS
+#+CINDEX: Mac OS, installing
+Mac OSX, in particular, seems to attract  a great deal of conflicting advice on
+how  to best  run Emacs;  the best  advice  I can  offer is  to try  out a  few
+different approaches and find one that fits you.
+
+ + Unofficial build  --- One approach (though  there are several) is  to use an
+   unofficial build of Emacs.
+#+CINDEX: Mac OS, unofficial builds
+
+**** Emacs For Mac OSX
+#+CINDEX: Emacs For Mac OSX
+#+CINDEX: Mac OSX, flavors
+[[http://emacsformacosx.com/][Emacs For Mac OSX]]
+
+   - Pure Emacs! No extras! No nonsense!
+   - About These Emacs Builds
+     * I build three different release flavors of Emacs:
+       1. Official releases --- These should be more stable but are not released
+            very often.
+       2. Pretests --- These are much more  stable and are meant for vetting the
+                      code for last minute bugs before a final release.
+       3. Nightlies ---  These are bleeding edge builds and  may have bugs. They
+                       are built directly from the [[http://git.savannah.gnu.org/cgit/emacs.git/][public Git repository]]. I try
+                       to build these nightly.
+     * The scripts I run basically just  configure and build right from the GNU
+       source --- I  don't add any patches or any  extraneous lisp packages.  I
+       do include  the old  Carbon icon  on the  disk image  because I  like it
+       better than the new Cocoa icon but it is not enabled by default.
+     * Emacs is built on  various versions of Mac OS X: 10.6,  10.7 and 10.9 as
+       of this writing. The 10.6 builds  also build 32-bit and PowerPC binaries
+       (only Emacs 24 builds PowerPC ---  Emacs dropped support for it in Emacs
+       25).  The  later OSes  only build  64-bit builds.  All the  binaries are
+       combined  into a  single executable  and a  small Ruby  launcher chooses
+       which binary to run based on the machine's OS and architecture.
+     * Why not just use  a fat binary? Because fat binaries can  only hold 1 of
+       each architecture and Emacs has multiple x86_64 architectures binaries.
+     * Why are there multiple x86_64 binaries? Because the Emacs source does OS
+       feature detection at compile time instead  of at run-time. So if I build
+       Emacs on  10.9 then it  will contain hard-coded  calls to 10.9  APIs and
+       will not run on 10.6. If I compile  it on 10.6, then it will also run on
+       10.9, but it won't take advantage of any of the features in 10.9.
+     * Because  of  the unstable  nature  of  nighly  builds, and  (sadly)  the
+       relative fragility  of OS X  running on VMs,  there may be  days missing
+       here and there.
+     * *Note:* Recent Emacs builds (since 2009-12-09) have 64 bit Intel support
+       in the Universal Binary. Yay!
+     * *Also  Note:* Recent  Emacs builds  (since 2012-12-16)  have been  built
+       against Mac OS 10.7 (Lion) and have  Lion full screen support if you are
+       running on Lion  or Mountain Lion. They also have  better retina display
+       support and are code signed. Also Yay!
+     * *Also  Also  Note:*  Recent  Emacs  builds  (since  2016-08-15)  include
+       ~gnutls~ (except on Mac OS 10.6 ---  Homebrew doesn't work on 10.6 and I
+       don't want to spend a lot of  time compiling ~gnutls~ on a platform that
+       is  barely  used).    You  can  now  use  https  urls   in  the  package
+       configuration. Yay!
+     * *Also Also  Also Note:*  Recent Emacs builds  (since 2018-04-10)  do not
+       include  ~gnutls~  on  10.8  and lower.   Unfortunately  the  method  of
+       downloading  ~gnutls~ (Homebrew)  stopped  working  because the  servers
+       stopped  supporting old  SSL versions  and  10.8's SSL  libs aren't  new
+       enough.  The  Emacs 26.0.91-1  pretest  is  the  last version  that  has
+       ~gnutls~ on Mac OS 10.8.
+
+#+CINDEX: Mac OSX, build scripts
+   - The Build Scripts
+     * Get them here: https://github.com/caldwell/build-emacs
+     * I rewrote the build scripts in 2014 to make them more modular so I could
+       easily control them with Jenkins. I  also moved them from shell to Ruby,
+       which cleaned things up tremendously. They still aren't documented super
+       well, but they should be easier to read, at least.
+
+#+CINDEX: Mac OSX, tips and tricks
+#+CINDEX: Mac OSX, @code{Emacs.app}
+    - Tips  and  Tricks  --  Here  are  some tips  and  tricks  on  setting  up
+      ~Emacs.app~ on  Mac OS X.  These  are based on my  personal experience of
+      using ~Emacs.app~ for the past 10 years  or so; there may be better ways,
+      but these work for me.
+
+@@texinfo:@heading Running @code{Emacs.app} from the command line with @command{emacs}@@
+
+Call this script @@texinfo:@command{emacs}@@ and put it somewhere in your
+@@texinfo:@env{PATH}@@ (@@texinfo:@code{~/bin}@@ or
+@@texinfo:@code{/usr/local/bin}@@):
+
+#+BEGIN_EXAMPLE
+#!/bin/sh
+/Applications/Emacs.app/Contents/MacOS/Emacs "$@"
+#+END_EXAMPLE
+
+@@texinfo: @heading Using @command{emacsclient}@@
+
+ 1. Make sure the latest @@texinfo:@code{emacsclient}@@ binary is in your path:
+
+#+BEGIN_EXAMPLE
+ln -s /Applications/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin
+# or ~/bin if you prefer
+#+END_EXAMPLE
+
+ 2. Call this script @@texinfo:@command{ec}@@ and  put it somewhere in your @@texinfo:@env{PATH}@@
+    (@@texinfo:@code{~/bin}@@ or @@texinfo:@code{/usr/local/bin}@@):
+
+#+BEGIN_EXAMPLE
+#!/bin/sh
+which osascript > /dev/null 2>&1 && osascript -e 'tell application "Emacs" to activate'
+emacsclient -c "$@"
+#+END_EXAMPLE
+
+ 3.  Add   @@texinfo:@command{alias  emacs=ec}@@   or  @@texinfo:@command{alias
+    emacsclient=ec}@@   to  your   @@texinfo:@code{.bashrc}@@.   Or   just  use
+    @@texinfo:@command{ec}@@ directly.
+
+@@texinfo:@heading Using Emacs as the @command{mergetool} for @command{git}@@
+
+ 1. Add add this snippet to your @@texinfo:@code{.gitconfig}@@:
+
+#+BEGIN_EXAMPLE
+[merge]
+        tool = ediff
+[mergetool "ediff"]
+        cmd = emacs --eval \"(ediff-merge-files-with-ancestor \\\"$LOCAL\\\" \\\"$REMOTE\\\" \\\"$BASE\\\" nil \\\"$MERGED\\\")\"
+#+END_EXAMPLE
+
+ 2. If you want to use @@texinfo:@command{emacsclient}@@, add this snippet
+    instead:
+
+#+BEGIN_EXAMPLE
+[merge]
+  tool = ediff
+[mergetool "ediff"]
+  cmd = emacsclient -c -a \"\"  --eval \"(ediff-merge-files-with-ancestor \\\"$LOCAL\\\" \\\"$REMOTE\\\" \\\"$BASE\\\" nil \\\"$MERGED\\\")\"
+#+END_EXAMPLE
+
+@@texinfo:@heading Changing the Modifier Keys@@
+
+@@texinfo:@subheading Easy@@
+The easiest way is to use the Customize interface: ~M-x customize-group RET ns RET~.
+
+@@texinfo:@subheading Hard@@
+If you don't like Customize and want to do it manually, the following variables
+control the modifier keys:
+
+ - ns-alternate-modifier
+ - ns-command-modifier
+ - ns-control-modifier
+ - ns-function-modifier
+ - ns-option-modifier (just a different name for ns-alternate-modifier)
+ - ns-right-alternate-modifier
+ - ns-right-command-modifier
+ - ns-right-control-modifier
+ - ns-right-option-modifier
+
+Each variable can be set to ~'control~, ~'meta~, ~'alt~, ~'super~, or ~'hyper~.
+
+In addition ~ns-alternative-modifier~ (and  ~ns-option-modifier~) can be set to
+~'none~, which  lets it get interpreted  by the OS so  it can be used  to input
+special characters.
+
+The ~ns-right-*~  variables are set to  ~'left~ by default which  makes them the
+same as their ~left~ counterpart.
+
+@@texinfo:@heading Verifying the Binary Integrity@@
+
+This  site serves  the binaries  via SSL  and while  the binaries  are not  GPG
+signed, the application is code signed. You can verify the signature like this:
+ : codesign -dvv /Applications/Emacs.app
+
+Or, if you haven't installed emacs yet, but have mounted the disk image:
+ : codesign -dvv /Volumes/Emacs/Emacs.app
+
+Look for the following in the output:
+
+#+BEGIN_EXAMPLE
+Authority=Developer ID Application: Galvanix
+Authority=Developer ID Certification Authority
+Authority=Apple Root CA
+#+END_EXAMPLE
+
+~Galvanix~  is my  consulting partnership  and is  what I  registered my  Apple
+developer account under. If you see that, the binary is intact.
+
+** Starting
+** Interface
+** Keys
+*** Control
+*** Extended
+*** Universal
+*** Remembering Keys
+** Configuring
+*** Customizing
+*** Evaluating Lisp
+*** Package Manager
+*** Color Themes
+** Help
+*** Info
+*** Apropos
+*** Describe
 * Concept Index
   :PROPERTIES:
   :INDEX:    cp
