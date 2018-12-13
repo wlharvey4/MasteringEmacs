@@ -1,7 +1,9 @@
+# -*- mode: org; fill-column: 79 -*-
+
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+DATE:<2018-12-11 Tue 08:04>
-#+VERSION:0.0.2
+#+DATE:<2018-12-13 Thu 08:53>
+#+VERSION:0.0.3
 #+TEXINFO_FILENAME:mastering-emacs.info
 #+TEXINFO_CLASS: info
 #+TEXINFO_HEADER:
@@ -204,12 +206,16 @@ For more information about these matters, see the file named COPYING.
 #+END_EXAMPLE
 
 *** Emacs on Mac OS
+:CI:
 #+CINDEX: Mac OS, installing
+:END:
 Mac OSX, in particular, seems to attract  a great deal of conflicting advice on
 how  to best  run Emacs;  the best  advice  I can  offer is  to try  out a  few
 different approaches and find one that fits you.
 
+:CI:
 #+CINDEX: Mac OS, unofficial builds
+:END:
  + Unofficial build  --- One approach (though  there are several) is  to use an
    unofficial build of Emacs.
 
@@ -384,7 +390,9 @@ Authority=Apple Root CA
 developer account under. If you see that, the binary is intact.
 
 **** Emacs For Mac OS Wiki
+:CI:
 #+CINDEX: wiki, mac os
+:END:
 [[https://www.emacswiki.org/emacs/EmacsForMacOS][EmacsForMacOS Wiki]]
 
 ***** Distributions
@@ -489,6 +497,88 @@ to date on a regular basis.
   it to run.
 - For more detailed instructions, see the ~nextstep/INSTALL~ file.
 - Additionally, you may benefit from reading the build script here: http://github.com/ieure/emacs-nightly.
+
+**** iTerm Wiki for Emacs
+:CI:
+#+CINDEX: iTerm
+:END:
+[[https://www.emacswiki.org/emacs/iTerm2#toc11][iTerm Wiki for Emacs --- Super and Hyper Keys]]
+
+***** Why getting Super and Hyper working in a terminal is not straightforward
+The reason for this has to do a lot with DEC terminal history and the keys that
+were available  in some of the  earliest possible terminals.  The  DEC terminal
+became the default basis of emulation for most software.
+
+Contrast  this with  the [[https://en.wikipedia.org/wiki/Space-cadet_keyboard][Space-cadet]]  keyboard  that influenced  the design  of
+Emacs, made  for MIT Lisp  machines.  It  included several modifier  keys which
+allowed multiple  character sets  as well  as a large  macro space  for binding
+commands to key combinations.   Two modifier keys to the left  of the space bar
+on the Space-cadet keyboard include the *Super* and *Hyper* keys.
+
+While insanely  useful for the  experienced user,  fewer people worked  on Lisp
+machines  compared  to  the  widespread  availability  of  VT-series  character
+terminals. All  command line and  serial-terminal interaction you’ll  ever find
+supports VT-100.
+
+In GUI mode most emacsen will bind the Windows or Option key to *Super*U. Or if
+you’re a Mac  user, you might have swapped  *Alt* and *⌘* so the  *Meta* key is
+closest to the spacebar and easier to reach.
+
+When  you press  a key  on your  keyboard your  terminal emulator  will send  a
+character  or  an escape  sequence  down  the  connection.   For DEC  or  xterm
+terminals, some keys may not send signals.  iTerm2 can make use of any key that
+OSX will respond to and you can  customize it to run commands locally, remotely
+or send signals down the terminal connection to the remote machine.
+
+***** Testing escape codes
+First,  connect  your  remote  machine  and  issue  the  cat  command  with  no
+parameters. Depending on  your OS, termcap on the remote  and the codepage your
+keyboard is set  to, you’ll see either  a character or an  escape sequence when
+you type something.
+
+Let’s see how the Latin letter ~O~ works when pressed with modifier keys.
+ + When I press ~o~, I get an ~o~.
+ + But when I press ~ALT+o~, I get ~^[o~
+ + When I press ~CTRL+ALT+o~, I get ~^[^O~
+ + And when I press ~SHIFT+ALT+o~, I get ~^[O~
+
+These combos are being  read by the remote machine and being  fed to ~STDIN~ to
+~cat~ (and ~cat~ is reading them back  as output).  They’re also the most basic
+escape sequences, as ~^~ is the code for ~COMMAND~, and ~^[~ is for ~ALT/META~,
+known  as the  escape sequence  ~^[~ .   For terminals  and IBM  PCs, the  ~^[~
+signifies some sort  of terminal code, signifying a keypress  or some action to
+be taken  on the terminal  or the  remote.  If your  keyboard has a  D-pad, try
+hitting  ~<up> <down>  <right>~ and  ~<left>~.  Usually  these will  be ~^[[A~,
+~^[[B~, ~^[[C~ and ~^[[D~, respectively.
+
+You can press ~C-c~ to get out of ~cat~
+
+Now let’s  try sending a  more complicated escape  sequence using some  keys on
+your keyboard and fool Emacs on the  remote into thinking you pressed a *Hyper*
+key combo.
+ + Go into your iTerm2 settings for your connection profile.
+ + In the Keys panel, let’s set a key combo for ~Ctrl+⌘+Option+A~, which is the
+   three leftmost keys next to the space bar plus the letter ~A~.
+ + I’m pretty confident your remote termcap probably does not have an entry for
+   ~^[[1;P9~, so let’s start off with that code.
+ + Your setting should look like this:
+   + Keyboard Shortcut :: ~^+Option+Control+a~
+   + Action :: Send Escape Sequence
+   + Escape :: ~[1;P9~
+ + Let’s get Emacs to listen for this key.  Evaluate the following Lisp code in
+   an Emacs session (I  took the liberty of adding escapes for  the rest of the
+   keys):
+ + Now we can bind Hyper to something.  Let’s try this:
+   + ~(global-set-key (kbd "H-a") 'dired)~
+ + Now when  you press ~Ctrl+⌘+Option+A~, ~dired~ should pop  up.  Proceed with
+   adding the rest  of the keys and  escape codes in your  iTerm2 setup.  Also,
+   you can use the ~cat~ command to  check your work and ensure that the proper
+   escape sequences are reaching the remote machine.
+ + You can also  make combinations with ~Control~ and ~META~  such as ~C-c H-o~
+   with this technique.  For ~C-c H-o~ you would hit ~C-c~ and then release the
+   keys, then ~Ctrl+⌘+Option+o~ for the ~H-o~ part.
+ +  Now  you can  make  loads  more keybindings  for  all  your favorite  Emacs
+   commands.
 
 ** Starting
 ** Interface
