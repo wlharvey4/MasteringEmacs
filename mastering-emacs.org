@@ -2,8 +2,8 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+DATE:<2019-03-11 Mon 18:27>
-#+VERSION:0.0.4
+#+DATE:<2019-03-11 Mon 19:46>
+#+VERSION:0.0.5
 #+TEXINFO_FILENAME:mastering-emacs.info
 #+TEXINFO_CLASS: info
 #+TEXINFO_HEADER:
@@ -15,6 +15,8 @@
 #+TEXINFO_DIR_DESC:notes about mastering Emacs
 #+TEXINFO_PRINTED_TITLE:Mastering Emacs
 #+OPTIONS: H:4
+
+[[https://www.masteringemacs.org/][Mastering Emacs]]
 
 * Overview
 ** In The Beginning
@@ -612,6 +614,16 @@ key combo.
 - [[https://cestlaz.github.io/stories/emacs/][Using Emacs Series]]
 
 - [[http://ergoemacs.org/emacs/emacs.html][Practical Emacs Tutorial]]
+
+- [[http://tuhdo.github.io/emacs-tutor.html][Emacs Mini Manual (PART 1) - THE BASICS]]
+
+- [[http://emacsrocks.com/][Emacs Rocks]]
+
+- [[http://emacsmovies.org/][EmacsMovies.org]]
+
+- [[https://github.com/emacs-tw/awesome-emacs][Awesome Emacs]]
+
+- [[https://www.reddit.com/r/emacs][reddit emacs]]
 
 * Concept Index
   :PROPERTIES:
