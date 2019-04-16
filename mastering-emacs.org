@@ -2,7 +2,7 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+DATE:<2019-04-16 Tue 14:29>
+#+DATE:<2019-04-16 Tue 14:39>
 #+VERSION:0.0.6
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
@@ -641,6 +641,8 @@ key combo.
 ** Shell Commands
 The following shell commands work on generic buffers.
 
+#+caption:Shell command key bindings
+#+name:shell-command-bindings
 |------------+---------------------------------------|
 | Keys       | Description                           |
 |------------+---------------------------------------|
@@ -667,6 +669,8 @@ The following shell commands work on generic buffers.
 ~make -k~).  You can run any command or script, however, and track the
 output.  Error messages go to the "*compilation*" buffer.
 
+#+caption:Compilation command key bindings
+#+name:compilation-command-bindings
 |-----------------------------+------------------------------------------------------|
 | Commands                    | Description                                          |
 |-----------------------------+------------------------------------------------------|
@@ -680,8 +684,6 @@ output.  Error messages go to the "*compilation*" buffer.
 | =compilation-scroll-output= | Variable controlling scrolling of compilation buffer |
 | =compilation-environment=   | Variable to control the environment passed           |
 |-----------------------------+------------------------------------------------------|
-
-Emacs will run through a call stack or compiler error log on command.
 
 *** Compilation Mode
 The "*compilation*" buffer uses a major mode called Compilation mode.
@@ -729,6 +731,12 @@ message in a separate window.
 - https://www.reddit.com/r/emacs
 ** Emacs StackExchange
 - https://emacs.stackexchange.com
+
+* Table Listings
+:PROPERTIES:
+:unnumbered: t
+:END:
+#+texinfo: @listoffloats Table
 
 * Concept Index
 :PROPERTIES:
