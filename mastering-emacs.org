@@ -2,7 +2,7 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+DATE:<2019-04-16 Tue 14:05>
+#+DATE:<2019-04-16 Tue 14:29>
 #+VERSION:0.0.6
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
@@ -663,19 +663,35 @@ The following shell commands work on generic buffers.
      argument to replace the region with the shell output.
 
 *** Compiling in Emacs
-=M-x compile= runs a compilation command (by default ~make~).  You can
-run any command or script, however, and track the output.
+=M-x compile= asynchronously runs a compilation command (by default
+~make -k~).  You can run any command or script, however, and track the
+output.  Error messages go to the "*compilation*" buffer.
 
-|----------------------+-----------------------------------|
-| Commands             | Description                       |
-|----------------------+-----------------------------------|
-| =M-x compile=        | Runs a command, and tracks errors |
-| =M-x recompile=      | Re-runs last command              |
-| =M-g M-n=, =M-g M-p= | Jumps to next or previous error   |
-| =g=                  | Re-runs last command              |
-|----------------------+-----------------------------------|
+|-----------------------------+------------------------------------------------------|
+| Commands                    | Description                                          |
+|-----------------------------+------------------------------------------------------|
+| =M-x compile=               | Runs a command, and tracks errors                    |
+| =M-x recompile=             | Re-runs last command                                 |
+| =M-g M-n=, =M-g M-p=        | Jumps to next or previous error                      |
+| =C-x `=                     | Visit errors sequentially                            |
+| =g= (Compilation mode)      | Re-runs last command                                 |
+| =M-x kill-compilation=      | Kill the running compilation subprocess              |
+| =compile-command=           | Variable holding prior command                       |
+| =compilation-scroll-output= | Variable controlling scrolling of compilation buffer |
+| =compilation-environment=   | Variable to control the environment passed           |
+|-----------------------------+------------------------------------------------------|
 
 Emacs will run through a call stack or compiler error log on command.
+
+*** Compilation Mode
+The "*compilation*" buffer uses a major mode called Compilation mode.
+This mode turns each error message in the buffer into a hyperlink; you
+can move point to it and type <RET> to visit "locus" of the error
+message in a separate window.
+
+- =compilation-auto-jump-to-first-error= :: Variable allowing Emacs to
+     automatically jump to the first error message that appears in the
+     compilation buffer (when set to non-=nil=).
 
 ** Shells
 
