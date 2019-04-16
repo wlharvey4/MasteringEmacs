@@ -2,7 +2,7 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+DATE:<2019-04-16 Tue 13:36>
+#+DATE:<2019-04-16 Tue 14:05>
 #+VERSION:0.0.6
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
@@ -623,6 +623,67 @@ key combo.
 *** Info
 *** Apropos
 *** Describe
+
+* Movement
+
+* Editing
+
+* Practicals
+
+** Exploring Emacs
+
+** Log Files
+
+** TRAMP
+
+** Dired
+
+** Shell Commands
+The following shell commands work on generic buffers.
+
+|------------+---------------------------------------|
+| Keys       | Description                           |
+|------------+---------------------------------------|
+| M-!        | Calls shell command and prints output |
+| C-u M-!    | As above, but inserts into buffer     |
+| M-&        | Like M-! but asynchronous             |
+| C-u M-&    | Like C-u M-! but asynchronous         |
+| M-pipe     | Pipes region to shell command         |
+| C-u M-pipe | Likes M-pipe, but replaces region     |
+|------------+---------------------------------------|
+
+- [ =C-u= ] =M-!= and =M-&= :: Invoke any shell command; output is
+     printed to the mini-buffer if it is only a small amount, or to a
+     dedicated buffer otherwise.  Add a prefix argument to insert the
+     output into the buffer.
+
+- [ =C-u= ] =M-|= :: Takes the region as input and sends it to the
+     standard input of a shell command, and returns the output to
+     either the mini-buffer or a dedicated buffer.  Add a prefix
+     argument to replace the region with the shell output.
+
+*** Compiling in Emacs
+=M-x compile= runs a compilation command (by default ~make~).  You can
+run any command or script, however, and track the output.
+
+|----------------------+-----------------------------------|
+| Commands             | Description                       |
+|----------------------+-----------------------------------|
+| =M-x compile=        | Runs a command, and tracks errors |
+| =M-x recompile=      | Re-runs last command              |
+| =M-g M-n=, =M-g M-p= | Jumps to next or previous error   |
+| =g=                  | Re-runs last command              |
+|----------------------+-----------------------------------|
+
+Emacs will run through a call stack or compiler error log on command.
+
+** Shells
+
+*** Shell Mode
+
+*** Terminal Emulator
+
+*** eshell---Emac's Shell
 
 * Additional Resources
 :PROPERTIES:
