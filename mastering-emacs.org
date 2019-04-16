@@ -2,21 +2,12 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+DATE:<2019-03-11 Mon 19:46>
-#+VERSION:0.0.5
-#+TEXINFO_FILENAME:mastering-emacs.info
-#+TEXINFO_CLASS: info
-#+TEXINFO_HEADER:
-#+TEXINFO_POST_HEADER:
-#+SUBTITLE:Notes and Outine
-#+SUBAUTHOR:
-#+TEXINFO_DIR_CATEGORY:Emacs
-#+TEXINFO_DIR_TITLE:Mastering
-#+TEXINFO_DIR_DESC:notes about mastering Emacs
-#+TEXINFO_PRINTED_TITLE:Mastering Emacs
-#+OPTIONS: H:4
+#+DATE:<2019-04-16 Tue 13:26>
+#+VERSION:0.0.6
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
+
+[[file:/Volumes/Mt.Whitney/computers_bak/computers/text_stuff/text_editors/emacs_stuff/emacs--advanced/PETERSEN,M--mastering_emacs_().pdf][Mastering Emacs by Mickey Petersen]]
 
 * Overview
 ** In The Beginning
@@ -199,6 +190,11 @@ some (or all) of your buffers.
 The major mode is  always displayed in the modeline. Some  minor modes are also
 displayed in the modeline,  but usually only the ones that  alter the buffer or
 how you interact with it in some way.
+
+* Introduction
+From the blog /Mastering Emacs/.  Check out the [[https://www.masteringemacs.org/all-articles][index of articles]].
+See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
+
 * First Steps
 ** Installing
 *** Version
@@ -401,6 +397,24 @@ Authority=Apple Root CA
 
 ~Galvanix~  is my  consulting partnership  and is  what I  registered my  Apple
 developer account under. If you see that, the binary is intact.
+
+**** Build Emacs from Source on OSX
+#+begin_src sh
+git clone git://git.savannah.gnu.org/emacs.git
+cd emacs
+./autogen.sh
+./configure --with-ns
+make install
+cd nextstep
+open Emacs.app 
+#+end_src
+
+**** Emacs-Mac by Mitsuharu Yamamoto
+- https://bitbucket.org/mituharu/emacs-mac/overview
+- https://github.com/railwaycat/homebrew-emacsmacport
+
+**** Emacs Plus
+- https://github.com/railwaycat/homebrew-emacsmacport
 
 **** Emacs For Mac OS Wiki
 :CI:
@@ -624,8 +638,43 @@ key combo.
 - [[https://github.com/emacs-tw/awesome-emacs][Awesome Emacs]]
 
 - [[https://www.reddit.com/r/emacs][reddit emacs]]
+** Additional Resources
+:PROPERTIES:
+:appendix: t
+:END:
+*** Mastering Emacs in One Year
+- https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/guide-en.org
+- http://blog.binchen.org
+*** How to Learn Emacs---A Hand-drawn One-pager for Beginners
+- https://sachachua.com/blog/2013/05/how-to-learn-emacs-a-hand-drawn-one-pager-for-beginners/
+- https://sachachua.com/blog/
+*** Emacs Rocks
+- http://emacsrocks.com
+*** Planet Emacsen
+- https://github.com/hober/planet.emacsen.org
+- web site is currently /down/
+- https://planet.emacslife.com (unofficial version)
+*** Awesome Emacs
+- https://github.com/emacs-tw/awesome-emacs
+*** r/emacs
+- https://www.reddit.com/r/emacs
+*** Emacs StackExchange
+- https://emacs.stackexchange.com
 
 * Concept Index
-  :PROPERTIES:
-  :INDEX:    cp
-  :END:
+:PROPERTIES:
+:INDEX:    cp
+:END:
+
+* Export Setup                                                     :noexport:
+#+TEXINFO_FILENAME:mastering-emacs.info
+#+TEXINFO_CLASS: info
+#+TEXINFO_HEADER:
+#+TEXINFO_POST_HEADER:
+#+SUBTITLE:Notes and Outine
+#+SUBAUTHOR:
+#+TEXINFO_DIR_CATEGORY:Emacs
+#+TEXINFO_DIR_TITLE:Mastering
+#+TEXINFO_DIR_DESC:notes about mastering Emacs
+#+TEXINFO_PRINTED_TITLE:Mastering Emacs
+#+OPTIONS: H:4
