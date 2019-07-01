@@ -2,8 +2,8 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+DATE:<2019-04-16 Tue 14:39>
-#+VERSION:0.0.6
+#+date:2019-07-01 09:49
+#+VERSION:0.0.7
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
 
@@ -619,6 +619,174 @@ key combo.
 *** Evaluating Lisp
 *** Package Manager
 *** Color Themes
+*** Mastering Key Bindings in Emacs
+- https://www.masteringemacs.org/article/mastering-key-bindings-emacs
+
+
+There’s a reason why the Emacs manual has dedicated 30-odd pages to describing,
+in great detail, all the subtleties and nuances of how to bind keys.  I’ve
+written a guide that covers what you need to know to bind keys to even complex
+commands, and a set of templates you can use in your own code.
+
+**** Keymaps
+#+cindex:keymap
+A {{{dfn(keymap)}}} is an internal data structure used by Emacs to store keys
+and their associated actions.  Keymaps are rarely modified directly, but
+through a set of commands that manipulate the data structure for you.
+
+Every buffer and most major and minor modes have a keymap, and that keymap
+defines what the keys do when key sequences are sent to that buffer.  Keys can
+be divided into three categories:
+
+#+cindex:prefix key
+#+cindex:key, prefix
+#+cindex:complete key
+#+cindex:key, complete
+- undefined :: self-explanatory
+- prefix key :: are parts of a complete key, and each constituent part of a
+                prefix key is made up of its own keymap
+- complete key :: a command that, when input, executes its associated command
+
+
+#+cindex:keys, show all
+To enumerate all the active minor and major mode key bindings in a buffer,
+type:
+
+- =C-h m=
+
+
+If you know part of a key sequence, type out that part, then type the following
+to get a list of all keys that belong to that sequence.
+
+- =C-h=
+
+**** Key Bind Commands
+There are several ways you can define (or undefine) keys.
+
+- ~(define-key KEYMAP KEY DEF)~ ::
+
+     #+cindex:@code{define-key}
+     #+cindex:keyboard map
+     #+cindex:keymap, keyboard
+     Defines a key against a keyboard map.  Use this if you want to change a
+     keymap that isn’t the current buffer map.
+
+- ~(local-set-key KEY COMMAND)~ ::
+
+     #+cindex:@code{local-set-key}
+     #+cindex:local keymap
+     #+cindex:keymap, local
+     Binds a key to the local keymap used by the active buffer, unlike
+     ~define-key~ which takes an explicit keymap to bind a key against.
+
+- ~(global-set-key KEY COMMAND)~ ::
+
+     #+cindex:@code{global-set-key}
+     #+cindex:global keymap
+     #+cindex:keymap, global
+     Binds a key to the global keymap, making it available in all buffers (with
+     a caveat---see below.)
+
+- ~(global-unset-key KEY)~ ::
+
+     #+cindex:@code{global-unset-key}
+     #+cindex:global keymap
+     #+cindex:keymap, global
+     Removes KEY from the global keymap
+
+- ~(local-unset-key KEY)~ ::
+
+     #+cindex:@code{local-unset-key}
+     #+cindex:local keymap
+     #+cindex:keymap, local
+     Removes KEY from the active, local keymap.
+
+**** Representing Keys in Code
+{{{heading(@@texinfo:@code{@@kbd@@texinfo:}@@)}}}
+
+#+cindex:key as string, vector
+#+cindex:vector key
+#+cindex:@code{kbd} macro
+In order to actually bind a key you must first tell Emacs what key you intend
+to use.  Unfortunately there’s more than one way of representing keys in Emacs:
+as a /string/, or as a /vector/.  There is a macro built in to Emacs called
+{{{dfn(kbd)}}}, which translates a human-readable key into a format Emacs can
+understand.
+
+{{{heading(Function and Navigation Keys)}}}
+
+One important point to note is that you must surround /function/ and
+/navigation/ keys with =<= and =>=.  Those keys include F-keys, arrow keys and
+home row keys, like so: =<home>=, =<f8>= and =<down>=.  But if you want to
+represent the key =C-c p= then write ~(kbd "C-c p")~.
+
+**** Remapping Commands
+{{{heading(@@texinfo:@code{@@remap@@texinfo:}@@---Replace)}}}
+
+#+cindex:@code{remap} event
+#+cindex:@code{define-key} command
+You can tell Emacs that you want to /replace/ all keys pointing to a certain
+command with one of your own choosing by using the ~remap~ event; this should
+be done instead of passing a key to the key bind function you are using.  This
+is arguably the best way of replacing existing commands with your own as Emacs
+will automagically handle the key reassignment in the background.
+
+: (define-key (current-global-map) [remap kill-line] 'my-homemade-kill-line)
+
+Here I globally remap all key binds that point to ~kill-line~ to
+~my-homemade-kill-line~.
+
+#+cindex:transient mark mode
+For some more hands-on examples read my article [[https://www.masteringemacs.org/article/fixing-mark-commands-transient-mark-mode][Fixing the Mark Commands in Transient Mark Mode]].
+
+**** Reserved Keys
+You can pick any keyboard combination you desire---even if that key bind is
+already taken, so be careful.  But Emacs has set aside certain keys for use by
+users.  Generally, all keys prefixed with =C-c ?= (where =?= is a single
+character) are reserved for you, and you alone.  In practice most third-party
+packages don’t give a hoot and will gladly stuff their own key binds in there.
+
+The other set of reserved keys are the F-keys from =F5= and onwards.
+
+{{{heading(Hyper and Super Prefix Keys)}}}
+
+#+cindex:hyper key
+#+cindex:super key
+The other two prefix keys reserved to you are =hyper= and =super=.  They are
+remnants from ancient keyboards used in the 80s, but live on today in Emacs.
+Most PC-compatible keyboards won’t have a =super= or =hyper= key so some people
+rebind the Windows key and the Application Context key to be =hyper= and
+=super= instead.
+
+#+caption:Symbolics's lisp machine keyboard PN 365407 Rev C. (Photo by Joey Devilla.)
+#+name:fig-lisp-machine-super-hyper-keys
+[[file:figs/lisp-machine-keyboard-2-left.jpg]]
+
+[fn::From http://ergoemacs.org/emacs/emacs_hyper_super_keys.html]
+
+- See [[http://ergoemacs.org/emacs/emacs_hyper_super_keys.html][Emacs: How to Bind Super Hyper Keys]].
+
+- See [[http://irreal.org/blog/?p=1450][A Hyper Key for the Mac]]
+
+
+If you want to use =hyper= then use the prefix key =H-= (e.g., =H-q=) and if
+you want =super= use the prefix key =s-= (lower case).
+
+
+{{{heading(On Mac OS X)}}}
+
+#+caption:set keys for Apple keyboard, for emacs in OS X
+#+name:set-keys-mac-os-x
+#+begin_src emacs-lisp
+;; set keys for Apple keyboard, for emacs in OS X
+(setq mac-command-modifier 'meta) ; make cmd key do Meta
+(setq mac-option-modifier 'super) ; make opt key do Super
+(setq mac-control-modifier 'control) ; make Control key do Control
+(setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
+#+end_src
+*** Configuring the Emacs Frame Height
+- See [[http://irreal.org/blog/?p=1331][More on Setting the Emacs Frame Height]]
+
 ** Help
 *** Info
 *** Apropos
@@ -731,6 +899,8 @@ message in a separate window.
 - https://www.reddit.com/r/emacs
 ** Emacs StackExchange
 - https://emacs.stackexchange.com
+** Effective emacs
+- https://a-nickels-worth.blogspot.com/2007/11/effective-emacs.html
 
 * Table Listings
 :PROPERTIES:
@@ -742,6 +912,11 @@ message in a separate window.
 :PROPERTIES:
 :INDEX:    cp
 :END:
+
+* Macro Definitions
+#+macro: heading @@texinfo:@heading @@$1
+#+macro: subheading @@texinfo:@subheading @@$1
+#+macro: dfn @@texinfo:@dfn{@@$1@@texinfo:}@@
 
 * Export Setup                                                     :noexport:
 #+TEXINFO_FILENAME:mastering-emacs.info
@@ -755,3 +930,7 @@ message in a separate window.
 #+TEXINFO_DIR_DESC:notes about mastering Emacs
 #+TEXINFO_PRINTED_TITLE:Mastering Emacs
 #+OPTIONS: H:4
+* Local Variables                                                  :noexport:
+# Local variables:
+# time-stamp-pattern:"8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
+# End:
