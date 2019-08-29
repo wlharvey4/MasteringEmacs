@@ -2,8 +2,8 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+date:2019-07-01 09:49
-#+VERSION:0.0.7
+#+DATE:2019-07-29 16:05
+#+VERSION:0.0.8
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
 
@@ -797,7 +797,6 @@ you want =super= use the prefix key =s-= (lower case).
 * Editing
 
 * Practicals
-
 ** Exploring Emacs
 
 ** Log Files
@@ -805,6 +804,74 @@ you want =super= use the prefix key =s-= (lower case).
 ** TRAMP
 
 ** Dired
+#+cindex:dired
+You can manipulate directories and files using Emacs’s directory editor, dired.
+
+Ways to access dired:
+
+- From IDO Mode :: =C-x C-f C-d= when finding files to open a dired buffer in
+                   that file's current directory.
+
+- As a command :: =M-x dired=
+
+- As a key bind :: =C-x d= =C-x 4 d=
+
+
+#+cindex:@command{dired-listing-switches}
+Dired Buffer is usually based upon ~ls -al~.  This can be configured using
+~dired-listing-switches~.
+
+*** Dired Navigation
+
+*** Dired Marking and Unmarking
+
+*** Dired Operations
+
+*** Working Across Directories
+
+**** Include Additional Directories
+
+#+cindex:directories, include subdirectories
+#+cindex:subdirectories, include
+#+cindex:include subdirectories
+- ~dired-maybe-insert-subdir~ ::
+
+  - =i= :: insert this subdirectory into the same dired buffer (like ~ls -lR~)
+
+  #+cindex:switches, @command{ls}
+  #+cindex:@command{ls} switches
+  - =C-u i= :: edit the ~ls~ switches; add =R= to the switches to expand
+                    the whole tree starting at this subdirectory
+
+  - [[info:emacs#Subdir%20switches][Subdir Switches]] :: for more details
+
+- ~dired-hide-subdir~ :: =$= --- hide or unhide the current subdirectory and
+     move to next directory
+
+     - =M-$= :: (un)hide all directories
+
+- ~dired-reset-subdir-switches~ :: reset all subdirectory switches to the
+     default
+
+
+**** Find Wrapper Commands
+#+cindex:@command{find} wrapper commands
+To recursively apply a dired or shell command, use Emac's ~find~ wrapper
+commands.
+
+All commands take the output of find and build a dired buffer relative to a
+starting directory. Emacs is clever enough to notice the relative paths in what
+was the filename portion of the buffer. All commands in dired work as usual.
+
+| Commands               | Description                                                |
+|------------------------+------------------------------------------------------------|
+| ~find-dired~           | Calls ~find~ with a pattern                                |
+| ~find-name-dired~      | Calls ~find~ with =-name= using glob patterns              |
+| ~find-grep-dired~      | Calls ~find~ and ~grep~                                    |
+| ~find-lisp-find-dired~ | Uses Emacs and regexp to find files (elisp implementation) |
+|                        | does not use shell globbing                                |
+|------------------------+------------------------------------------------------------|
+
 
 ** Shell Commands
 The following shell commands work on generic buffers.
@@ -930,6 +997,7 @@ message in a separate window.
 #+TEXINFO_DIR_DESC:notes about mastering Emacs
 #+TEXINFO_PRINTED_TITLE:Mastering Emacs
 #+OPTIONS: H:4
+
 * Local Variables                                                  :noexport:
 # Local variables:
 # time-stamp-pattern:"8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
