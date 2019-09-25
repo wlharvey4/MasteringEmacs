@@ -2,8 +2,8 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+date:2019-09-25 13:54
-#+macro version VERSION:0.0.8
+#+date:2019-09-25 14:18
+#+macro version VERSION:0.0.9
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
 
@@ -796,6 +796,34 @@ you want =super= use the prefix key =s-= (lower case).
 
 * Editing
 
+** Killing and Yanking
+
+** Transposing Text
+
+** Filling and Commenting
+
+** Searching and Replacing
+
+** Changing Case
+
+** Counting
+
+** Text Manipulation
+
+** Keyboard Macros
+
+** Text Expansion
+
+** Indenting
+
+** Sorting and Aligning
+
+** Zapping
+
+** Spell Checking
+
+** Quoted Insert
+
 * Practicals
 ** Exploring Emacs
 
@@ -939,8 +967,15 @@ message in a separate window.
 *** eshell---Emac's Shell
 
 * Special Packages
+** Polymode
+Multiple Major Modes and How to Use SQL and Python in one Buffer
+
+- [[https://www.masteringemacs.org/article/polymode-multiple-major-modes-how-to-use-sql-python-in-one-buffer][About Polymode]]
+
 ** Magit
 ‘A Git Porcelain inside Emacs’
+
+See [[https://www.masteringemacs.org/article/introduction-magit-emacs-mode-git][“An introduction to Magit, an Emacs mode for Git”]]
 
 Magit is an interface to the version control system Git, implemented as an
 Emacs package. Magit aspires to be a complete Git porcelain; it is complete
