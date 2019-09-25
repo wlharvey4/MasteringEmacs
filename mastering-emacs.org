@@ -2,8 +2,8 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+DATE:2019-07-29 16:05
-#+VERSION:0.0.8
+#+date:2019-09-25 13:54
+#+macro version VERSION:0.0.8
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
 
@@ -938,6 +938,172 @@ message in a separate window.
 
 *** eshell---Emac's Shell
 
+* Special Packages
+** Magit
+‘A Git Porcelain inside Emacs’
+
+Magit is an interface to the version control system Git, implemented as an
+Emacs package. Magit aspires to be a complete Git porcelain; it is complete
+enough to allow even experienced Git users to perform almost all of their daily
+version control tasks directly from within Emacs.
+
+- [[https://magit.vc][Magit Home]]
+- [[https://magit.vc/manual/magit/index.html#SEC_Contents][Magit User Manual]]
+
+
+{{{heading(Staging and Unstaging)}}}
+
+Staging and otherwise applying changes is one of the most important features in
+a Git porcelain and here Magit outshines anything else, including Git itself.
+Git’s own staging interface (git add --patch) is so cumbersome that many users
+only use it in exceptional cases.  In Magit staging a hunk or even just part of
+a hunk is as trivial as staging all changes made to a file.
+
+{{{subheading(Status Buffer)}}}
+
+The most visible part of Magit’s interface is the status buffer, which displays
+information about the current repository. Its content is created by running
+several Git commands and making their output actionable.  Among other things,
+it displays information about the current branch, lists unpulled and unpushed
+changes and contains sections displaying the staged and unstaged changes.  That
+might sound noisy, but, since sections are collapsible, it’s not.
+
+{{{subheading(Stage and Unstage)}}}
+
+To stage or unstage a change one places the cursor on the change and then types
+=s= or =u=.  The change can be a file or a hunk, or when the region is active
+(i.e. when there is a selection) several files or hunks, or even just part of a
+hunk.  The change or changes that these commands --- and many others --- would
+act on are highlighted.
+
+{{{subheading(Apply Variants)}}}
+
+Magit also implements several other “apply variants” in addition to staging and
+unstaging.  One can discard or reverse a change, or apply it to the working
+tree.  Git’s own porcelain only supports this for staging and unstaging and you
+would have to do something like =git diff ... | ??? | git apply ...= to
+discard, revert, or apply a single hunk on the command line.  In fact that’s
+exactly what Magit does internally (which is what lead to the term “apply
+variants”).
+
+{{{heading(Advanced Features)}}}
+
+Magit fully embraces Git. It exposes many advanced features using a simple but
+flexible interface instead of only wrapping the trivial ones like many GUI
+clients do. Of course Magit supports logging, cloning, pushing, and other
+commands that usually don’t fail in spectacular ways; but it also supports
+tasks that often cannot be completed in a single step. Magit fully supports
+tasks such as:
+
+- merging
+- rebasing
+- cherry-picking
+- reverting
+- blaming
+
+
+{{{noindent}}}by not only providing a command to initiate these tasks but also
+by displaying context sensitive information along the way and providing
+commands that are useful for resolving conflicts and resuming the sequence
+after doing so.
+
+Magit wraps and in many cases improves upon at least the following Git
+porcelain commands:
+
+- add
+- am
+- bisect
+- blame
+- branch
+- checkout
+- cherry
+- cherry-pick
+- clean
+- clone
+- commit
+- config
+- describe
+- diff
+- fetch
+- format-patch
+- init
+- log
+- merge
+- merge-tree
+- mv
+- notes
+- pull
+- rebase
+- reflog
+- remote
+- request-pull
+- reset
+- revert
+- rm
+- show
+- stash
+- submodule
+- tag
+
+
+Many more Magit porcelain commands are implemented on top of Git plumbing
+commands.
+*** Status Buffer
+
+{{{heading(Status)}}}
+
+#+cindex:status
+#+cindex:magit-status
+To display information about the current Git repository, type =M-x magit-status
+RET=.  You will be using this command a lot, and should therefore give it a
+global key binding.  This is what we recommend:
+
+: (global-set-key (kbd "C-x g") 'magit-status)
+
+{{{subheading(Status Buffer)}}}
+
+#+cindex:status buffer
+Most Magit commands are commonly invoked from the status buffer.  It can be
+considered the primary interface for interacting with Git using Magit.  Many
+other Magit buffers may exist at a given time, but they are often created from
+this buffer.
+
+{{{subheading(Safe State)}}}
+
+Return to a safe state:
+
+: git reset --hard PRE-MAGIT-STATE
+
+{{{subheading(Refresh Status Buffer)}}}
+
+#+cindex:refresh status buffer
+#+cindex:status buffer, refresh
+Go to the status buffer, while at the same time refreshing it, by typing =C-x
+g=.  (When the status buffer, or any Magit buffer for that matter, is the
+current buffer, then you can also use just =g= to refresh it).
+
+{{{subheading(Move Between Sections)}}}
+
+Move between sections using =p= and =n=.  Note that the bodies of some sections
+are hidden.  Type =TAB= to expand or collapse the section at point.  You can
+also use =C-tab= to cycle the visibility of the current section and its
+children.
+
+{{{subheading(Stage Changes)}}}
+
+#+cindex:stage changes
+Move to a file section inside the section named “Unstaged changes”
+and type =s= to stage the changes you have made to that file.  That file now
+appears under “Staged changes”.
+
+{{{subheading(Stage and Unstage Hunks)}}}
+
+Magit can stage and unstage individual hunks, not just complete files.  Move to
+the file you have just staged, expand it using =TAB=, move to one of the hunks
+using =n=, and unstage just that by typing =u=.  Note how the staging (=s=) and
+unstaging (=u=) commands operate on the change at point. Many other commands
+behave the same way.
+
 * Additional Resources
 :PROPERTIES:
 :appendix: t
@@ -984,6 +1150,7 @@ message in a separate window.
 #+macro: heading @@texinfo:@heading @@$1
 #+macro: subheading @@texinfo:@subheading @@$1
 #+macro: dfn @@texinfo:@dfn{@@$1@@texinfo:}@@
+#+macro: noindent @@texinfo:@noindent @@
 
 * Export Setup                                                     :noexport:
 #+TEXINFO_FILENAME:mastering-emacs.info
