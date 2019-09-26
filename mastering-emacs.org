@@ -2,8 +2,8 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+date:2019-09-25 14:18
-#+macro version VERSION:0.0.9
+#+date:2019-09-25 23:25
+#+macro version VERSION:0.0.10
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
 
@@ -795,7 +795,6 @@ you want =super= use the prefix key =s-= (lower case).
 * Movement
 
 * Editing
-
 ** Killing and Yanking
 
 ** Transposing Text
@@ -823,6 +822,320 @@ you want =super= use the prefix key =s-= (lower case).
 ** Spell Checking
 
 ** Quoted Insert
+
+** Comparing Diffing and Merging
+{{{heading(Diff Mode)}}}
+
+=M-x diff= command produces Diff mode, which displays the differences between
+two files in a =*diff*= buffer through running the ~diff~ program.  Switches
+are found in the ~diff-switches~ variable (the default is =-u=, a unified
+context diff).
+
+{{{heading(Ediff Package)}}}
+
+Ediff is a more sophisticated alternative to Diff mode.  See info:ediff.
+
+{{{heading(Comparing a File to a Backup)}}}
+
+=M-x diff-backack= compares a file with its most recent backup.  If you specify
+the name of a backup file, this command compares it with the source file
+instead.  Otherwise, it is the same as =M-x diff=.
+
+{{{heading(Compare a Buffer with its File)}}}
+
+=M-x diff-buffer-with-file= compares a specified buffer with its corresponding
+file.  This shows you what changes you would make to the file if you save the
+buffer.
+
+{{{heading(Compare Windows)}}}
+
+=M-x compare-windows= compares the text in the current window with that in the
+window that was the selected window before you selected the current one.
+
+{{{heading(Smerge Mode)}}}
+
+=M-x smerge-mode= turns on Smerge mode, a minor mode for editing output from
+the ‘diff3’ program.
+
+{{{heading(Emerge)}}}
+
+The Emerge commands compare two files or buffers, and display the comparison in
+three buffers: one for each input text (the “A buffer” and the “B buffer”), and
+one (the “merge buffer”) where merging takes place.  The merge buffer shows the
+full merged text, not just the differences.  Wherever the two input texts
+differ, you can choose which one of them to include in the merge buffer.
+
+- =M-x emerge-files= :: to merge two specific files.
+
+- =M-x emerge-files-with-ancestor= :: to merge two files with reference to a
+     common ancestor.
+
+- =M-x emerge-buffers= :: to merge two buffers
+
+- =M-x emerge-buffers-with-ancestor= :: to merge two buffers with reference to
+     a common ancestor in a third buffer.
+
+*** Diff Mode
+#+cindex:diff mode
+Used for the output of =M-x diff=.  Select Diff mode manually with =M-x
+diff-mode=.
+
+- =M-x diff= ‘(diff OLD NEW &optional SWITCHES)’ :: Find and display the
+     differences between OLD and NEW files.  When called interactively, read
+     NEW, then OLD, using the minibuffer.  The default for NEW is the current
+     buffer’s file name, and the default for OLD is a backup file for NEW, if
+     one exists.  When called interactively with a prefix argument, prompt
+     interactively for diff switches.  Otherwise, the switches specified in the
+     variable ‘diff-switches’ are passed to the diff command.
+
+{{{heading(Hunks)}}}
+
+#+cindex:hunks
+#+cindex:hunk header
+The changes specified in a patch are grouped into “hunks”, which are contiguous
+chunks of text that contain one or more changed lines.  Each hunk is preceded
+by a “hunk header”, which specifies the old and new line numbers where the
+hunk’s changes occur.  Diff mode highlights each hunk header
+
+{{{subheading(File Header)}}}
+
+#+cindex:file header
+The first hunk in a patch is preceded by a file header, which shows the names
+of the new and the old versions of the file, and their time stamps.
+
+{{{subheading(Editing Hunks)}}}
+
+- =M-n= ‘(diff-hunk-next)’ :: Move to the next hunk-start (‘diff-hunk-next’).
+     With prefix argument N, move forward to the Nth next hunk.
+
+- =M-p= ‘(diff-hunk-prev)’ :: Move to the previous hunk-start
+     (‘diff-hunk-prev’).  With prefix argument N, move back to the Nth previous
+     hunk.
+
+- =M-}= ‘(diff-file-next)’ :: Move to the next file-start, in a multi-file
+     patch (‘diff-file-next’).  With prefix argument N, move forward to the
+     start of the Nth next file.
+
+- =M-{= ‘(diff-file-pref)’ :: Move to the previous file-start, in a multi-file
+     patch (‘diff-file-prev’).  With prefix argument N, move back to the start
+     of the Nth previous file.
+
+- =M-k= ‘(diff-hunk-kill)’ :: Kill the hunk at point (‘diff-hunk-kill’).
+
+- =M-K= ‘(diff-file-kill)’ :: In a multi-file patch, kill the current file
+     part.  (‘diff-file-kill’).
+
+- =C-c C-a= ‘(diff-apply-hunk)’ :: Apply this hunk to its target file
+     (‘diff-apply-hunk’).  With a prefix argument of ‘C-u’, revert this hunk,
+     i.e. apply the reverse of the hunk, which changes the “new” version into
+     the “old” version.
+
+- =C-c C-b= ‘(diff-refine-hunk)’ :: Highlight the changes of the hunk at point
+     with a finer granularity (‘diff-refine-hunk’).  This allows you to see
+     exactly which parts of each changed line were actually changed.
+
+- =C-c C-c= ‘(diff-goto-source)’ :: Go to the source file and line
+     corresponding to this hunk (‘diff-goto-source’).  By default, this jumps
+     to the “new” version of the file, the one shown first on the file header.
+     With a prefix argument, jump to the “old” version instead.
+
+- =C-c C-e= ‘(diff-ediff-patch)’ :: Start an Ediff session with the patch
+     (‘diff-ediff-patch’).  See info:ediff
+
+- =C-c C-n= ‘(diff-restrict-view)’ :: Restrict the view to the current hunk
+     (‘diff-restrict-view’).  *Note info:emacs#Narrowing.  With a prefix argument,
+     restrict the view to the current file of a multiple-file patch.  To widen
+     again, use ‘C-x n w’ (‘widen’).
+
+- =C-c C-d= ‘(diff-unified->context)’ :: Convert the entire buffer to the
+     “context diff format” (‘diff-unified->context’).  With a prefix argument,
+     convert only the hunks within the region.
+
+- =C-c C-u= ‘(diff-context->unified)’ :: Convert the entire buffer to unified
+     diff format (‘diff-context->unified’).  With a prefix argument, convert
+     unified format to context format.  When the mark is active, convert only
+     the hunks within the region.
+
+- =C-c C-w= ‘(diff-ignore-whitespace-hunk)’ :: Re-generate the current hunk,
+     disregarding changes in whitespace (‘diff-ignore-whitespace-hunk’).
+
+- =C-x 4 A= ‘(diff-add-change-log-entries-other-window)’ :: Generate a
+     ChangeLog entry, like ‘C-x 4 a’ does (*note [[info:emacs#Change%20Log]]), for
+     each one of the hunks.
+
+*** eDiff Mode
+See [[info:ediff][Ediff]]
+
+Ediff is a comprehensive visual interface to Unix diff and patch utilities.
+
+*** sMerge
+~smerge-mode~ is a minor mode to simplify editing output from the ~diff3~
+program.  This is typically the result of a failed merge from a version control
+system update outside VC, due to conflicting changes to a file.  Smerge mode
+provides commands to resolve conflicts by selecting specific changes.
+
+*** eMerge
+See info:emacs#Emerge
+
+{{{noindent}}}See [[info:emacs#Merge%20Commands]]
+
+It’s not unusual for programmers to get their signals crossed and modify the
+same program in two different directions.  To recover from this confusion, you
+need to merge the two versions.
+
+- =M-x emerge-files= :: Merge two specified files.
+
+- =M-x emerge-files-with-ancestor= :: Merge two specified files, with reference
+     to a common ancestor.
+
+- =M-x emerge-buffers= :: Merge two buffers.
+
+- =M-x emeerge-buffers-with-ancestor= :: Merge two buffers with reference to a
+     common ancestor in a third buffer.
+
+
+The Emerge commands compare two files or buffers, and display the comparison in
+three buffers: one for each input text (the “A buffer” and the “B buffer”), and
+one (the “merge buffer”) where merging takes place.  The merge buffer shows the
+full merged text, not just the differences.  Wherever the two input texts
+differ, you can choose which one of them to include in the merge buffer.
+
+If a common ancestor version is available, from which the two texts to be
+merged were both derived, Emerge can use it to guess which alternative is
+right.  Wherever one current version agrees with the ancestor, Emerge presumes
+that the other current version is a deliberate change which should be kept in
+the merged version.  Use the ‘with-ancestor’ commands if you want to specify a
+common ancestor text.  These commands read three file or buffer names—variant
+A, variant B, and the common ancestor.
+
+**** Interactive Merging
+#+cindex:emerge mode
+You control the merging by typing special “merge commands” in the merge buffer.
+For each run of differences between the input texts, you can choose which one
+of them to keep, or edit them both together.  The merge buffer uses a special
+major mode, Emerge mode, with commands for making these choices.  But you can
+also edit the buffer with ordinary Emacs commands.
+
+Normally, the merge buffer starts out with the A version of the text.  But when
+the A version of a difference agrees with the common ancestor, then the B
+version is initially preferred for that difference.
+
+{{{heading(Selected Difference)}}}
+
+At any given time, the attention of Emerge is focused on one particular
+difference, called the “selected” difference.  This difference is marked off in
+the three buffers like this:
+
+#+BEGIN_EXAMPLE
+
+     vvvvvvvvvvvvvvvvvvvv
+     TEXT THAT DIFFERS
+     ^^^^^^^^^^^^^^^^^^^^
+
+#+END_EXAMPLE
+
+Emerge numbers all the differences sequentially and the mode line always shows
+the number of the selected difference.
+
+{{{heading(Exiting Emerge)}}}
+
+Emerge leaves the merged text in the merge buffer when you exit.
+
+- =C-x C-w= :: save the merge buffer in a file.  If you give a
+numeric argument to ‘emerge-files’ or ‘emerge-files-with-ancestor’, it reads
+the name of the output file using the minibuffer.  Then exiting from Emerge
+saves the merged text in the output file.
+
+- =C-]= :: abort Emerge without saving.
+
+**** Submodes in Emerge
+
+There are two modes for giving merge commands: Fast Mode and Edit Mode.  The
+mode line indicates Edit and Fast modes with ‘E’ and ‘F’.
+
+There are two additional submodes that affect how particular merge commands
+work: Auto Advance Mode, and Skip Prefers Mode.
+
+{{{heading(Fast Mode)}}}
+
+- =C-c C-c f= :: switch to Fast mode (from Edit mode)
+
+In Fast mode, basic merge commands are single characters, but ordinary Emacs
+commands are disabled.
+
+{{{heading(Edit Mode)}}}
+
+- =e= :: swith to Edit mode (from Fast mode)
+
+In Edit mode, all merge commands start with the prefix key ‘C-c C-c’, and the
+normal Emacs commands are also available.  This allows editing the merge
+buffer, but slows down Emerge operations.
+
+{{{heading(Auto Advance Mode)}}}
+
+If Auto Advance mode is in effect, the ‘a’ and ‘b’ commands advance to the next
+difference.  This lets you go through the merge faster as long as you simply
+choose one of the alternatives from the input.  The mode line indicates Auto
+Advance mode with ‘A’.
+
+{{{heading(Skip Prefers Mode)}}}
+
+If Skip Prefers mode is in effect, the ‘n’ and ‘p’ commands skip over
+differences in states “prefer-A” and “prefer-B” (*note State of Difference::).
+Thus you see only differences for which neither version is presumed correct.
+The mode line indicates Skip Prefers mode with ‘S’.  This mode is only relevant
+when there is an ancestor.
+
+Use the command ‘s a’ (‘emerge-auto-advance’) to set or clear Auto Advance
+mode.  Use ‘s s’ (‘emerge-skip-prefers’) to set or clear Skip Prefers mode.
+These commands turn on the mode with a positive argument, turn it off with a
+negative or zero argument, and toggle the mode with no argument.
+
+**** State of a Difference
+In the merge buffer, a difference is marked with lines of ‘v’ and ‘^’
+characters.  Each difference has one of these seven states:
+
+- =A= :: The difference is showing the A version.  The ‘a’ command always
+         produces this state; the mode line indicates it with ‘A’.
+
+- =B= :: The difference is showing the B version.  The ‘b’ command always
+         produces this state; the mode line indicates it with ‘B’.
+
+- =default-A= or =default-B= :: The difference is showing the A or the B state
+     by default, because you haven’t made a choice.  All differences start in
+     the default-A state (and thus the merge buffer is a copy of the A buffer),
+     except those for which one alternative is preferred (see below).
+
+     When you select a difference, its state changes from default-A or
+     default-B to plain A or B.  Thus, the selected difference never has state
+     default-A or default-B, and these states are never displayed in the mode
+     line.
+
+     The command ‘d a’ chooses default-A as the default state, and ‘d b’
+     chooses default-B.  This chosen default applies to all differences that
+     you have never selected and for which no alternative is preferred.  If you
+     are moving through the merge sequentially, the differences you haven’t
+     selected are those following the selected one.  Thus, while moving
+     sequentially, you can effectively make the A version the default for some
+     sections of the merge buffer and the B version the default for others by
+     using ‘d a’ and ‘d b’ between sections.
+
+- =prefer-A= or =prefer-B= :: The difference is showing the A or B state
+     because it is “preferred”.  This means that you haven’t made an explicit
+     choice, but one alternative seems likely to be right because the other
+     alternative agrees with the common ancestor.  Thus, where the A buffer
+     agrees with the common ancestor, the B version is preferred, because
+     chances are it is the one that was actually changed.
+
+     These two states are displayed in the mode line as ‘A*’ and ‘B*’.
+
+- =combined= :: The difference is showing a combination of the A and B states,
+                as a result of the ‘x c’ or ‘x C’ commands. The mode line
+                displays this state as ‘comb’.
+
+                Once a difference is in this state, the ‘a’ and ‘b’ commands
+                don’t do anything to it unless you give them a numeric
+                argument.
 
 * Practicals
 ** Exploring Emacs
