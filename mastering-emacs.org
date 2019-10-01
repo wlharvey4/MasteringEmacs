@@ -2,8 +2,8 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+date:2019-09-25 23:25
-#+macro version VERSION:0.0.10
+#+date:2019-10-01 09:14
+#+macro version VERSION:0.0.11
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
 
@@ -1136,6 +1136,11 @@ characters.  Each difference has one of these seven states:
                 Once a difference is in this state, the ‘a’ and ‘b’ commands
                 don’t do anything to it unless you give them a numeric
                 argument.
+
+** Entering Special Symbols
+   #+cindex:Section § symbol
+   #+cindex:symbol §
+- Section § symbol :: =C-x 8 S=
 
 * Practicals
 ** Exploring Emacs
