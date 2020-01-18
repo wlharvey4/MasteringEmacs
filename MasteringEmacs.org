@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-18 07:47
-#+macro:version Version 0.0.15
+#+date:2020-01-18 08:52
+#+macro:version Version 0.0.16
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -830,6 +830,149 @@ you want =super= use the prefix key =s-= (lower case).
      #+end_defun
 
 * Movement
+
+Movement in Emacs is more than characters in a buffer; there’s a host of
+supplementary skills that make up navigation, like:
+
+#+cindex:windowing system
+- understanding Emacs’s rather complicated windowing system
+
+- movement in Emacs is local, regional or global.
+  #+cindex:local movement
+- /local movement/ is what you do when you edit and move around text near to
+  the point.
+  #+cindex:syntactic unit
+- A /syntactic unit/ --- a semi-formal term for commands that operate on a
+  group of characters --- is a character, word, line, sentence, paragraph,
+  balanced expression, and so forth.
+  #+cindex:regional movement
+- /regional movement/ involves whole functions or class definitions, if you are
+  writing code; or chapters and such constructs, if you are writing prose.
+  #+cindex:global movement
+- /global movement/ is anything that takes you from one buffer to another, or
+  from one window to the next.
+
+#+texinfo:@heading Windows
+
+#+cindex:windows
+#+cindex:tiling window manager
+Emacs has a penchant for creating windows: when you view a help file, when you
+compile a file, or when you open a shell.  Emacs is a /tiling window manager/.
+
+In Emacs, windows are transient; they come and go as you need them.  You can
+save your window configuration (and there are several ways of doing this) but
+they were never meant to be immutable, like so many editors --- set once and
+then never changed again.
+
+#+texinfo:@heading Buffers
+
+Buffers are rarely killed (that is, closed) when they are no longer needed;
+most Emacs hackers will simply switch away to something else, only to return to
+it when needed.  That may seem wasteful, but each buffer (aside from assorted
+metadata and the buffer’s particular coding system) is only slightly bigger
+than the byte size of the characters in it.  A typical Emacs session lasts
+weeks between restarts and most Emacs hackers have many hundreds of buffers
+running without issue.
+
+** The Basics
+
+** Window Management
+
+** Frame Management
+
+** Elemental Movement
+
+** Bookmarks and Registers
+
+#+cindex:bookmark
+Bookmarks in Emacs work identically to the ones in your web browser but with
+the notable exception of supporting a wider variety of sources.  That makes
+Emacs’s bookmark- ing system flexible enough for you to bookmark:
+
+- info pages
+- files
+- dired directories
+- remote files using Emacs' Tramp system
+
+
+Bookmarks are a very efficient way of jumping to frequently-used files or
+directories; it is also useful if there are sections of Emacs’s manual that you
+want to return to frequently.  And because of the unified nature of Emacs ---
+buffers --- the three are seamlessly stored and recalled from the same list of
+bookmarks.
+
+#+cindex:bookmark file
+Bookmarks are saved to a bookmark file in ~$HOME/.emacs.d/~ called ~bookmarks~.
+
+#+texinfo:@heading Bookmark File
+
+#+vindex:bookmark-default-file
+The variable ~bookmark-default-file~ determines where Emacs stores your
+bookmarks.
+
+#+cindex:s-expression
+The file is plain text (elisp =s-expressions=, actually) meaning it is possible
+edit it manually (if you absolutely must) or merge the files if you regularly
+add or remove bookmarks from multiple machines.
+
+Here is a sample entry:
+
+#+begin_src elisp :eval never
+("mastering-emacs.org"
+ (filename . "~/Dev/Emacs/MasteringEmacs/MasteringEmacs.org")
+ (front-context-string . "# -*- mode: org;")
+ (rear-context-string)
+ (position . 1))
+#+end_src
+
+#+texinfo:@heading Bookmark Commands
+
+#+caption: Bookmark Commands
+#+name:bookmark-commands
+|-------------+---------------------|
+| Key Binding | Purpose             |
+|-------------+---------------------|
+| C-x r m     | Set a bookmark      |
+| C-x r l     | List bookmarks      |
+| C-x r b     | Jump to a bookmark  |
+|-------------+---------------------|
+
+#+texinfo:@heading Register Commands
+
+#+cindex:register
+Registers, however, are different; they are the flip side of the coin --- where
+bookmarks are permanent, registers are transient.  A /register/ is a
+single-character store-and-recall mechanism for several types of data,
+including:
+
+- Window configurations and framesets
+- Points
+- Numbers and Text
+
+
+A register is a single character only.  When you want to store or recall
+something, you are asked for a single character to query.
+
+#+caption:Register Commands
+#+name:register-commands
+|-------------+----------------------------------------|
+| Key Binding | Purpose                                |
+|-------------+----------------------------------------|
+| C-x r n     | Store number in register               |
+| C-x r s     | Store region in register               |
+| C-x r SPC   | Store point in register                |
+| C-x r +     | Increment number in register           |
+| C-x r j     | Jumpt to register                      |
+| C-x r i     | Insert content in register             |
+| C-x r w     | Store window configuration in register |
+| C-x r f     | Store frameset in register             |
+|-------------+----------------------------------------|
+
+** Selections and Regions
+
+** Searching and Indexing
+
+** Other Movement Commands
 
 * Editing
 ** Killing and Yanking
