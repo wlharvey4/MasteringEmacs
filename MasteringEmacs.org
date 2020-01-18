@@ -3,16 +3,14 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-18 07:09
-#+macro:version Version 0.0.14
+#+date:2020-01-18 07:47
+#+macro:version Version 0.0.15
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
 #+texinfo:@insertcopying
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
-
-[[file:/Volumes/Mt.Whitney/computers_bak/computers/text_stuff/text_editors/emacs_stuff/emacs--advanced/PETERSEN,M--mastering_emacs_().pdf][Mastering Emacs by Mickey Petersen]]
 
 
 * Overview
@@ -766,7 +764,7 @@ rebind the Windows key and the Application Context key to be =hyper= and
 
 #+caption:Symbolics's lisp machine keyboard PN 365407 Rev C. (Photo by Joey Devilla.)
 #+name:fig-lisp-machine-super-hyper-keys
-[[file:figs/lisp-machine-keyboard-2-left.jpg]]
+[[file:resources/images/lisp-machine-keyboard-2-left.jpg]]
 
 [fn::From http://ergoemacs.org/emacs/emacs_hyper_super_keys.html]
 
@@ -1589,6 +1587,8 @@ Copyright \copy 2020 by {{{author}}}
 #+begin_src makefile
   TEMPLATE = $(ORG_TEMPLATE)
 
+  SAVE = resources
+
   ### PROGRAM
   PROJ   = <<get-org-filename()>>
   DIR    = <<get-org-lc-filename()>>
@@ -1749,7 +1749,11 @@ Copyright \copy 2020 by {{{author}}}
 
   dist-clean: clean
 	  -rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
-	  -for dir in *; do [ -d $$dir -a $$dir != "$(DIR_OLD)" ] && rm -vr $$dir; done
+	  -for dir in *; \
+	   do \
+		  [ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
+		  rm -vr $$dir; \
+	   done
 
   wiped-clean: dist-clean
 	  -rm -rf Makefile $(DIR_OLD)
@@ -1813,12 +1817,10 @@ fallback default.
 #+begin_src emacs-lisp :eval yes
   (save-excursion
     (if
-        (re-search-forward "^[[:space:]]+#\\+texinfo_filename:\\(.*\\)" nil t)
+        (re-search-forward "^[[:space:]]*#\\+texinfo_filename:\\(.*\\)" nil t)
         (file-name-sans-extension (match-string 1))
       (downcase (file-name-base))))
 #+end_src
-
-#+RESULTS: get-org-lc-filename
 
 ** Get File Version
 This program scans the current buffer for the version number and places it into
@@ -1976,15 +1978,15 @@ the most benefits from the AWS S3 ~sync~ command.
 #+macro: noindent @@texinfo:@noindent @@
 
 * Export Setup                                                     :noexport:
-#+TEXINFO_FILENAME:mastering-emacs.info
-#+TEXINFO_CLASS: info
-#+TEXINFO_HEADER:
-#+TEXINFO_POST_HEADER:
-#+TEXINFO_DIR_CATEGORY:Emacs
-#+TEXINFO_DIR_TITLE:Mastering
-#+TEXINFO_DIR_DESC:notes about mastering Emacs
-#+TEXINFO_PRINTED_TITLE:Mastering Emacs
-#+OPTIONS: H:4
+#+texinfo_filename:mastering_emacs.info
+#+texinfo_class: info
+#+texinfo_header:
+#+texinfo_post_header:
+#+texinfo_dir_category:Emacs
+#+texinfo_dir_title:Mastering
+#+texinfo_dir_desc:notes about mastering Emacs
+#+texinfo_printed_title:Mastering Emacs
+#+options: H:4
 
 * Local Variables                                                  :noexport:
 # Local variables:
