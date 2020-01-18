@@ -2,8 +2,8 @@
 
 #+TITLE:Mastering Emacs Notes
 #+AUTHOR:WLHarvey4
-#+date:2020-01-10 15:32
-#+macro version VERSION v0.0.12
+#+date:2020-01-18 06:43
+#+macro version VERSION v0.0.13
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
 
@@ -792,6 +792,38 @@ you want =super= use the prefix key =s-= (lower case).
 *** Apropos
 *** Describe
 
+* Directories---Files---Buffers
+
+** Insert File Contents
+
+#+attr_texinfo: :indic code
+- insert-file =C-x i= ::
+
+     This function is for interactive use only; in Lisp code use
+     ~insert-file-contents~ instead
+
+- insert-file-contents ::
+
+     #+attr_texinfo: :options insert-file-contents @var{filename} &optional @var{visit} @var{end} @var{replace}
+     #+begin_defun
+     Insert contents of file FILENAME after point.  Returns list of absolute
+     file name and number of characters inserted. 
+
+     - VISIT if non-nil, the buffer’s visited filename and last save file
+       modtime are set, and it is marked unmodified.
+
+     - BEG and END specify what portion of the file to insert.
+       These arguments count bytes in the file, not characters in the buffer.
+       If VISIT is non-nil, BEG and END must be nil.
+
+     - REPLACE if non-nil, replace the current buffer contents (in the
+       accessible portion) with the file contents.  This is better than simply
+       deleting and inserting the whole thing because (1) it preserves some
+       marker positions and (2) it puts less data in the undo list.  When
+       REPLACE is non-nil, the second return value is the number of characters
+       that replace previous buffer contents.
+     #+end_defun
+
 * Movement
 
 * Editing
@@ -1217,7 +1249,6 @@ was the filename portion of the buffer. All commands in dired work as usual.
 | ~find-lisp-find-dired~ | Uses Emacs and regexp to find files (elisp implementation) |
 |                        | does not use shell globbing                                |
 |------------------------+------------------------------------------------------------|
-
 
 ** Shell Commands
 The following shell commands work on generic buffers.
