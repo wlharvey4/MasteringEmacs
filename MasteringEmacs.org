@@ -3,14 +3,18 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-18 08:52
-#+macro:version Version 0.0.16
+#+date:2020-01-19 08:24
+#+macro:version Version 0.0.17
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
 #+texinfo:@insertcopying
 
 [[https://www.masteringemacs.org/][Mastering Emacs]]
+
+- [[https://www.gnu.org/software/emacs/manual/][Emacs Reference Manual Online]]
+
+- [[https://www.gnu.org/software/emacs/manual/elisp.html][Emacs Lisp Reference Manual Online]]
 
 
 * Overview
@@ -884,10 +888,16 @@ running without issue.
 
 ** Bookmarks and Registers
 
+[[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#index-bookmarks-559][Bookmarks in Manual §13.8]]
+
+/Bookmarks/ record positions you can jump to.  They have long names, and they
+persist automatically from one Emacs session to the next.  The prototypical use
+of bookmarks is to record where you were reading in various files.
+
 #+cindex:bookmark
 Bookmarks in Emacs work identically to the ones in your web browser but with
 the notable exception of supporting a wider variety of sources.  That makes
-Emacs’s bookmark- ing system flexible enough for you to bookmark:
+Emacs’s bookmarking system flexible enough for you to bookmark:
 
 - info pages
 - files
@@ -1801,18 +1811,17 @@ Copyright \copy 2020 by {{{author}}}
 	  @[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
 	     printf "$${GREEN}~/.aws credentials and config: set.$${CLEAR}\n" || \
 	     { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
-	  @emacs --batch --eval \
+	  @emacs --batch --load="~/.emacs" --eval \
 	    '(progn \
-		(load "~/.emacs") \
 		(if \
 		  (member (quote texinfo) org-export-backends) \
-		  (princ "texinfo backend IS installed in org-export-backends") \
-		  (princ "texinfo backend IS NOT installed in org-export-backends")) \
+		  (princ "texinfo backend: INSTALLED in org-export-backends") \
+		  (princ "texinfo backend: NOT INSTALLED in org-export-backends")) \
 		(terpri) \
 		(if \
 		   org-confirm-babel-evaluate \
-		   (princ "org-confirm-babel-evaluate IS SET to t; consider setting to nil") \
-		   (princ "org-confirm-babel-evaluate IS nil")))'
+		   (princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
+		   (princ "org-confirm-babel-evaluate: SET to nil")))'
 
   open-org: $(ORG)
 	  emacsclient $(ORG) &
@@ -1964,6 +1973,8 @@ fallback default.
         (file-name-sans-extension (match-string 1))
       (downcase (file-name-base))))
 #+end_src
+
+#+RESULTS: get-org-lc-filename
 
 ** Get File Version
 This program scans the current buffer for the version number and places it into
