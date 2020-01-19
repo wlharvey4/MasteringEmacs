@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-19 08:39
-#+macro:version Version 0.0.18
+#+date:2020-01-19 08:58
+#+macro:version Version 0.0.19
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1682,6 +1682,8 @@ behave the same way.
 :appendix: t
 :END:
 
+- https://www.emacswiki.org/emacs/CategoryDebug
+
 ** Debugger Mode
 
 - https://www.emacswiki.org/emacs/DebuggerMode
@@ -1740,6 +1742,119 @@ exiting that frame will call the debugger.
        entering the debugger.  Example: ~(setq stack-trace-on-error
        '(buffer-read-only))~
 
+** Debug Messages
+:PROPERTIES:
+:header-args: :eval no
+:END:
+
+- https://www.emacswiki.org/emacs/DebugMessages
+
+
+Sometimes you want to find out where a particular error, warning or just plain
+annoying message in Messages is coming from.
+
+This piece of advice allows you to see the function call sequence that resulted
+in each message in the Messages buffer:
+
+#+begin_src elisp
+  (defadvice message (before who-said-that activate)
+      "Find out who said that thing. and say so."
+      (let ((trace nil) (n 1) (frame nil))
+        (while (setq frame (backtrace-frame n))
+          (setq n     (1+ n) 
+                trace (cons (cadr frame) trace)) )
+        (ad-set-arg 0 (concat "<<%S>>:\n" (ad-get-arg 0)))
+        (ad-set-args 1 (cons trace (ad-get-args 1))) ))
+#+end_src
+
+To deactivate this, call
+
+#+begin_src elisp
+  (ad-disable-advice 'message 'before 'who-said-that)
+     (ad-update 'message)
+#+end_src
+
+To get timestamps:
+
+#+begin_src elisp
+  (defadvice message (before when-was-that activate)
+      "Add timestamps to `message' output."
+      (ad-set-arg 0 (concat (format-time-string "[%Y-%m-%d %T %Z] ") 
+                            (ad-get-arg 0)) ))
+#+end_src
+
+And to deactivate this, call:
+
+#+begin_src elisp
+  (ad-disable-advice 'message 'before 'when-was-that)
+      (ad-update 'message)
+#+end_src
+
+** Elisp Tracing
+
+- https://www.emacswiki.org/emacs/EmacsLispTracing
+
+
+#+texinfo:@heading Commands
+#+cindex:trace
+#+cindex:tracing
+
+#+attr_texinfo: :indic b
+- M-x trace-function
+
+- M-x trace-function-background
+
+- M-x untrace-function
+
+- M-x untrace-all
+
+** Elisp Benchmarking
+
+- https://www.emacswiki.org/emacs/EmacsLispBenchmark
+
+
+#+cindex:benchmark
+#+cindex:benchmarking
+Emacs comes with ~GIT:emacs-lisp/benchmark.el~ by DaveLove that can display the
+elapsed time of running an EmacsLisp expression.  It observes the timing from
+running a form once or repeatedly.  Any time spent by Emacs on
+=GarbageCollection= is also determined.  These features are available
+interactively with ~M-x benchmark~ or programmatically with ~benchmark-run~.
+
+** Elisp Profiler
+
+- https://www.emacswiki.org/emacs/EmacsLispProfiler
+
+
+#+cindex:profiler
+#+cindex:@code{elp.el}
+Emacs comes with ~GIT:emacs-lisp/elp.el~ by Barry Warsaw that can display the
+elapsed time of running an EmacsLisp function.  It is possible to instrument
+more than one function, so it displays the results as a table in a buffer
+called =*Elp Profiling Results*=.  It tracks the total timing for each call of
+an instrumented function and determines the average time for each call.
+
+** Emacs Native Profiler
+
+https://www.emacswiki.org/emacs/EmacsNativeProfiler
+#+cindex:native profiler
+#+cindex:profiler library
+
+The =profiler= library provides CPU & memory profiling for all Emacs functions.
+
+Unlike =EmacsLispProfiler= you do not have to specify which functions or
+packages you wish to profile (however ELP remains complementary as it records
+overall time taken, which includes time spent waiting for external processes to
+return, which is something that the native profiler will not report on).
+
+** Elisp Logging
+
+- https://www.emacswiki.org/emacs/Log4E_Logging_For_Elisp
+
+- https://github.com/aki2o/log4e
+
+
+~log4e.el~ provides a logging framework for Elisp.
 * Copying
 :PROPERTIES:
 :copying:  t
