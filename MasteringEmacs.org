@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-19 08:58
-#+macro:version Version 0.0.19
+#+date:2020-01-19 10:24
+#+macro:version Version 0.0.20
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1682,7 +1682,23 @@ behave the same way.
 :appendix: t
 :END:
 
+- https://www.gnu.org/software/emacs/manual/html_node/elisp/Debugging.html#Debugging
+
 - https://www.emacswiki.org/emacs/CategoryDebug
+
+** Find Func
+
+https://www.emacswiki.org/emacs/FindFunc
+
+- find-func (=C-x F=) ::
+
+     ~(find-function FUNCTION)~
+
+     Finds the source file containing the definition of the function near point
+     (selected by ‘function-called-at-point’) in a buffer and places point
+     before the definition.  Set mark before moving, if the buffer already
+     existed.
+
 
 ** Debugger Mode
 
@@ -1741,6 +1757,128 @@ exiting that frame will call the debugger.
        An alternative to ~debug-on-error~.  It shows trace buffers instead of
        entering the debugger.  Example: ~(setq stack-trace-on-error
        '(buffer-read-only))~
+
+** Edebug
+
+- https://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html#Edebug
+
+- https://www.emacswiki.org/emacs/SourceLevelDebugger
+
+
+~Edebug~ is a source level debugger for EmacsLisp.  It instruments code.  This
+means that Emacs adds special instructions to the code when it is evaluated.
+The main entry point is ~M-x edebug-defun~ (also on =C-u C-M-x=).  Use it
+instead of =C-x C-e= or =C-M-x= to evaluate a =defun= and instrument it for
+debugging.
+
+~edebug-defun~ must be able to read your code.  It expects all function
+definitions to start in column 0.  If they do not, hitting =C-u C-M-x= will
+show you the wrong function name in the echo area.
+
+*** Example of Edebug
+
+Paste the following functions into the =*scratch*= buffer (starting at column
+0).  Hit =C-M-x= with the cursor inside each of the function definitions.
+
+#+name:foo-and-bar
+#+begin_src elisp
+  (defun foo ()
+        (interactive)
+        (bar))
+
+  (defun bar ()
+    (let ((a 5)
+          (b 7))
+      (message "%d" (+ a b))))
+#+end_src
+
+Use =M-x foo=.  This prints `12' in the echo area.
+
+Now instrument ‘bar’ by moving the cursor into its code and hitting =C-u
+C-M-x=.  The echo area shows =Edebug: bar=.
+
+Use =M-x foo= again.  Emacs steps through the code of ‘bar’, showing you the
+result of evaluating each sexp in the echo area.  Hit ‘SPC’ to step ahead or
+‘e’ to evaluate another expression.  The arrow shows you which sexp will be
+evaluated next:
+
+#+begin_src elisp
+  (defun bar ()
+  =>(let ((a 5)
+          (b 7))
+      (message "%d" (+ a b))))
+#+end_src
+
+To quit the debugger, type ‘q’.
+
+Edebug can enter any defun whose source can be found with [[*Find Func][FindFunc]] by hitting
+‘i’ which steps into the next function to be evaluated.  This instruments the
+function and will be debugged every time it is run.
+
+You can disable edebug on a function by evaluating the function again using
+=C-M-x= without a PrefixArgument.
+
+You can see the code coverage of the defun at point with ~C-x X =~ or =M-x
+edebug-display-freq-count=.
+
+*** Insert a Direct Call to Edebug
+
+#+begin_src elisp
+  (defmacro stop-here (fn)
+         "Call edebug here. FN is assumed to be a symbol of the function you are in."
+         `(if (consp (get ,fn 'edebug))
+             (edebug)))
+
+  (defun clear-edebug (fn-sym)
+    "Remove 'edebug property from FN-SYM, a function symbol."
+    (put fn-sym 'edebug nil))
+#+end_src
+
+#+begin_src elisp
+   ;; An example of use:
+  (defun fact (n)
+    (cond ((= n 0) )
+          ((= n 1) 1)
+          ((>  n 1) (progn (stop-here 'fact) (* n (fact (1- n)))))
+          (t nil)))
+#+end_src
+
+If you eval the above and then ~edebug-defun~ while the point is on =fact=,
+you’ll first stop at =fact= but then when you enter ‘g’ for ‘go’ it will next
+stop after the ~(* n… )~ which is what I want.
+
+And note you could also put a condition around `stop-here` for example:
+
+: ((>  n 1) (progn (if (= n 3) (stop-here 'fact)) (* n (fact (1- n)))))
+
+*** Edebug Execution Modes
+
+- https://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug-Execution-Modes.html#Edebug-Execution-Modes
+
+Edebug supports several execution modes for running the program you are
+debugging.  We call these alternatives Edebug execution modes; do not confuse
+them with major or minor modes.  The current Edebug execution mode determines
+how far Edebug continues execution before stopping—whether it stops at each
+stop point, or continues to the next breakpoint, for example—and how much
+Edebug displays the progress of the evaluation before it stops.
+
+*** Trace Buffer
+
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Trace-Buffer.html#Trace-Buffer
+
+#+cindex:trace buffer
+#+cindex:execution trace
+#+cindex:trace recording
+#+cindex:@code{*edebug-trace*}
+Edebug can record an execution trace, storing it in a buffer named
+=*edebug-trace*=.  This is a log of function calls and returns, showing the
+function names and their arguments and values.
+
+#+vindex:edebug-trace
+To enable trace recording, set ~edebug-trace~ to a non-nil value.
+
+Making a trace buffer is not the same thing as using =trace execution mode=
+(see Edebug Execution Modes).
 
 ** Debug Messages
 :PROPERTIES:
