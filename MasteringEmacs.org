@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-20 08:25
-#+macro:version Version 0.0.21
+#+date:2020-01-20 11:45
+#+macro:version Version 0.0.22
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1830,6 +1830,15 @@ expression, it displays the expression’s value in the echo area.
 
 - ? :: display a l ist of all Edebug commands
 
+
+#+texinfo:@heading Interrupte Edebug Execution
+
+While executing or tracing, you can interrupt the execution by typing any
+Edebug command.  Edebug stops the program at the next stop point and then
+executes the command you typed.  For example, typing ‘t’ during execution
+switches to trace mode at the next stop point.  You can use ‘S’ to stop
+execution without doing anything else.
+
 *** Features of Edebug
 - Step through evaluation, stopping before and after each expression.
 
@@ -1906,9 +1915,9 @@ edebug-display-freq-count=.
 - https://www.gnu.org/software/emacs/manual/html_node/elisp/Instrumenting.html#Instrumenting
 
 
-#+attr_texinfo: :indic command
 #+findex:edebug-instrument-callee
 #+findex:edebug-step-in
+#+attr_texinfo: :indic command
 - I (edebug-instrument-callee) ::
 
      instruments the definition of the function or macro called by the list form
@@ -1953,7 +1962,9 @@ debugging, called /execution modes/.  The current Edebug execution mode
 determines how far Edebug continues execution before stopping and how much
 Edebug displays the progress of the evaluation before it stops.  Normally, you
 specify the Edebug execution mode by typing a command to continue the program
-in a certain mode.  All except for =S= execution of the program.
+in a certain mode.  All except for =S= resume execution of the program.  In
+general, the execution modes earlier in the above list run the program more
+slowly or stop sooner than the modes later in the list.
 
 | Command | Mode           | Function                  | Effect                                                                   |
 |---------+----------------+---------------------------+--------------------------------------------------------------------------|
@@ -1967,6 +1978,205 @@ in a certain mode.  All except for =S= execution of the program.
 | C       | Rapid Continue | edebug-Continue-fast-mode | move point to each breakpoint, but don’t pause                           |
 | G       | Go non-stop    | edebug-Go-nonstop-mode    | ignore breakpoints. Stop program with =S=, or editing command            |
 |---------+----------------+---------------------------+--------------------------------------------------------------------------|
+
+**** Set Initial Execution Mode
+
+#+cindex:execution mode, initial
+#+vindex:edebug-initial-mode
+#+findex:edebug-set-initial-mode C-x C-a C-m
+- ~edebug-initial-mode~ ::
+
+     Default execution mode is =step=
+
+     When you enter a new Edebug level, Edebug will normally stop at the first
+     instrumented function it encounters (=Step=).
+
+- edebug-set-initial-mode (=C-x C-a C-m=) ::
+
+     If you prefer to stop only at a break point, or not at all (for example,
+     when gathering coverage data), change the value of ‘edebug-initial-mode’
+     from its default ‘step’ to ‘go’, or ‘Go-nonstop’, or one of its other
+     values (*note Edebug Options).
+
+
+**** Waiting Between Execution Steps
+
+#+attr_texinfo: :indic code
+- edebug-sit-for-seconds ::
+
+     This option specifies how many seconds to wait between execution steps in
+     trace mode or continue mode.  The default is 1 second.
+
+*** Edebug Jumping
+
+#+cindex:jump
+The commands described in this section execute until they reach a specified
+location.  All except ‘i’ make a temporary breakpoint to establish the place to
+stop, then switch to go mode.  Any other breakpoint reached before the intended
+stop point will also stop execution.
+
+| Command | Function            | Description                                                    |
+|---------+---------------------+----------------------------------------------------------------|
+| h       | edebug-goto-here    | Proceed to the stop point near where point is                  |
+| [N] f   | edebug-forward-sexp | Run the program for one [N] expression(s)                      |
+| o       | edebug-step-out     | Run the program until the end of the containing sexp           |
+| i       | edebug-step-in      | Step into the function or macro called by the form after point |
+|---------+---------------------+----------------------------------------------------------------|
+
+*** Miscellaneous Edebug Commands
+
+| Command | Function                 | Description                                                          |
+|---------+--------------------------+----------------------------------------------------------------------|
+| C-]     | abort-recursive-edit     | Abort one level back to the previous command level                   |
+| Q       | edebug-top-level-nonstop | Like ‘q’, but don’t stop even for protected code                     |
+| r       | edebug-previous-result   | Redisplay the most recently known expression result in the echo area |
+| d       | edebug-backtrace         | Display a backtrace, excluding Edebug’s own functions for clarity    |
+|---------+--------------------------+----------------------------------------------------------------------|
+
+
+*** Edebug Breaks
+There are three other ways (other than stop points) to stop Edebug execution
+once it has started:
+#+cindex:breaks
+- breakpoints,
+- the global break condition, and
+- source breakpoints.
+
+**** Breakpoints
+While using Edebug, you can specify “breakpoints” in the program you are
+testing: these are places where execution should stop.  You can set a
+breakpoint at any stop point, as defined in *note Using Edebug.  Re-evaluating
+or reinstrumenting a definition removes all of its previous breakpoints.
+Edebug always stops or pauses at a breakpoint, except when the Edebug mode is
+Go-nonstop.  In that mode, it ignores breakpoints entirely.
+
+To find out where your breakpoints are, use the ‘B’ command, which moves point
+to the next breakpoint following point, within the same function, or to the
+first breakpoint if there are no following breakpoints.  This command does not
+continue execution---it just moves point in the buffer.
+
+| Command | Function                          | Description                                                                                                  |
+|---------+-----------------------------------+--------------------------------------------------------------------------------------------------------------|
+| b       | edebug-set-breakpoint             | Set a breakpoint at the stop point at or after point                                                         |
+| u       | edebug-unset-breakpoint           | Unset the breakpoint (if any) at the stop point at or after point                                            |
+| x COND  | edebug-set-conditional-breakpoint | Set a conditional breakpoint which stops the program only if evaluating COND produces a non-‘nil’ value      |
+| B       | edebug-next-breakpoint            | Move point to the next breakpoint in the current definition                                                  |
+|---------+-----------------------------------+--------------------------------------------------------------------------------------------------------------|
+
+#+texinfo:@heading Conditional Breakpoints
+
+#+cindex:conditional breakpoint
+#+cindex:breakpoint, conditional
+A “conditional breakpoint” tests a condition each time the program gets there.
+Any errors that occur as a result of evaluating the condition are ignored, as
+if the result were ‘nil’.
+
+To set a conditional breakpoint, use ‘x’, and specify the condition expression
+in the minibuffer.  Setting a conditional breakpoint at a stop point that has a
+previously established conditional breakpoint puts the previous condition
+expression in the minibuffer so you can edit it.
+
+#+texinfo:@subheading Making a Breakpoint Temporary
+
+#+cindex:temporary breakpoint
+You can make a conditional or unconditional breakpoint “temporary” by using a
+prefix argument with the command to set the breakpoint.  When a temporary
+breakpoint stops the program, it is automatically unset.
+
+**** Global Break Condition
+
+#+cindex:global break condition
+#+cindex:break condition, global
+A “global break condition” stops execution when a specified condition is
+satisfied, no matter where that may occur.  Edebug evaluates the global break
+condition at every stop point; if it evaluates to a non-‘nil’ value, then
+execution stops or pauses depending on the execution mode, as if a breakpoint
+had been hit.  If evaluating the condition gets an error, execution does not
+stop.
+
+The global break condition is the simplest way to find where in your code some
+event occurs, but it makes code run much more slowly.  So you should reset the
+condition to ‘nil’ when not using it.
+
+#+attr_texinfo: :indic code
+- edebug-global-break-condition ::
+
+     The variable in which the condition expression is stored.
+
+- edebug-set-global-break-condition ::
+
+     You can specify a new expression using the ‘X’ command from the source
+     code buffer while Edebug is active, or using ‘C-x X X’ from any buffer at
+     any time, as long as Edebug is loaded
+
+**** Source Breakpoints
+
+#+cindex:source breakpoint
+#+cindex:breakpoint, source
+All breakpoints in a definition are forgotten each time you reinstrument it.
+If you wish to make a breakpoint that won’t be forgotten, you can write a
+“source breakpoint”, which is simply a call to the function ‘edebug’ in your
+source code.  You can, of course, make such a call conditional.  If no
+instrumented code is being executed when ‘edebug’ is called, that function
+calls ‘debug’.
+
+
+*** Edebug Views
+
+#+cindex:outside window configuration
+The outside window configuration is the collection of windows and contents that
+were in effect outside of Edebug.
+
+| Command | Function                  | Description                                                                       |
+|---------+---------------------------+-----------------------------------------------------------------------------------|
+| v       | edebug-view-outside       | Switch to viewing the outside window configuration                                |
+| C-x X w |                           | return to Edebug                                                                  |
+| p       | edebug-bounce-point       | Temporarily display the outside current buffer with point at its outside position |
+| w       | edebug-where              | Move point back to the current stop point in the source code buffer               |
+| W       | edebug-toggle-sae-windows | Toggle whether Edebug saves and restores the outside window configuration         |
+| C-u W   |                           | Toggle saving and restoring of the selected window only                           |
+|---------+---------------------------+-----------------------------------------------------------------------------------|
+
+*** Edebug Evaluation
+
+While within Edebug, you can evaluate expressions as if Edebug were not
+running.
+
+| Command | Function               | Description                                                            |
+|---------+------------------------+------------------------------------------------------------------------|
+| e EXP   | edebug-eval-expression | Evaluate expression EXP in the context outside of Edebug               |
+| M-: EXP | eval-expression        | Evaluate expression EXP in the context of Edebug itself                |
+| C-x C-e | edebut-eval-last-sexp  | Evaluate the expression before point, in the context outside of Edebug |
+|---------+------------------------+------------------------------------------------------------------------|
+
+*** Edebug Evaluation List Buffer
+
+#+cindex:evaluation list buffer
+#+cindex:@code{*edebug*} buffer
+You can use the “evaluation list buffer”, called ‘*edebug*’, to evaluate
+expressions interactively.  You can also set up the “evaluation list” of
+expressions to be evaluated automatically each time Edebug updates the display.
+
+You can evaluate expressions in the evaluation list window with ‘C-j’ or ‘C-x
+C-e’, just as you would in ‘*scratch*’; but they are evaluated in the context
+outside of Edebug.
+
+The expressions you enter interactively (and their results) are lost when you
+continue execution; but you can set up an “evaluation list” consisting of
+expressions to be evaluated each time execution stops.
+
+In the ‘*edebug*’ buffer you can use the commands of Lisp Interaction mode
+(*note Lisp Interaction) as well as these special commands:
+
+| Command | Function                    | Description                                                                                      |
+|---------+-----------------------------+--------------------------------------------------------------------------------------------------|
+| E       | edebug-visit-eval-list      | Switch to the evaluation list buffer ‘*edebug*’                                                  |
+| C-j     | edebug-eval-print-last-sexp | Evaluate the expression before point, in the outside context, and insert the value in the buffer |
+| C-x C-e | edebug-eval-last-sexp       | Evaluate the expression before point, in the context outside of Edebug                           |
+| C-c C-u | edebug-update-eval-list     | Build a new evaluation list from the contents of the buffer                                      |
+| C-c C-d | edebug-delete-eval-item     | Delete the evaluation list group that point is in                                                |
+| C-c C-w | edebug-where                | Switch back to the source code buffer at the current stop point                                  |
+|---------+-----------------------------+--------------------------------------------------------------------------------------------------|
 
 *** Insert a Direct Call to Edebug
 
@@ -1998,17 +2208,6 @@ And note you could also put a condition around `stop-here` for example:
 
 : ((>  n 1) (progn (if (= n 3) (stop-here 'fact)) (* n (fact (1- n)))))
 
-*** Edebug Execution Modes
-
-- https://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug-Execution-Modes.html#Edebug-Execution-Modes
-
-Edebug supports several execution modes for running the program you are
-debugging.  We call these alternatives Edebug execution modes; do not confuse
-them with major or minor modes.  The current Edebug execution mode determines
-how far Edebug continues execution before stopping—whether it stops at each
-stop point, or continues to the next breakpoint, for example—and how much
-Edebug displays the progress of the evaluation before it stops.
-
 *** Trace Buffer
 
 https://www.gnu.org/software/emacs/manual/html_node/elisp/Trace-Buffer.html#Trace-Buffer
@@ -2022,10 +2221,20 @@ Edebug can record an execution trace, storing it in a buffer named
 function names and their arguments and values.
 
 #+vindex:edebug-trace
-To enable trace recording, set ~edebug-trace~ to a non-nil value.
+- ~edebug-trace~ :: To enable trace recording, set ~edebug-trace~ to a non-nil
+                    value.
+
 
 Making a trace buffer is not the same thing as using =trace execution mode=
 (see Edebug Execution Modes).
+
+#+texinfo:@heading Trace Recording
+
+When trace recording is enabled, each function entry and exit adds lines to the
+trace buffer.  A function entry record consists of =::::{=, followed by the
+function name and argument values.  A function exit record consists of =::::}=,
+followed by the function name and result of the function.  The number of =:='s
+in an entry shows its recursion depth.
 
 ** Debug Messages
 :PROPERTIES:
