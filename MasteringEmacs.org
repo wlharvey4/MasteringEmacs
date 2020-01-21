@@ -3,7 +3,7 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-21 12:26
+#+date:2020-01-21 12:28
 #+macro:version Version 0.0.23
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
@@ -1772,21 +1772,30 @@ exiting that frame will call the debugger.
 #+vindex:edebug-all-defs
 #+vindex:edebug-all-forms
 ~Edebug~ is a source level debugger for EmacsLisp.  It instruments code.  This
-means that Emacs adds special instructions to the code when it is evaluated.
-The main entry point is ~M-x edebug-defun~ (also on =C-u C-M-x=, ~eval-defun~
-with a prefix argument).  Use it instead of =C-x C-e= or =C-M-x= to evaluate a
-=defun= and instrument it for debugging.  Instrumenting code inserts additional
-code into it, to invoke Edebug at the proper places.  When you invoke command
-=C-M-x= (~eval-defun~) with a prefix argument on a function definition, it
-instruments the definition before evaluating it.  (See the variables
-~edebug-all-defs~ and ~edebug-all-forms~ to control how ~eval-defun~
-operates.)
+means that Emacs adds special instructions to the code when it is evaluated, to
+invoke Edebug at the proper places.
 
-See also the commands
+- edebug-defun (=C-u C-M-x=) ::
+
+     is the main entry point to Edebug.  Use it instead of =C-x C-e= or =C-M-x=
+     to evaluate a =defun= and instrument it for debugging.  When you invoke
+     command =C-u C-M-x= (~eval-defun~ with a prefix argument) on a function
+     definition, it instruments the definition before evaluating it.
+
+
+See the variables:
+#+vindex:edebug-all-defs
+#+vindex:edebug-all-forms
+- ~edebug-all-defs~ and
+- ~edebug-all-forms~
+
+
+#+texinfo:@noindent to control how ~eval-defun~ operates.
+
+See also the commands:
 #+findex:eval-region
 #+findex:eval-current-buffer
 #+findex:eval-buffer:
-
 - ~eval-region~
 - ~eval-current-buffer~
 - ~eval-buffer~
@@ -1803,12 +1812,12 @@ show you the wrong function name in the echo area.
 #+cindex:execution mode, default
 #+cindex:source code buffer
 Once a function is instrumented, any call to the function activates Edebug.
-The action that occurs depends on which execution mode is active.  The default
-execution mode is step, which stops execution.  You will be viewing a read-only
-buffer of the source code that is being debugged (the /source code buffer/).
-An arrow in the left fringe indicates the line where the function is executing.
-The special commands of Edebug are available in the source code buffer in
-addition to the commands of Emacs Lisp mode.
+The action that occurs depends on which /execution mode/ is active.  The
+default execution mode is =step=, which stops execution.  You will be viewing a
+read-only buffer of the source code that is being debugged (the /source code
+buffer/).  An arrow in the left fringe indicates the line where the function is
+executing.  The special commands of Edebug are available in the source code
+buffer in addition to the commands of Emacs Lisp mode.
 
 #+texinfo:@heading Stop Points
 
