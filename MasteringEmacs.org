@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-20 11:45
-#+macro:version Version 0.0.22
+#+date:2020-01-20 19:42
+#+macro:version Version 0.0.23
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1779,7 +1779,7 @@ with a prefix argument).  Use it instead of =C-x C-e= or =C-M-x= to evaluate a
 code into it, to invoke Edebug at the proper places.  When you invoke command
 =C-M-x= (~eval-defun~) with a prefix argument on a function definition, it
 instruments the definition before evaluating it.  (See the variables
-~edebug-all-defs~ and ~edebug-all-forms~ to controle how ~eval-defun~
+~edebug-all-defs~ and ~edebug-all-forms~ to control how ~eval-defun~
 operates.)
 
 See also the commands
@@ -1831,7 +1831,7 @@ expression, it displays the expression’s value in the echo area.
 - ? :: display a l ist of all Edebug commands
 
 
-#+texinfo:@heading Interrupte Edebug Execution
+#+texinfo:@heading Interrupt Edebug Execution
 
 While executing or tracing, you can interrupt the execution by typing any
 Edebug command.  Edebug stops the program at the next stop point and then
@@ -2033,7 +2033,6 @@ stop point will also stop execution.
 | d       | edebug-backtrace         | Display a backtrace, excluding Edebug’s own functions for clarity    |
 |---------+--------------------------+----------------------------------------------------------------------|
 
-
 *** Edebug Breaks
 There are three other ways (other than stop points) to stop Edebug execution
 once it has started:
@@ -2119,7 +2118,6 @@ If you wish to make a breakpoint that won’t be forgotten, you can write a
 source code.  You can, of course, make such a call conditional.  If no
 instrumented code is being executed when ‘edebug’ is called, that function
 calls ‘debug’.
-
 
 *** Edebug Views
 
