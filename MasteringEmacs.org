@@ -3,7 +3,7 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-20 19:42
+#+date:2020-01-21 12:26
 #+macro:version Version 0.0.23
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
@@ -1997,7 +1997,6 @@ slowly or stop sooner than the modes later in the list.
      when gathering coverage data), change the value of ‘edebug-initial-mode’
      from its default ‘step’ to ‘go’, or ‘Go-nonstop’, or one of its other
      values (*note Edebug Options).
-
 
 **** Waiting Between Execution Steps
 
