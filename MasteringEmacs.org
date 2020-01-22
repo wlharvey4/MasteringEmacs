@@ -3,18 +3,23 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-21 12:28
-#+macro:version Version 0.0.23
+#+date:2020-01-22 06:56
+#+macro:version Version 0.0.24
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
 #+texinfo:@insertcopying
 
-[[https://www.masteringemacs.org/][Mastering Emacs]]
+- [[https://www.gnu.org/software/emacs/][Gnu Emacs Home]]
 
-- [[https://www.gnu.org/software/emacs/manual/][Emacs Reference Manual Online]]
+- [[http://git.savannah.gnu.org/cgit/emacs.git][Emacs Source Repository]]
 
-- [[https://www.gnu.org/software/emacs/manual/elisp.html][Emacs Lisp Reference Manual Online]]
+- [[https://www.masteringemacs.org/][Mastering Emacs]]
+
+- [[https://www.gnu.org/software/emacs/manual/][Emacs Online Reference Manual]]
+
+- [[https://www.gnu.org/software/emacs/manual/elisp.html][Emacs Online Lisp Reference Manual]]
+
 
 
 * Overview
@@ -1473,6 +1478,199 @@ message in a separate window.
 
 *** eshell---Emac's Shell
 
+* Packages
+
+- https://www.gnu.org/software/emacs/manual/html_node/elisp/Packaging.html#Packaging
+
+
+#+cindex:package
+Emacs provides a standard way to distribute Emacs Lisp code to users.
+A package is a collection of one or more files, formatted and bundled
+in such a way that users can easily download, install, uninstall, and
+upgrade it.
+
+** Installing and Using Packages
+- https://www.emacswiki.org/emacs/InstallingPackages
+
+The most common method of installing packages of Emacs Lisp since
+Emacs 24 has been *ELPA* packages.  Additional package archives such
+as *MELPA* exist to supplement what is in GnuELPA.
+
+#+cindex:UsePackage
+#+cindex:use-package
+[[https://github.com/jwiegley/use-package][UsePackage]] can make it easier for you to organize your package-related
+configuration.
+
+** Emacs Lisp Package Manager and Archives
+#+cindex:ELPA
+#+cindex:@code{package.el}
+#+cindex:Tromey, Tom
+
+- http://tromey.com/elpa/index.html
+
+
+ELPA is the Emacs Lisp Package Archive, written originally by [[https://www.emacswiki.org/emacs/TomTromey][Tom Tromey]].  It
+is included in GnuEmacs, starting with version 24 as ~package.el~.
+~package.el~ supports multiple ELPA repositories.
+
+*** GnuElpa
+
+#+cindex:ELPA
+#+cindex:GnuElpa
+“GNU Emacs Lisp Package Archive---The default package repository for
+GNU Emacs.”
+
+- http://elpa.gnu.org
+
+- [[http://elpa.gnu.org/packages/][Browse the Repositories]]
+
+- [[http://git.savannah.gnu.org/cgit/emacs/elpa.git][The Gnu ELPA Repository]]
+
+- [[https://savannah.gnu.org/projects/emacs][Gnu ELPA Project Page]]
+
+
+This should already be in Emacs (for Emacs 24+):
+
+- ~package-archives~ ::
+
+    : (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")))
+
+
+You can also add repositories one at a time:
+
+: (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+: (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t) ; Org-mode's repository
+
+To use it, type =M-x list-packages= in Emacs.
+
+Since you'll probably want to use your installed packages, it's also
+recommended that you add ~(package-initialize)~ somewhere in your
+~$HOME/.emacs~ file.
+
+*** Milkypostman’s Emacs Lisp Package Archive---MELPA
+
+- https://melpa.org/
+
+- https://www.emacswiki.org/emacs/MELPA
+
+
+#+cindex:MELPA
+MELPA is an ELPA-compatible package repository that contains an enormous amount
+of useful Emacs packages.
+
+#+texinfo:@heading Features
+
+- Up-to-date packages built on our servers from upstream source
+
+- Installable in any Emacs with 'package.el' - no local version-control tools
+  needed
+
+- Curated - no obsolete, renamed, forked or randomly hacked packages
+
+- Comprehensive - more packages than any other archive
+
+- Automatic updates - new commits result in new packages
+
+- Extensible - contribute recipes via github, and we'll build the packages
+
+**** Getting Started with MELPA
+
+***** Installing MELPA
+
+You need ~package.el~.  Emacs 24 on has ~package.el~ bundled.
+
+#+cindex:@code{package-archives}
+#+vindex:package-archives
+#+cindex:@code{package-initialize}
+Enable installation of packages from MELPA by adding an entry to
+~package-archives~ after ~(require 'package)~ and before the call to
+~package-initialize~ in your ~init.el~ or ~.emacs~ file:
+
+: (add-to-list 'package-archives (cons "melpa" "https://melpa.org/packages/") t)
+: (add-to-list 'package-archives (cons "melpa-stable" "https://stable.melpa.org/packages/") t)
+
+*** How Packages Work
+
+- https://www.gnu.org/software/emacs/manual/html_node/elisp/Packaging-Basics.html#Packaging-Basics
+
+
+Whenever Emacs starts up, it automatically calls the function
+‘package-initialize’ to load installed packages.  This is done after
+loading the init file and before running ‘after-init-hook’.  Automatic
+package loading is disabled if the user option
+~package-enable-at-startup~ is nil.
+
+This means you should NOT put package specific initialization into
+your ~init.el~ except in a few ways:
+
+- customization variables for a package can be set before a package
+  has loaded;
+
+- ~auto-mode-alist~ changes can be made in a way that does not require
+  the package to be loaded before they are setup:
+  : (add-to-list 'auto-mode-alist '("\\.gradle" . groovy-mode))
+
+- mode specific customization of a package could go in a package hook
+  which can be set before the package is loaded, for example:
+  : (add-hook 'groovy-mode-hook (lambda () (setq tab-width 4)))
+
+- key bindings can also be done in such a way to not cause init
+  failure, even if the package is not loaded:
+  : (global-set-key (kbd "C-'")     'shell-switcher-switch-buffer)
+
+- some package specific initialization can be done with
+  ~eval-after-load~
+
+
+It might be easier just to move ~package-initialize~ to another point
+during startup so you can ~(require)~ ELPA packages; this takes care
+of a lot of the described issues:
+
+#+begin_src emacs-lisp :eval no
+  ;; basic initialization, (require) non-ELPA packages, etc.
+  (setq package-enable-at-startup nil)
+  (package-initialize)
+  ;; (require) your ELPA packages, configure them as normal
+#+end_src
+
+#+texinfo:@heading Using with-eval-after-load For Package Config
+
+Starting in emacs 24.4, ~with-eval-after-load~ is simpler than
+~eval-after-load~:
+
+#+begin_src emacs-lisp :eval no
+  (with-eval-after-load 'abcd-mode
+         (setq-default abcd-basic-offset 7) ; setting some option
+         (add-to-list 'abcd-globals-list "console") ; appending to a list option
+         (add-hook 'abcd-mode-hook 'prepare-some-abcd-soup) ; things to do for abcd mode buffers
+         (define-key abcd-mode-map (kbd "C-c C-c") 'play-some-abcd-song) ; add some key binding for abcd mode
+         )
+#+end_src
+
+** UsePackage
+
+- https://jwiegley.github.io/use-package/
+
+- https://github.com/jwiegley/use-package
+
+
+“The ~use-package~ macro allows you to isolate package configuration
+in your ~.emacs~ file in a way that is both performance-oriented and,
+well, tidy.  I created it because I have over 80 packages that I use
+in Emacs, and things were getting difficult to manage.  Yet with this
+utility my total load time is around 2 seconds, with no loss of
+functionality!”
+
+~use-package~ is /not/ a package manager!  Although ~use-package~ does
+have the useful capability to interface with package managers (see
+below), /its primary purpose is for the configuration and loading of
+packages/.
+
+~use-package~ is available from Melpa and Melpa-Stable.
+
+To install:
+: M-x package-install RET use-package RET
+
 * Special Packages
 ** Polymode
 Multiple Major Modes and How to Use SQL and Python in one Buffer
@@ -2823,5 +3021,6 @@ the most benefits from the AWS S3 ~sync~ command.
 * Local Variables                                                  :noexport:
 # Local variables:
 # fill-column: 79
+# (electric-quote-local-mode)
 # time-stamp-pattern:"8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
 # End:
