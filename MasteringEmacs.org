@@ -3,12 +3,19 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-22 06:56
-#+macro:version Version 0.0.24
+#+date:2020-01-23 00:04
+#+macro:version Version 0.0.25
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
 #+texinfo:@insertcopying
+
+#+begin_smallquotation
+Emacs outshines all other editing software in approximately the same
+way that the noonday sun does the stars. It is not just bigger and
+brighter; it simply makes everything else vanish.
+#+texinfo:@author Neal Stephenson, "In the Beginning was the Command Line"
+#+end_smallquotation
 
 - [[https://www.gnu.org/software/emacs/][Gnu Emacs Home]]
 
@@ -24,6 +31,7 @@
 
 * Overview
 ** In The Beginning
+   + [[http://project.cyberpunk.ru/lib/in_the_beginning_was_the_command_line/][In the Beginning was the Command Line]]
    + Emacs began in 1976 [[https://www.gnu.org/software/emacs/manual/html_mono/efaq. html#Origin-of-the-term-Emacs]]
    + Came from an editor called Teco
 ** Some Implementations
@@ -43,6 +51,24 @@
 #+CINDEX: starter packages
 #+CINDEX: packages, starter
 :END:
+*** Emacs Wiki Starter Kits List
+
++ https://www.emacswiki.org/emacs/StarterKits
++ http://wikemacs.org/wiki/Starter_Kits
+
+*** Phil Hagelberg “Technomancy”’s emacs-starter-kit and better-defaults
+
+“Because the Emacs defaults are not so great sometimes.”
+
++ https://github.com/technomancy/emacs-starter-kit
+
++ https://github.com/technomancy/better-defaults
+
+*** Eric Schulte’s Emacs Starter Kit
+
++ https://eschulte.github.io/emacs-starter-kit/
++ http://eschulte.github.io/emacs24-starter-kit/
+
 *** Steve Purcell’s .emacs.d
 :CP:
 #+CINDEX:Steve Purcell @code{.emacs.d}
@@ -57,7 +83,9 @@ but only for his own purposes.  He knows that it is forked and circulated, and
 so allows it to be used for educational purposes I suppose.  He is a (the?)
 maintainer of MELPA, and has written and reviewed a lot of elisp code.
 
-    + [[https://github.com/purcell/emacs.d]]
+“An Emacs configuration bundle with batteries included”
+
++ [[https://github.com/purcell/emacs.d]]
 
 *** Bozhidar Batzov’s Prelude
 :CP:
@@ -65,11 +93,25 @@ maintainer of MELPA, and has written and reviewed a lot of elisp code.
 #+CINDEX: Prelude from Batzov
 :END:
     + [[https://github.com/bbatsov/prelude]]
+
 *** Awesome Emacs
 :CP:
 #+CINDEX: Awesome Emacs
 :END:
     + [[https://github.com/emacs-tw/awesome-emacs]]
+
+*** Xah Emacs List of Starter Kits
+
++ http://ergoemacs.org/misc/list_of_emacs_starter_kits.html
+
+*** An Emacs Starter Kit for the Social Sciences
+
+- https://kieranhealy.org/resources/emacs-starter-kit/
+
+*** Emacs Starter Kits
+
+- https://riptutorial.com/emacs/topic/1960/starter-kits
+
 ** Lisp
 *** eLisp Introduction
     + [[https://www.gnu.org/software/emacs/manual/eintr.html]]
@@ -1848,6 +1890,11 @@ behave the same way.
 :PROPERTIES:
 :appendix: t
 :END:
+** WikEmacs
+
+#+cindex:WikEmacs
+- http://wikemacs.org/wiki/Main_Page
+
 ** Mastering Emacs in One Year
 - https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/guide-en.org
 - http://blog.binchen.org
@@ -1864,7 +1911,8 @@ behave the same way.
 - https://github.com/emacs-tw/awesome-emacs
 ** Using Emacs Series
 - https://cestlaz.github.io/stories/emacs/
-** Xah Emacs Tutorial
+** Xah Emacs and Tutorial
+- http://ergoemacs.org/index.html
 - http://ergoemacs.org/emacs/emacs.html
 ** Emacs Mini Tutorial
 - [[http://tuhdo.github.io/emacs-tutor.html][Emacs Mini Manual (PART 1) - THE BASICS]]
@@ -3021,6 +3069,6 @@ the most benefits from the AWS S3 ~sync~ command.
 * Local Variables                                                  :noexport:
 # Local variables:
 # fill-column: 79
-# (electric-quote-local-mode)
+# electric-quote-local-mode: t
 # time-stamp-pattern:"8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
 # End:
