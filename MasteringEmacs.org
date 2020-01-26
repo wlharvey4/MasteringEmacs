@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-26 08:53
-#+macro:version Version 0.0.26
+#+date:2020-01-26 08:54
+#+macro:version Version 0.0.27
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -2697,6 +2697,7 @@ Copyright \copy 2020 by {{{author}}}
 #+header: :tangle Makefile
 #+header: :noweb tangle
 #+begin_src makefile
+  EMACS = /Applications/MacPorts/EmacsMac.app/Contents/MacOS/bin/emacs-26.3
   TEMPLATE = $(ORG_TEMPLATE)
 
   SAVE = resources
@@ -2749,7 +2750,6 @@ Copyright \copy 2020 by {{{author}}}
 	  help sync update values
 
   values: check
-	  @echo EMACSLOADPATH:	$(EMACSLOADPATH)
 	  @echo USER:		$(USER)
 	  @echo PROJ:		$(PROJ)
 	  @echo VERS:		$(VERS)
@@ -2768,7 +2768,7 @@ Copyright \copy 2020 by {{{author}}}
 	     { printf "$${RED}GITHUB_TOKEN $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
 	     printf "$${GREEN}GITHUB_TOKEN: set$${CLEAR}\n";
 	  @[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
-	     printf "$${GREEN}~/.aws credentials and config: set.$${CLEAR}\n" || \
+	     printf "$${GREEN}~/.aws credentials and config: set$${CLEAR}\n" || \
 	     { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
 	  @emacs --batch --load="~/.emacs" --eval \
 	    '(progn \
@@ -2780,7 +2780,8 @@ Copyright \copy 2020 by {{{author}}}
 		(if \
 		   org-confirm-babel-evaluate \
 		   (princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
-		   (princ "org-confirm-babel-evaluate: SET to nil")))'
+		   (princ "org-confirm-babel-evaluate: SET to nil")) \
+		(terpri))'
 
   open-org: $(ORG)
 	  emacsclient $(ORG) &
@@ -2790,15 +2791,13 @@ Copyright \copy 2020 by {{{author}}}
 
   texi: $(TEXI)
   $(TEXI): $(ORG)
-	  emacs --batch --eval '\
+	  $(EMACS) --batch --eval '\
 	  (progn \
 	    (require (quote org)) \
-	    (require (quote ob)) \
-	    (require (quote ox-texinfo)) \
 	    (require (quote ob-shell)) \
 	    (setq org-confirm-babel-evaluate nil) \
 	    (find-file "$(ORG)") \
-	    (org-export-to-file (quote texinfo) "$(TEXI)"))'
+	    (org-texinfo-export-to-texinfo))'
 
   open-texi: texi
 	  emacsclient $(TEXI) &
