@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-26 08:54
-#+macro:version Version 0.0.27
+#+date:2020-01-26 09:26
+#+macro:version Version 0.0.28
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1924,11 +1924,17 @@ behave the same way.
 - https://a-nickels-worth.blogspot.com/2007/11/effective-emacs.html
 
 * Interacting with the System
+:PROPERTIES:
+:appendix: t
+:END:
 
 ** Processes
 :PROPERTIES:
 :appendix: t
 :END:
+
+#+texinfo:@heading Subprocesses
+
 #+cindex:process
 #+cindex:subprocess
 #+cindex:child process
@@ -1952,7 +1958,63 @@ This function returns ‘t’ if OBJECT represents an Emacs process object, ‘n
      program or a connection of any supported type.
 #+end_defun
 
+#+texinfo:@heading System Processes
+
+#+cindex:system process
+In addition to subprocesses of the current Emacs session, you can also access
+other processes running on your machine.  These are /system processes/.
+
 *** Creating Subprocesses
+
+#+cindex:new subprocess, create
+There are three primitives that create a new subprocess in which to run a
+program.
+
+#+cindex:@code{call-process}
+#+cindex:@code{call-process-region}
+#+cindex:@code{make-process}
+#+attr_texinfo: :indic code
+- call-process ::
+
+  creates a synchronous process
+
+- call-process-region ::
+
+  creates a synchronous process
+
+- make-process ::
+
+  creates an asynchronous process and returns a process object
+
+
+The three functions are called in similar fashions; their common arguments are
+described here first.
+
+#+texinfo:@heading The Program to Run
+
+In all cases, the functions *specify the program to be run*.
+
+#+texinfo:@subheading exec-path
+
+#+vindex:exec-path
+#+vindex:PATH
+#+vindex:default-directory
+If the file name is relative, the variable ‘exec-path’ contains a list of
+directories to search.  Emacs initializes ‘exec-path’ when it starts up, based
+on the value of the environment variable ‘PATH’.  ~nil~ in the list refers to
+~default-directory~.
+
+Your ~exec-path~ has the contents:
+
+#+name:your-exec-path
+#+header: :results output :exports results
+#+begin_src emacs-lisp
+(print exec-path)
+#+end_src
+
+#+findex:substitute-in-file-name
+Use the function ‘substitute-in-file-name’ to perform environment variable
+substitutions (`$HOME').
 
 **** Creating Synchronous Subprocesses
 
