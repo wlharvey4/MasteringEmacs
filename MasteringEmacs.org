@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-23 00:04
-#+macro:version Version 0.0.25
+#+date:2020-01-26 08:53
+#+macro:version Version 0.0.26
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1922,6 +1922,41 @@ behave the same way.
 - https://emacs.stackexchange.com
 ** Effective emacs
 - https://a-nickels-worth.blogspot.com/2007/11/effective-emacs.html
+
+* Interacting with the System
+
+** Processes
+:PROPERTIES:
+:appendix: t
+:END:
+#+cindex:process
+#+cindex:subprocess
+#+cindex:child process
+#+cindex:parent process
+#+cindex:synchronous process
+#+cindex:asynchronous process
+Emacs Lisp programs can invoke other programs in processes of their own.  These
+are called “subprocesses” or “child processes” of the Emacs process, which is
+their “parent process”.  A subprocess of Emacs may be “synchronous” or
+“asynchronous”, depending on how it is created.  When you create a synchronous
+subprocess, the Lisp program waits for the subprocess to terminate before
+continuing execution.  When you create an asynchronous subprocess, it can run
+in parallel with the Lisp program.  This kind of subprocess is represented
+within Emacs by a Lisp object which is also called a “process”.  Lisp programs
+can use this object to communicate with the subprocess or to control it.
+
+#+attr_texinfo: :options processp object
+#+begin_defun
+This function returns ‘t’ if OBJECT represents an Emacs process object, ‘nil’
+     otherwise.  The process object can represent a subprocess running a
+     program or a connection of any supported type.
+#+end_defun
+
+*** Creating Subprocesses
+
+**** Creating Synchronous Subprocesses
+
+**** Creating Asynchronous Subprocesses
 
 * Debugging
 :PROPERTIES:
