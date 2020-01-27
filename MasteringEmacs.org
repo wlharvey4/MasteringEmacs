@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-27 07:45
-#+macro:version Version 0.0.29
+#+date:2020-01-27 08:31
+#+macro:version Version 0.0.30
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1986,7 +1986,6 @@ behave the same way.
 :PROPERTIES:
 :appendix: t
 :END:
-
 ** Processes
 :PROPERTIES:
 :appendix: t
@@ -2023,7 +2022,7 @@ This function returns ‘t’ if OBJECT represents an Emacs process object, ‘n
 In addition to subprocesses of the current Emacs session, you can also access
 other processes running on your machine.  These are /system processes/.
 
-*** Creating Subprocesses
+*** Creating Subprocesses---In General
 
 #+cindex:new subprocess, create
 There are three primitives that create a new subprocess in which to run a
@@ -2194,9 +2193,177 @@ into a list of individual command-line arguments.
      returns it.
 #+end_defun
 
-**** Creating Synchronous Subprocesses
+*** Creating Synchronous Subprocesses
 
-**** Creating Asynchronous Subprocesses
+After a “synchronous process” is created, Emacs waits for the process to
+terminate before continuing.  While Emacs waits for the synchronous subprocess
+to terminate, the user can quit by typing ‘C-g’.  The first ‘C-g’ tries to kill
+the subprocess with a ‘SIGINT’ signal; but it waits until the subprocess
+actually terminates before quitting.  If during that time the user types
+another ‘C-g’, that kills the subprocess instantly with ‘SIGKILL’ and quits
+immediately.  The synchronous subprocess functions return an indication of how
+the process terminated.
+
+**** call-process
+
+#+attr_texinfo: :options call-process program &optional infile destination display &rest args
+#+begin_defun
+     This function calls PROGRAM and waits for it to finish.
+
+     The current working directory of the subprocess is set to the current
+     buffer’s value of ‘default-directory’ if that is local (as determined by
+     ‘unhandled-file-name-directory’), or "~" otherwise.  If you want to run a
+     process in a remote directory use ‘process-file’.
+
+     #+attr_texinfo: :indic @var
+     - infile :: The standard input for the new process comes from file INFILE
+       if INFILE is not ‘nil’, and from the null device otherwise.
+     - destination :: The argument DESTINATION says where to put the process
+       output.  Here are the possibilities:
+       #+attr_texinfo: :indic b
+       - a buffer ::
+
+       - a buffer name (a string) ::
+
+       - t :: Insert the output in the current buffer, before point.
+
+       - nill :: Discard the output
+
+       - 0 :: Discard the output, and return ‘nil’ immediately without waiting
+         for the subprocess to finish.
+
+       - (:file FILE-NAME) :: Send the output to the file name specified,
+         overwriting it if it already exists.
+
+       - (REAL-DESTINATION ERROR-DESTINATION) :: Keep the standard output
+         stream separate from the standard error stream; deal with the ordinary
+         output as specified by REAL-DESTINATION, and dispose of the error
+         output according to ERROR-DESTINATION.  If ERROR-DESTINATION is ‘nil’,
+         that means to discard the error output, ‘t’ means mix it with the
+         ordinary output, and a string specifies a file name to redirect error
+         output into.
+
+         You can’t directly specify a buffer to put the error output in; that
+         is too difficult to implement.  But you can achieve this result by
+         sending the error output to a temporary file and then inserting the
+         file into a buffer when the subprocess finishes.
+
+     - display :: If DISPLAY is non-‘nil’, then ‘call-process’ redisplays the
+       buffer as output is inserted.  Otherwise the function ‘call-process’
+       does no redisplay, and the results become visible on the screen only
+       when Emacs redisplays that buffer in the normal course of events.
+
+     - args :: The remaining arguments, ARGS, are strings that specify command
+       line arguments for the program.  Each string is passed to PROGRAM as a
+       separate argument.
+
+     - Return Value :: The value returned by ‘call-process’ (unless you told it
+       not to wait) indicates the reason for process termination.  A number
+       gives the exit status of the subprocess; 0 means success, and any other
+       value means failure.  If the process terminated with a signal,
+       ‘call-process’ returns a string describing the signal.  If you told
+       ‘call-process’ not to wait, it returns ‘nil’.
+
+#+end_defun
+**** process-file
+
+#+attr_texinfo: :options process-file program &optional infile buffer display &rest args
+#+begin_defun
+      This function processes files synchronously in a separate process.  It is
+     similar to ~call-process~, but may invoke a file handler based on the
+     value of the variable ~default-directory~, which specifies the current
+     working directory of the subprocess.
+
+     The arguments are handled in almost the same way as for ~call-process~,
+     with the following differences:
+
+     1. Some file handlers may not support all combinations and forms of the
+        arguments INFILE, BUFFER, and DISPLAY.  For example, some file handlers
+        might behave as if DISPLAY were ‘nil’, regardless of the value actually
+        passed.  As another example, some file handlers might not support
+        separating standard output and error output by way of the BUFFER
+        argument.
+
+     2. If a file handler is invoked, it determines the program to run based on
+        the first argument PROGRAM.  For instance, suppose that a handler for
+        remote files is invoked.  Then the path that is used for searching for
+        the program might be different from ‘exec-path’.
+
+     3. The second argument INFILE may invoke a file handler.  The file handler
+        could be different from the handler chosen for the ‘process-file’
+        function itself.  (For example, ‘default-directory’ could be on one
+        remote host, and INFILE on a different remote host.  Or
+        ‘default-directory’ could be non-special, whereas INFILE is on a remote
+        host.)
+
+     4. If BUFFER is a list of the form ‘(REAL-DESTINATION ERROR-DESTINATION)’,
+        and ERROR-DESTINATION names a file, then the same remarks as for INFILE
+        apply.
+
+     5. The remaining arguments (ARGS) will be passed to the process verbatim.
+        Emacs is not involved in processing file names that are present in
+        ARGS.  To avoid confusion, it may be best to avoid absolute file names
+        in ARGS, but rather to specify all file names as relative to
+        ‘default-directory’.  The function ‘file-relative-name’ is useful for
+        constructing such relative file names.  Alternatively, you can use
+        ‘file-local-name’ (*note Magic File Names::) to obtain an absolute file
+        name as seen from the remote host’s perspective.
+#+end_defun
+
+**** call-process-region
+
+#+attr_texinfo: :options call-process-region start end program &optional delete destination display &rest args
+#+begin_defun
+     This function sends the text from START to END as standard input to a
+     process running PROGRAM.  It deletes the text sent if DELETE is non-‘nil’;
+     this is useful when DESTINATION is ‘t’, to insert the output in the
+     current buffer in place of the input.
+
+     #+attr_texinfo: :indic var
+     - destination, display :: 
+
+       The arguments DESTINATION and DISPLAY control what to do with the output
+       from the subprocess, and whether to update the display as it comes in.
+       For details, see the description of ‘call-process’, above.  If
+       DESTINATION is the integer 0, ‘call-process-region’ discards the output
+       and returns ‘nil’ immediately, without waiting for the subprocess to
+       finish.
+
+     - args :: 
+
+       The remaining arguments, ARGS, are strings that specify command line
+       arguments for the program.
+
+     - Return Value ::
+
+       The return value of ‘call-process-region’ is just like that of
+       ‘call-process’: ‘nil’ if you told it to return without waiting;
+       otherwise, a number or string which indicates how the subprocess
+       terminated.
+#+end_defun
+
+#+texinfo:@heading Example using ~call-process-region~
+
+In the following example, we use ~call-process-region~ to run the ~cat~
+utility, with standard input being the first five characters in buffer =foo=
+(the word =input=).  ~cat~ copies its standard input into its standard output.
+Since the argument DESTINATION is ‘t’, this output is inserted in the current
+buffer.
+
+#+begin_example
+---------- Buffer: foo ----------
+input★
+---------- Buffer: foo ----------
+
+(call-process-region 1 6 "cat" nil t)
+     ⇒ 0
+
+---------- Buffer: foo ----------
+inputinput★
+---------- Buffer: foo ----------
+#+end_example
+
+*** Creating Asynchronous Subprocesses
 
 * Debugging
 :PROPERTIES:
