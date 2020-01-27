@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-26 09:26
-#+macro:version Version 0.0.28
+#+date:2020-01-27 07:45
+#+macro:version Version 0.0.29
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1040,6 +1040,65 @@ something, you are asked for a single character to query.
 
 ** Searching and Replacing
 
+#+cindex:regular expression
+When you search for text, you can do so either with regular expressions or
+without.  Replacing text in Emacs is no different, but with the added benefit
+of letting you leverage the power of elisp in the /replace/ portion of search
+and replace.
+
+In that sense, Emacs is different from other editors: you can use elisp and
+regexp capturing groups together --- powerful, if you know elisp.
+
+#+cindex:PCRE
+#+cindex:regular expression, GNU standard
+Emacs’s regular expression implementation is also different from PCRE.  It
+follows the GNU standard for regular expressions with many additions (and quite
+a few omissions) to make it suitable for both package developers and Emacs
+users.
+
+*** Regular Expressions
+
+#+cindex:regexp
+Emacs’s regexp engine is nowhere near as user-friendly as it could be.  It’s
+old, weathered and too entrenched --- and heavily modified to suit Emacs’s
+peculiar needs --- to be easily replaced.  In practical terms, that causes
+confusion in regexp building for people unaccustomed to Emacs’s quirky regexp
+engine.  It’s even worse if you write elisp as you have to escape the escape
+character as Emacs’s C-style string reader would otherwise trigger on
+backslashes.
+
+I will not cover regular expressions in great detail since that is a whole book
+onto itself.  Instead, I will tell you how Emacs’s regexp engine differs from
+modern ones.
+
+**** Backslashed Constructs
+
+**** Missing Features
+
+**** Emacs-Only Features
+
+#+cindex:match construct
+#+cindex:Unicode
+One area where Emacs’s regexp engine does shine is its support for /match
+constructs/ and /Unicode support/:
+
+#+caption:Match Constructs and Unicode Support
+#+name:match-constructs-and-unicode-support
+| Constructs   | Description                                               |
+|--------------+-----------------------------------------------------------|
+| =\<=, =\>=   | Matches beginning and end of word                         |
+| =\_<=, =\_>= | Matches beginning and end of symbol                       |
+| =\scode=     | Matches any character whose syntax table code is code     |
+| =\Scode=     | Matches any character whose syntax table code is not code |
+|--------------+-----------------------------------------------------------|
+
+**** Syntax Classes
+
+#+cindex:syntax classes
+#+cindex:classes, regexp syntax
+#+cindex:regexp, syntax classes
+- [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Syntax-Class-Table.html#Syntax-Class-Table][Table of Syntax Classes]]
+
 ** Changing Case
 
 ** Counting
@@ -1999,22 +2058,141 @@ In all cases, the functions *specify the program to be run*.
 #+vindex:exec-path
 #+vindex:PATH
 #+vindex:default-directory
-If the file name is relative, the variable ‘exec-path’ contains a list of
-directories to search.  Emacs initializes ‘exec-path’ when it starts up, based
-on the value of the environment variable ‘PATH’.  ~nil~ in the list refers to
-~default-directory~.
+The filename may contain =~=, =.=, and =..=.  If the file name is relative, the
+variable ‘exec-path’ contains a list of directories to search.  Emacs
+initializes ‘exec-path’ when it starts up, based on the value of the
+environment variable ‘PATH’.  ~nil~ in the list refers to ~default-directory~.
+The variable ~exec-directory~ can also supply a directory to search.
 
 Your ~exec-path~ has the contents:
 
 #+name:your-exec-path
-#+header: :results output :exports results
+#+header: :results value :exports results
 #+begin_src emacs-lisp
-(print exec-path)
+exec-path
 #+end_src
 
-#+findex:substitute-in-file-name
+#+attr_texinfo: :options exec-directory
+#+begin_defun
+The value of this variable is a string, the name of a directory that contains
+     programs that come with GNU Emacs and are intended for Emacs to invoke.
+     The program ‘movemail’ is an example of such a program; Rmail uses it to
+     fetch new mail from an inbox.
+#+end_defun
+
+Your ~exec-directory~ has the value:
+
+#+name:your-exec-directory
+#+header: :results value :exports results
+#+begin_src emacs-lisp
+exec-directory
+#+end_src
+
 Use the function ‘substitute-in-file-name’ to perform environment variable
 substitutions (`$HOME').
+
+#+attr_texinfo: :options substitute-in-file-name filename
+#+begin_defun
+Substitute environment variables referred to in FILENAME.
+‘$FOO’ where FOO is an environment variable name means to substitute
+the value of that variable.
+
+    (substitute-in-file-name "$HOME/foo")
+               ⇒ "/xcssun/users/rms/foo"
+#+end_defun
+
+#+texinfo:@heading Filename Arguments
+
+#+cindex:filename arguments
+Each of the subprocess-creating functions has a BUFFER-OR-NAME argument that
+specifies where the output from the program will go.  It should be a buffer or
+a buffer name; if it is a buffer name, that will create the buffer if it does
+not already exist.  It can also be ‘nil’, which says to discard the output,
+unless a custom filter function handles it.
+
+For synchronous processes, you can send the output to a file instead of a
+buffer.
+
+#+texinfo:@heading Standard Streams
+
+#+cindex:standard streams
+#+cindex:standard output, error, input
+#+cindex:streams, standard
+#+cindex:redirection, standard streams
+By default, both standard output and standard error streams go to the same
+destination, but all the 3 primitives allow optionally to direct the standard
+error stream to a different destination.
+
+#+texinfo:@heading Process Command-Line Arguments
+
+All three of the subprocess-creating functions allow to specify command-line
+arguments for the process to run.  The command-line arguments must all be
+strings, and they are supplied to the program as separate argument strings.
+
+- For ‘call-process’ and ‘call-process-region’, these come in the form of a
+  ‘&rest’ argument, ARGS.
+
+- For ‘make-process’, both the program to run and its command-line arguments
+  are specified as a list of strings.
+
+
+#+texinfo:@heading Inheriting Environment
+
+#+cindex:subprocess environment
+The subprocess inherits its environment from Emacs, but you can specify
+overrides for it with ‘process-environment’.
+
+
+#+vindex:default-directory
+The subprocess gets its current directory from the value of
+‘default-directory’.
+
+**** Specifying Shell Arguments
+
+#+attr_texinfo: :options shell-quote-argument argument
+#+begin_defun
+This function returns a string that represents, in shell syntax, an argument
+     whose actual contents are ARGUMENT.  It should work reliably to
+     concatenate the return value into a shell command and then pass it to a
+     shell for execution.  The function is designed to work with the syntax of
+     your system’s standard shell.
+
+     Here’s an example of using ‘shell-quote-argument’ to construct a
+     shell command:
+
+          (concat "diff -u "
+                  (shell-quote-argument oldfile)
+                  " "
+                  (shell-quote-argument newfile))
+#+end_defun
+
+#+texinfo:@heading Command-Line Argument Processing
+
+The following two functions are useful for combining a list of individual
+command-line argument strings into a single string, and taking a string apart
+into a list of individual command-line arguments.
+
+#+attr_texinfo: :options combine-and-quote-strings list-of-strings &optional separator
+#+begin_defun
+     This function concatenates LIST-OF-STRINGS into a single string, quoting
+     each string as necessary.  It also sticks the SEPARATOR string between
+     each pair of strings; if SEPARATOR is omitted or ‘nil’, it defaults to ‘"
+     "’.  The return value is the resulting string.
+
+     The strings in LIST-OF-STRINGS that need quoting are those that include
+     SEPARATOR as their substring.  Quoting a string encloses it in double
+     quotes ‘"..."’.  In the simplest case, if you are consing a command from
+     the individual command-line arguments, every argument that includes
+     embedded blanks will be quoted.
+#+end_defun
+
+#+attr_texinfo: :options split-string-and-unquote string &optional separators
+#+begin_defun
+     This function splits STRING into substrings at matches for the regular
+     expression SEPARATORS, like ‘split-string’ does.  In addition, it removes
+     quoting from the substrings.  It then makes a list of the substrings and
+     returns it.
+#+end_defun
 
 **** Creating Synchronous Subprocesses
 
