@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-28 08:38
-#+macro:version Version 0.0.32
+#+date:2020-01-28 10:20
+#+macro:version Version 0.0.34
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1074,6 +1074,19 @@ modern ones.
 
 **** Backslashed Constructs
 
+The following constructs require backslashes or Emacs will treat them like
+literal characters:
+
+| Construct | Description     |
+|-----------+-----------------|
+| =\pipe=   | Alternative     |
+| =\(...\)= | Capturing group |
+| =\{...\}= | Repetition      |
+|-----------+-----------------|
+
+
+See also [[*Backslash Constructs][Backslash Constructs]]
+
 **** Missing Features
 
 **** Emacs-Only Features
@@ -1093,12 +1106,201 @@ constructs/ and /Unicode support/:
 | =\Scode=     | Matches any character whose syntax table code is not code |
 |--------------+-----------------------------------------------------------|
 
+**** Syntax of Regular Expressions
+
+#+cindex:syntax, regexp
+#+cindex:regexp syntax
+Regular expressions have a syntax in which a few characters are “special
+constructs” and the rest are “ordinary”.
+
+#+texinfo:@heading Special Characters
+
+#+cindex:special characters, regexp
+#+cindex:regexp special characters
+The “special characters” are:
+
+#+attr_texinfo: :indic code
+- .
+- *
+- +
+- ?
+- [ and sometimes ]
+- [: ... :]
+- ^
+- $
+- \
+- -
+
+
+Any other character appearing in a regular expression is ordinary, unless a ‘\’
+precedes it.
+
+Things to note:
+
+#+texinfo: :indic code
+- ^ :: For historical compatibility reasons, ‘^’ can be used only at the
+  beginning of the regular expression, or after ‘\(’, ‘\(?:’ or ‘\|’.
+
+- $ :: For historical compatibility reasons, ‘$’ can be used only at the end of
+  the regular expression, or before ‘\)’ or ‘\|’.
+
+- \ :: also has special meaning in the read syntax of Lisp strings and must be
+  quoted with ‘\’.
+
+#+begin_example
+\\   => \
+\\\\ => \\
+#+end_example
+
+#+texinfo:@heading Character Alternatives
+
+=[ ... ]= is a /character alternative/.
+
+#+attr_texinfo: :indic code
+- [ad] ::
+- [a-z] ::
+- [a-z$%.] ::
+- []a-z]  :: To include a ‘]’ in a character alternative, you must make it the
+  first character.
+- []a-z-] :: To include a ‘-’, write ‘-’ as the first or last character of the
+  character alternative, or as the upper bound of a range.
+- ^ :: To include ‘^’ in a character alternative, put it anywhere but at the
+  beginning.
+  #+cindex:newline, regexp
+- [^...] :: ‘[^’ begins a “complemented character alternative”.  This matches
+  any character except the ones specified.  ‘^’ is not special in a character
+  alternative unless it is the first character.  A complemented character
+  alternative can match a newline, unless newline is mentioned as one of the
+  characters not to match.  This is in contrast to the handling of regexps in
+  programs such as ‘grep’.
+
+
+#+texinfo:@heading Rules Regarding ]
+
+The exact rules are that:
+- at the beginning of a regexp, ‘[’ is special and ‘]’ not. 
+- This lasts until the first unquoted ‘[’,
+  - after which we are in a character alternative;
+  - ‘[’ is no longer special
+    - (except when it starts a character class)
+  - but ‘]’ is special,
+    - unless it immediately follows the special ‘[’ or
+    - that ‘[’ followed by a ‘^’.
+  - This lasts until the next special ‘]’ that does not end a character class.
+- This ends the character alternative and restores the ordinary syntax of regular expressions;
+- an unquoted ‘[’ is special again and a ‘]’ not.
+
+#+texinfo:@heading POSIX Features
+
+#+cindex:POSIX regexp
+The following aspects of ranges are specific to Emacs, in that POSIX allows but
+does not require this behavior and programs other than Emacs may behave
+differently:
+
+#+vindex:case-fold-search
+#+cindex:collation sequence
+#+cindex:unibyte character
+1. If ~case-fold-search~ is non-‘nil’, =[a-z]= also matches upper-case letters.
+
+2. A range is not affected by the locale’s collation sequence: it always
+   represents the set of characters with codepoints ranging between those of
+   its bounds, so that =[a-z]= matches only ASCII letters, even outside the C
+   or POSIX locale.
+
+3. As a special case, if either bound of a range is a raw 8-bit byte, the other
+   bound should be a unibyte character, and the range matches only unibyte
+   characters.
+
+4. If the lower bound of a range is greater than its upper bound, the range is
+   empty and represents no characters.  Thus, ‘[b-a]’ always fails to match,
+   and ‘[^b-a]’ matches any character, including newline.  However, the lower
+   bound should be at most one greater than the upper bound; for example,
+   ‘[c-a]’ should be avoided.
+
+5. A character alternative can also specify [[*Char Classes][named character classes]].  This is
+   a POSIX feature.  Using a character class is equivalent to mentioning each
+   of the characters in that class; but the latter is not feasible in practice,
+   since some classes include thousands of different characters.  A character
+   class should not appear as the lower or upper bound of a range.
+
 **** Syntax Classes
 
 #+cindex:syntax classes
 #+cindex:classes, regexp syntax
 #+cindex:regexp, syntax classes
 - [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Syntax-Class-Table.html#Syntax-Class-Table][Table of Syntax Classes]]
+
+**** Char Classes
+
+#+cindex:char classes, regexp
+#+cindex:classes, regexp char
+#+cindex:regexp, char classes
+- [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Char-Classes.html#Char-Classes][Character Classes]]
+
+**** Backslash Constructs
+
+#+cindex:backslash, regexp
+#+cindex:regexp backslash
+For the most part, =\= followed by any character matches only that character.
+However, there are several exceptions: certain sequences starting with =\= that
+have special meanings.  Here is a table of the special =\= constructs.
+
+- =\|= :: an alternative
+- =\{M\}= :: repeat the previous pattern exactly M times
+- =\{M,N\}= :: specifies repetition
+- =\(...\)= :: a grouping construct
+- =\(?:...\)= :: the “shy group” (“non-capturing” or “unnumbered”) construct
+- =\(?NUM:...\)= :: the “explicitly numbered group” construct
+- =\DIGIT= :: matches the same text that matched DIGITth occurrence of a group
+- =\w= :: matches any word-constituent character
+- =\W= :: matches any character that is not a work constituent
+- =\sCODE= :: matches any character whose syntax is CODE
+- =\SCODE= :: matches any character whose syntax is not CODE
+- =\cC= :: matches any character whose category is C. =M-x describe-categories=
+- =\CC= :: matches any character whose category is not C
+
+
+The following regular expression constructs match the empty string---that is,
+they don’t use up any characters---but whether they match depends on the
+context.
+
+#+attr_texinfo: :indic code
+- \` :: matches the empty string, but only at the beginning of the buffer or
+  string being matched against.
+- \' :: matches the empty string, but only at the end of the buffer or string
+  being matched against.
+- \= :: matches the empty string, but only at point.
+- =\b= :: matches the empty string, but only at the beginning or end of a word.
+- =\B= :: matches the empty string, but _not_ at the beginning or end of a
+  word, nor at the beginning or end of the buffer (or string)
+- \< :: matches the empty string, but only at the beginning of a word.
+- \> :: matches the empty string, but only at the end of a word.
+- \_< :: matches the empty string, but only at the beginning of a symbol.
+- \_> :: matches the empty string, but only at the end of a symbol.
+
+*** Using RE Builder Command
+
+- https://www.gnu.org/software/emacs/manual/html_node/elisp/Regular-Expressions.html#Regular-Expressions
+
+
+For interactive development of regular expressions, you can use the =M-x
+re-builder= command.  It provides a convenient interface for creating regular
+expressions, by giving immediate visual feedback in a separate buffer.  As you
+edit the regexp, all its matches in the target buffer are highlighted.  Each
+parenthesized sub-expression of the regexp is shown in a distinct face, which
+makes it easier to verify even very complex regexps.
+
+#+attr_texinfo: :options re-builder
+#+begin_defun
+Construct a regexp interactively.
+
+This command makes the current buffer the "target" buffer of
+the regexp builder.  It displays a buffer named "*RE-Builder*"
+in another window, initially containing an empty regexp.
+
+As you edit the regexp in the "*RE-Builder*" buffer, the
+matching parts of the target buffer will be highlighted.
+#+end_defun
 
 ** Changing Case
 
