@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-28 18:30
-#+macro:version Version 0.0.36
+#+date:2020-01-28 20:09
+#+macro:version Version 0.0.37
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1383,6 +1383,10 @@ expression REGEXP in STRING, or ‘nil’ if there is no match
   #+findex:match-end
 - ~(match-end 0)~ :: If this function finds a match, the index of the first
   character beyond the match is available as ‘(match-end 0)’.
+
+
+You can use the function <<match-string>> [[*match-string][~match-string~]] to extract the
+substrings matched by the parenthesis constructions in REGEXP.
 #+end_defun
 
 **** string-match-p
@@ -1441,7 +1445,7 @@ Since this variable affects all regular expression search and match constructs,
 you should bind it temporarily for as small as possible a part of the code.
 #+end_defun
 
-*** Regular Expression Match Data
+*** Replacing Text Using Match Data
 
 #+cindex:match data
 Emacs keeps track of the start and end positions of the segments of text found
@@ -1509,6 +1513,64 @@ Arguments REPLACEMENT and optional FIXEDCASE, LITERAL, STRING and SUBEXP have
 the same meaning as for ‘replace-match’.
 
 #+end_defun
+*** Accessing Matched Text Using Match Data
+This section explains how to use the match data to find out what was matched by
+the last search or match operation, if it succeeded.
+
+Every successful search sets the match data.  You should query the match data
+immediately after searching, before calling any other function that might
+perform another search, or save and restore the match data around the call to
+functions that could perform another search, or use the functions that
+explicitly do not modify the match data.
+
+You can ask about the entire matching text, or about a particular parenthetical
+subexpression of a regular expression, using the COUNT argument.
+
+- If count is zero, you are asking about the entire match.
+- If count is positive, it specifies which subexpression you want.
+
+**** match-string
+
+#+attr_texinfo: :options match-string count &optional in-string
+#+begin_defun
+
+- COUNT :: if zero, return the entire matched text; if positive integer,
+  return the COUNTth matched parenthetical subexpression.
+
+- IN-STRING :: If the last such operation was done against a string with
+  [[match-string][~string-match~]], then you should pass the same string as the argument
+  IN-STRING.
+
+  After a buffer search or match, you should omit IN-STRING or pass ‘nil’ for
+  it; but you should make sure that the current buffer when you call
+  ~match-string~ is the one in which you did the searching or matching.
+
+- RETURN VALUE :: The matched text or a portion of the matched text as a string
+  depending on the value of COUNT.
+
+  The value is ‘nil’ if COUNT is out of range, or for a subexpression inside a
+  ‘\|’ alternative that wasn’t used or a repetition that repeated zero times.
+
+#+end_defun
+
+**** match-string-no-properties
+
+#+attr_texinfo: :options match-string-no-properties count &optional in-string
+#+begin_defun
+#+end_defun
+
+**** match-beginning
+
+#+attr_texinfo: :options match-beginning count
+#+begin_defun
+#+end_defun
+
+**** match-end
+
+#+attr_texinfo: :options match-end count
+#+begin_defun
+#+end_defun
+
 *** Using RE Builder Command
 
 - https://www.gnu.org/software/emacs/manual/html_node/elisp/Regular-Expressions.html#Regular-Expressions
