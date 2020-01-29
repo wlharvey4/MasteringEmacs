@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-28 18:14
-#+macro:version Version 0.0.35
+#+date:2020-01-28 18:30
+#+macro:version Version 0.0.36
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1441,6 +1441,74 @@ Since this variable affects all regular expression search and match constructs,
 you should bind it temporarily for as small as possible a part of the code.
 #+end_defun
 
+*** Regular Expression Match Data
+
+#+cindex:match data
+Emacs keeps track of the start and end positions of the segments of text found
+during a search; this is called the “match data”.
+
+All functions are allowed to overwrite the match data unless they’re explicitly
+documented not to do so.  A consequence is that functions that are run
+implicitly in the background should likely save and restore the match data
+explicitly.
+
+**** replace-match
+
+This function replaces all or part of the text matched by the last search.  It
+works by means of the match data.
+
+#+attr_texinfo: :options replace-match replacement &optional fixedcase literal string subexp
+#+begin_defun
+This function performs a replacement operation on a buffer or string.
+
+- REPLACEMENT :: The String to replace the matched text
+
+- FIXEDCASE :: If FIXEDCASE is non-‘nil’, then ~replace-match~ uses the
+  replacement text without case conversion; otherwise, it converts the
+  replacement text depending upon the capitalization of the text to be
+  replaced.
+
+- LITERAL :: If LITERAL is non-‘nil’, then REPLACEMENT is inserted exactly as
+  it is, the only alterations being case changes as needed.  If it is ‘nil’
+  (the default), then the character ‘\’ is treated specially.
+
+  If a ‘\’ appears in REPLACEMENT, then it must be part of one of the following
+  sequences:
+
+  - =\&= :: This stands for the entire text being replaced.
+
+  - =\N= :: where N is a digit; this stands for the text that matched the Nth
+    subexpression in the original regexp.
+
+  - =\\= :: This stands for a single ‘\’ in the replacement text.
+
+  - =\?= :: This stands for itself (for compatibility with ‘replace-regexp’ and
+    related commands;
+
+  - any other :: error
+
+- STRING :: If you performed the last search on a string, pass the same string
+  as STRING.  Then this function returns a new string, in which the matched
+  text is replaced by REPLACEMENT.
+
+- SUBEXP :: If SUBEXP is non-‘nil’, that says to replace just subexpression
+  number SUBEXP of the regexp that was matched, not the entire match.
+#+end_defun
+
+**** match-substitue-replacement
+
+#+attr_texinfo: :options match-substitute-replacement replacement &optional fixedcase literal string subexp
+#+begin_defun
+This function returns the text that would be inserted into the buffer by
+‘replace-match’, but without modifying the buffer.
+
+It is useful if you want to present the user with actual replacement result,
+with constructs like ‘\N’ or ‘\&’ substituted with matched groups.
+
+Arguments REPLACEMENT and optional FIXEDCASE, LITERAL, STRING and SUBEXP have
+the same meaning as for ‘replace-match’.
+
+#+end_defun
 *** Using RE Builder Command
 
 - https://www.gnu.org/software/emacs/manual/html_node/elisp/Regular-Expressions.html#Regular-Expressions
