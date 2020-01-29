@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-28 10:20
-#+macro:version Version 0.0.34
+#+date:2020-01-28 18:14
+#+macro:version Version 0.0.35
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1277,6 +1277,169 @@ context.
 - \> :: matches the empty string, but only at the end of a word.
 - \_< :: matches the empty string, but only at the beginning of a symbol.
 - \_> :: matches the empty string, but only at the end of a symbol.
+
+*** Regular Expression Functions
+These functions operate on regular expressions.
+
+**** regexp-quote
+
+#+attr_texinfo: :options regexp-quote string
+#+begin_defun
+This function returns a regular expression whose only exact match is STRING.
+This allows you to request an exact string match or search when calling a
+function that wants a regular expression.
+#+end_defun
+
+**** regexp-opt
+
+#+attr_texinfo: :options regexp-opt strings &optional paren
+#+begin_defun
+This function returns an efficient regular expression that will match any of
+the strings in the list STRINGS.  This is useful when you need to make matching
+or searching as fast as possible—for example, for Font Lock mode.
+
+- STRINGS :: list of strings
+
+- PAREN :: The optional argument PAREN can be any of the following:
+
+  - a string :: The resulting regexp is preceded by PAREN and followed by ‘\)’;
+    =\\(?1:=
+
+  - words :: The resulting regexp is surrounded by ‘\<\(’ and ‘\)\>’.
+
+  - symbols :: The resulting regexp is surrounded by ‘\_<\(’ and ‘\)\_>’
+
+  - non-nil :: The resulting regexp is surrounded by ‘\(’ and ‘\)’.
+
+  - nil :: The resulting regexp is surrounded by ‘\(?:’ and ‘\)’
+#+end_defun
+
+**** regexp-opt-charset
+
+#+attr_texinfo: :options regexp-opt-depth regexp
+#+begin_defun
+This function returns the total number of grouping constructs (parenthesized
+expressions) in REGEXP.  This does not include shy groups.
+#+end_defun
+
+**** regexp-opt-charset chars
+
+#+attr_texinfo: :options regexp-opt-charset chars
+#+begin_defun
+This function returns a regular expression matching a character in the list of
+characters CHARS.
+#+end_defun
+
+*** Regular Expression Searching in Programs
+
+**** re-search-forward
+
+#+attr_texinfo: :options re-search-forward regexp &optional limit noerror count
+#+begin_defun
+This function searches forward in the current buffer for a string of text that
+is matched by the regular expression REGEXP.  The function skips over any
+amount of text that is not matched by REGEXP, and leaves point at the end of
+the first match found.  It returns the new value of point.
+
+- REGEXP :: The regexp to match against
+
+- LIMIT :: The upper bound to the search, unless nil
+
+- NOERROR :: What ‘re-search-forward’ does when the search fails depends on the
+  value of NOERROR:
+
+  - nil :: Signal a ‘search-failed’ error.
+
+  - t :: Do nothing and return ‘nil’.
+
+  - other :: Move point to LIMIT (or the end of the accessible portion of the
+    buffer) and return ‘nil’.
+
+- COUNT :: If COUNT is positive number, N, search N times.  If all searches
+  succeed, function call succeeds, moves point and return point’s new value.
+  Otherwise, function call fails.
+
+  If COUNT is a negative number -N, the search is done N times in the backward
+  direction.
+
+- RETURN VALUE :: Upon success, the value of point; nil on failure.
+#+end_defun
+
+**** string-match
+
+#+attr_texinfo: :options string-match regexp string &optional start
+#+begin_defun
+This function returns the index of the start of the first match for the regular
+expression REGEXP in STRING, or ‘nil’ if there is no match
+
+- REGEXP :: regexp to match against
+
+- STRING :: string to use for match
+
+- START :: if non-nil, start search at that index in STRING
+
+- RETURN VALUE :: index of the start of the first match in STRING, or nil if
+  there is no match.
+  #+findex:match-end
+- ~(match-end 0)~ :: If this function finds a match, the index of the first
+  character beyond the match is available as ‘(match-end 0)’.
+#+end_defun
+
+**** string-match-p
+
+#+attr_texinfo: :options string-match-p regexp string &optional start
+#+begin_defun
+This predicate function does what ~string-match~ does, but it avoids modifying
+the match data.
+#+end_defun
+
+**** looking-at
+
+#+attr_texinfo: :options looking-at regexp
+#+begin_defun
+This function determines whether the text in the current buffer directly
+following point matches the regular expression REGEXP.  The result is ‘t’ if
+so, ‘nil’ otherwise.  This function does not move point, but it does update the
+match data.
+#+end_defun
+
+**** looking-at-p
+
+#+attr_texinfo: :options looking-at-p regexp
+#+begin_defun
+This predicate function works like ‘looking-at’, but without updating the match
+     data.
+#+end_defun
+
+**** looking-back
+
+#+attr_texinfo: :options looking-back regexp limit &optional greedy
+#+begin_defun
+This function returns ‘t’ if REGEXP matches the text immediately before point
+(i.e., ending at point), and ‘nil’ otherwise.
+
+- REGEXP :: the regexp to match against
+
+- LIMIT :: You can bound the time required by specifying a non-‘nil’ value for
+  LIMIT, which says not to search before LIMIT.
+
+- GREEDY :: If GREEDY is non-‘nil’, this function extends the match backwards
+  as far as possible, stopping when a single additional previous character
+  cannot be part of a match for REGEXP.  When the match is extended, its
+  starting position is allowed to occur before LIMIT.
+#+end_defun
+
+**** search-spaces-regexp---a variable
+
+#+attr_texinfo: :options search-spaces-regexp
+#+begin_defun
+If this variable is non-‘nil’, it should be a regular expression that says how
+to search for whitespace.  In that case, any group of spaces in a regular
+expression being searched for stands for use of this regular expression.
+
+Since this variable affects all regular expression search and match constructs,
+you should bind it temporarily for as small as possible a part of the code.
+#+end_defun
 
 *** Using RE Builder Command
 
