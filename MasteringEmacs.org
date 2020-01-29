@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-28 20:09
-#+macro:version Version 0.0.37
+#+date:2020-01-28 20:58
+#+macro:version Version 0.0.38
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1499,6 +1499,20 @@ This function performs a replacement operation on a buffer or string.
   number SUBEXP of the regexp that was matched, not the entire match.
 #+end_defun
 
+#+texinfo:@heading Replace All Matches in Part of a Buffer
+
+If you want to find all matches for a regexp in part of the buffer, and replace
+them, the best way is to write an explicit loop using [[*re-search-forward][~re-search-forward~]] and
+~replace-match~, like this:
+
+#+begin_src elisp :eval no
+  (while (re-search-forward "foo[ \t]+bar" nil t)
+    (replace-match "foobar"))
+#+end_src
+
+Replacing matches in a string is more complex, especially if you want to do it
+efficiently.  So Emacs provides a function to do this: [[*replace-regexp-in-string][~replace-regexp-in-string~]].
+
 **** match-substitue-replacement
 
 #+attr_texinfo: :options match-substitute-replacement replacement &optional fixedcase literal string subexp
@@ -1513,6 +1527,52 @@ Arguments REPLACEMENT and optional FIXEDCASE, LITERAL, STRING and SUBEXP have
 the same meaning as for ‘replace-match’.
 
 #+end_defun
+**** replace-regexp-in-string
+
+#+attr_texinfo: :options replace-regexp-in-string regexp rep string &optional fixedcase literal subexp start
+#+begin_defun
+
+This function uses [[*replace-match][~replace-match~]] to do the replacement.
+
+- REGEXP :: the regexp to use
+
+- REP :: replacement string or function.
+
+  If a function, ~replace-regexp-in-string~ calls REP for each match, passing
+  the text of the match as its sole argument.  It collects the value REP
+  returns and passes that to ~replace-match~ as the replacement string.
+
+- STRING :: string to search; this function copies STRING and searches it for
+  matches for REGEXP, and replaces them with REP.
+
+- FIXEDCASE :: passed to ~replace-match~
+
+- LITERAL :: passed to ~replace-match~
+
+- SUBEXP :: passed to ~replace-match~
+
+- START :: If START is non-‘nil’, the search for matches starts at that index
+  in STRING, so matches starting before that index are not changed.
+
+- RETURN VALUE :: It returns the modified copy.
+#+end_defun
+
+**** perform-replace
+
+If you want to write a command along the lines of ~query-replace~, you can use
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Search-and-Replace.html#Search-and-Replace][~perform-replace~]] to do the work.
+
+#+attr_texinfo: :options perform-replace from-string replacements query-flag regexp-flag delimited-flag &optional repeat-count map start end backward region-noncontiguous-p
+#+begin_defun
+This function is the guts of ‘query-replace’ and related commands.
+
+It searches for occurrences of FROM-STRING in the text between positions START
+and END and replaces some or all of them.  If START is ‘nil’ (or omitted),
+point is used instead, and the end of the buffer’s accessible portion is used
+for END.  (If the optional argument BACKWARD is non-‘nil’, the search starts at
+END and goes backward.)
+#+end_defun
+
 *** Accessing Matched Text Using Match Data
 This section explains how to use the match data to find out what was matched by
 the last search or match operation, if it succeeded.
@@ -1557,18 +1617,86 @@ subexpression of a regular expression, using the COUNT argument.
 
 #+attr_texinfo: :options match-string-no-properties count &optional in-string
 #+begin_defun
+This function is like ~match-string~ except that the result has no text
+properties.
 #+end_defun
 
 **** match-beginning
 
 #+attr_texinfo: :options match-beginning count
 #+begin_defun
+If the last regular expression search found a match, this function returns the
+position of the start of the matching text or of a subexpression of it.
+
+- COUNT :: If COUNT is zero, then the value is the position of the start of the
+  entire match.  Otherwise, COUNT specifies a subexpression in the regular
+  expression, and the value of the function is the starting position of the
+  match for that subexpression.
+
+  The value is ‘nil’ for a subexpression inside a ‘\|’ alternative that wasn’t
+  used or a repetition that repeated zero times.
 #+end_defun
 
 **** match-end
 
 #+attr_texinfo: :options match-end count
 #+begin_defun
+This function is like ~match-beginning~ except that it returns the position of
+the end of the match, rather than the position of the beginning.
+#+end_defun
+
+**** match-data
+
+#+attr_texinfo: :options match-data &optional integers reuse reseat
+#+begin_defun
+This function returns a list of positions (markers or integers) that record all
+the information on the text that the last search matched.
+
+- RETURN VALUE ::
+
+  - Element zero is the position of the beginning of the match for the whole
+    expression;
+
+  - element one is the position of the end of the match for the expression.
+
+  - The next two elements are the positions of the beginning and end of the match
+    for the first subexpression, and so on.
+
+  - In general, element number 2N corresponds to ‘(match-beginning N)’; and
+  element number 2N + 1 corresponds to ‘(match-end N)’.
+
+- INTEGERS :: Applies only to buffer searches; normally all the elements are
+  markers or ‘nil’, but if INTEGERS is non-‘nil’, that means to use integers
+  instead of markers.  (In that case, the buffer itself is appended as an
+  additional element at the end of the list, to facilitate complete restoration
+  of the match data.)
+
+- REUSE :: If REUSE is non-‘nil’, it should be a list.  In that case,
+  ‘match-data’ stores the match data in REUSE.  REUSE is destructively
+  modified.  The purpose of this feature is to reduce the need for garbage
+  collection.
+
+- RESEAT :: If RESEAT is non-‘nil’, all markers on the REUSE list are reseated
+  to point to nowhere.
+#+end_defun
+
+**** set-match-data
+
+#+attr_texinfo: :options set-match-data match-list &optional reseat
+#+begin_defun
+This function sets the match data from the elements of MATCH-LIST, which should
+be a list that was the value of a previous call to ‘match-data’.
+
+If RESEAT is non-‘nil’, all markers on the MATCH-LIST list are reseated to
+point to nowhere.
+#+end_defun
+
+**** save-match-data
+
+#+attr_texinfo: :options save-match-data body
+#+begin_defun
+This macro executes BODY, saving and restoring the match data around it.  The
+return value is the value of the last form in BODY.
 #+end_defun
 
 *** Using RE Builder Command
