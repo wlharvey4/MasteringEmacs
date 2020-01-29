@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-01-29 08:30
-#+macro:version Version 0.0.39
+#+date:2020-01-29 09:34
+#+macro:version Version 0.0.40
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -2606,7 +2606,45 @@ behave the same way.
 ** Effective emacs
 - https://a-nickels-worth.blogspot.com/2007/11/effective-emacs.html
 
-* Lists in Elisp
+
+* Sequences in Elisp
+:PROPERTIES:
+:appendix: t
+:END:
+
+#+cindex:sequence type
+The /sequence/ type is the union of two other Lisp types: lists and arrays.  In
+other words, any list is a sequence, and any array is a sequence.  The common
+property that all sequences have is that each is an ordered collection of
+elements.
+
+#+texinfo: @heading The List
+
+#+cindex:list
+A list is a sequence of elements, but it is not a single primitive object; it
+is made of /cons cells/, one cell per element.  Finding the Nth element
+requires looking through N cons cells, so elements farther from the beginning
+of the list take longer to access.  But it is possible to add elements to the
+list, or remove elements.
+
+#+texinfo:@heading The Array
+
+#+cindex:array
+An /array/ is a fixed-length object with a slot for each of its elements.  All
+the elements are accessible in constant time.  The four types of arrays are:
+- strings
+- vectors
+- char-tables
+- bool-vectors
+
+** Sequence Functions
+
+This section describes functions that accept any kind of sequence.
+
+** Lists in Elisp
+:PROPERTIES:
+:appendix: t
+:END:
 
 - [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lists.html#Lists][Lists in the Elisp Manual]]
 
@@ -2619,17 +2657,24 @@ Two important differences between lists and vectors is that:
 - two or more lists can share part of their structure;
 - you can insert or delete elements in a list without copying the whole list.
 
-** Lists and Cons Cells
+
+#+cindex:list
+A /list/ represents a sequence of zero or more elements (which may be any Lisp
+objects).
+
+*** Cons Cells
+
+A /cons cell/ is a primitive data object that represents an ordered pair.  That
+is, it has two slots, and each slot “holds”, or “refers to”, some Lisp object.
+One slot is known as the CAR, and the other is known as the CDR.
+*** Lists and Cons Cells
 
 #+cindex:cons cell
 #+cindex:CAR, CDR
-Lists are built up from /cons cells/, which is a primitive data type in Lisp.
-A /cons cell/ is a data object that represents an ordered pair.  That is, it
-has two slots, and each slot “holds”, or “refers to”, some Lisp object.  One
-slot is known as the CAR, and the other is known as the CDR.
-
-A list is a series of cons cells chained together, so that each cell refers to
-the next one.  There is one cons cell for each element of the list.
+Lists are built up from /cons cells/.  A “list” is a series of cons cells,
+linked together so that the CDR slot of each cons cell holds either the next
+cons cell or the empty list.  The empty list is actually the symbol ‘nil’.
+There is one cons cell for each element of the list.
 
 By convention, the CARs of the cons cells hold the elements of the list, and
 the CDRs are used to chain the list (this asymmetry between CAR and CDR is
@@ -2651,6 +2696,7 @@ proper list is a proper list containing all the elements except the first.
 
 #+texinfo:@heading Dotted Lists
 
+#+cindex:dotted list
 If the CDR of a list’s last cons cell is some value other than ‘nil’, we call
 the structure a “dotted list”, since its printed representation would use
 dotted pair notation
@@ -2660,6 +2706,137 @@ dotted pair notation
 #+cindex:list structure
 Because most cons cells are used as part of lists, we refer to any structure
 made out of cons cells as a “list structure”.
+
+#+texinfo:@heading Read Syntax and Printed Representation
+
+#+cindex:read syntax, list
+#+cindex:printed representation, list
+The read syntax and printed representation for lists are identical, and consist
+of a left parenthesis, an arbitrary number of elements, and a right
+parenthesis.
+
+: (a b c)
+: () or nil
+: ((a b c) (d e f))
+
+Upon reading, each object inside the parentheses becomes an element of the
+list.  That is, a cons cell is made for each element.  The CAR slot of the cons
+cell holds the element, and its CDR slot refers to the next cons cell of the
+list, which holds the next element in the list.  The CDR slot of the last cons
+cell is set to hold ‘nil’.
+
+#+texinfo:@heading Dotted Pair Notation
+
+#+cindex:dotted pair notation
+/Dotted pair notation/ is a general syntax for cons cells that represents the
+CAR and CDR explicitly.
+
+In this syntax, =(A . B)= stands for a cons cell whose CAR is the object A and
+whose CDR is the object B.  In dotted pair notation, the list =(1 2 3)= is
+written as (=1 . (2 . (3 . nil)))=.
+
+Dotted pair notation is more general than list syntax because the CDR does not
+have to be a list.  However, it is more cumbersome in cases where list syntax
+would work.  For ‘nil’-terminated lists, you can use either notation, but list
+notation is usually clearer and more convenient.  When printing a list, the
+dotted pair notation is only used if the CDR of a cons cell is not a list.
+
+You can combine dotted pair notation with list notation to represent
+conveniently a chain of cons cells with a non-‘nil’ final CDR.  You write a dot
+after the last element of the list, followed by the CDR of the final cons cell.
+For example, =(rose violet . buttercup)= is equivalent to =(rose . (violet
+. buttercup))=.  The list =(rose violet)= is equivalent to =(rose . (violet))=.
+Similarly, the three-element list =(rose violet buttercup)= is equivalent to
+=(rose . (violet . (buttercup)))=.
+*** Association Lists
+
+#+cindex:association list
+#+cindex:stack
+An /association list/ or /alist/ is a specially-constructed list whose elements
+are cons cells.  In each element, the CAR is considered a “key”, and the CDR is
+considered an “associated value”.  Association lists are often used as stacks,
+since it is easy to add or remove associations at the front of the list.
+
+#+begin_src emacs-lisp :eval no
+  (setq alist-of-colors
+        '((rose . red) (lily . white) (buttercup . yellow)))
+#+end_src
+
+Above, ~alist-of-colors~ is an alist of three elements.  In each element, the
+first object is the key, and the second is the value.
+*** List Predicates
+*** List Elements
+*** List Variables
+*** Modifying Lists
+*** Sets
+*** Association Lists
+*** Property Lists
+
+** Arrays in Elisp
+
+An /array/ object has slots that hold a number of other Lisp objects, called
+the elements of the array.  Any element of an array may be accessed in constant
+time.  When you create an array, other than a char-table, you must specify its
+length.  You cannot specify the length of a char-table, because that is
+determined by the range of character codes.
+
+#+cindex:array types
+Emacs defines four types of array, all one-dimensional:
+
+- “strings” (*note String Type::)
+- “vectors” (*note Vector Type::)
+- “bool-vectors” (*note Bool-Vector Type::)
+- “char-tables” (*note Char-Table Type::)
+
+
+#+cindex:vector
+#+cindex:char-table
+#+cindex:bool-vector
+Vectors and char-tables can hold elements of any type, but strings can only
+hold characters, and bool-vectors can only hold ‘t’ and ‘nil’.
+
+#+texinfo:@heading Shared Characteristics
+
+#+cindex:characteristics, array
+All four kinds of array share these characteristics:
+
+   - The first element of an array has index zero, the second element has index
+     1, and so on.  This is called “zero-origin” indexing.  For example, an
+     array of four elements has indices 0, 1, 2, and 3.
+
+   - The length of the array is fixed once you create it; you cannot change the
+     length of an existing array.
+
+   - For purposes of evaluation, the array is a constant---i.e., it evaluates
+     to itself.
+
+   - The elements of an array may be referenced or changed with the functions
+     ‘aref’ and ‘aset’, respectively (*note Array Functions::).
+
+
+#+texinfo:@heading Text Characters
+
+In principle, if you want an array of text characters, you could use either a
+string or a vector.  In practice, we always choose strings for such
+applications, for four reasons:
+
+   - They occupy one-fourth the space of a vector of the same elements.
+
+   - Strings are printed in a way that shows the contents more clearly as text.
+
+   - Strings can hold text properties.  *Note Text Properties::.
+
+   - Many of the specialized editing and I/O facilities of Emacs accept only
+     strings.  For example, you cannot insert a vector of characters into a
+     buffer the way you can insert a string.  *Note Strings and Characters::.
+
+
+By contrast, for an array of keyboard input characters (such as a key
+sequence), a vector may be necessary, because many keyboard input characters
+are outside the range that will fit in a string.
+
+*** Functions that Operate on Arrays
+
 * Interacting with the System
 :PROPERTIES:
 :appendix: t
