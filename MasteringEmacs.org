@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-05 04:17
-#+macro:version Version 0.0.43
+#+date:2020-02-05 04:30
+#+macro:version Version 0.0.44
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -4827,7 +4827,9 @@ the most benefits from the AWS S3 ~sync~ command.
 #+texinfo_dir_title:Mastering
 #+texinfo_dir_desc:notes about mastering Emacs
 #+texinfo_printed_title:Mastering Emacs
-#+options: H:4
+
+* Options
+#+options: H:4 toc:3
 
 * Local Variables                                                  :noexport:
 # Local variables:
