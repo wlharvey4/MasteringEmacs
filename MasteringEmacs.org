@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-04 19:46
-#+macro:version Version 0.0.42
+#+date:2020-02-05 04:17
+#+macro:version Version 0.0.43
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -849,6 +849,9 @@ you want =super= use the prefix key =s-= (lower case).
 *** Describe
 
 * Directories---Files---Buffers
+** Directories
+** Files
+** Buffers
 ** Insert File Contents
 
 #+cindex:file, insert
@@ -943,18 +946,88 @@ Learning the basic key bindings to:
 
 #+caption:Basic Commands
 #+name:basic-commands
-| Key Binding | Command                    | Purpose                                     |
-|-------------+----------------------------+---------------------------------------------|
-| C-x C-f     | find-file                  | Find and open a file                        |
-| C-x C-s     | save-buffer                | Save the buffer                             |
-| C-x b       | switch-to-buffer           | Switch buffer                               |
-| C-x k       | kill-buffer                | Kill (close) a buffer                       |
-| C-x C-b     | list-buffers               | Display all open buffers                    |
-| C-x C-c     | save-buffers-kill-terminal | Exit Emacs                                  |
-| esc-esc-esc | keyboard-escape-quit       | Exit the current mode; return to one window |
-| C-/         | undo                       | Undo changes                                |
-| F-10        | menu-bar-open              | Activate the menu bar                       |
-|-------------+----------------------------+---------------------------------------------|
+| Key Binding | Command                      | Purpose                                     |
+|-------------+------------------------------+---------------------------------------------|
+| C-x C-f     | ~find-file~                  | Find and open a file                        |
+| C-x C-s     | ~save-buffer~                | Save the buffer                             |
+| C-x b       | ~switch-to-buffer~           | Switch buffer                               |
+| C-x k       | ~kill-buffer~                | Kill (close) a buffer                       |
+| C-x C-b     | ~list-buffers~               | Display all open buffers                    |
+| C-x C-c     | ~save-buffers-kill-terminal~ | Exit Emacs                                  |
+| esc-esc-esc | ~keyboard-escape-quit~       | Exit the current mode; return to one window |
+| C-/         | ~undo~                       | Undo changes                                |
+| F-10        | ~menu-bar-open~              | Activate the menu bar                       |
+|-------------+------------------------------+---------------------------------------------|
+
+*** find-file =C-x C-f= 
+#+findex:find-file
+To *open* a file is to /find/ or /visit/ it.  The two are synonymous.  If the
+file does not exist, Emacs will open an empty buffer associated with that
+filename.  If the file exists, Emacs will place the contents into a buffer
+associated with that filename.
+
+#+texinfo:@heading Major Mode Load Order
+
+When you visit a file, Emacs will pick a major mode.  Emacs supports an array
+of detection mechanisms that can all be changed to suit your needs.  They are
+listed here in the order they are applied.
+
+**** File-local variables
+
+**** Program loader directives
+
+**** Magic mode detection
+
+**** Automatic mode detection
+
+*** Coding Systems and Line Endings
+Emacs applies two other important heuristics you should know about:
+- coding systems and
+- line endings.
+
+**** Coding Systems
+#+cindex:coding system
+Emacs has excellent Unicode support, including:
+- transparently reading and writing between different coding systems,
+- bidirectional right-to-left script support,
+- keyboard input method switching, and more.
+
+
+#+findex:describe-coding-system
+- ~describe-coding-system~ (=C-h C=) ::
+
+  To see the coding system in use for the current buffer.  Emacs will display a
+  lot of information, including all the coding systems associated with the
+  buffer.  For files, they are almost always set to the same coding system.
+
+
+The modeline will also provide some information:
+
+: U:**-  helloworld.c       92% of 5k   ...
+
+#+cindex:multi-byte
+The first character, =U=, means the buffer ~helloworld.c~ has a *multi-byte*
+coding system.
+
+#+cindex:ISO character encoding
+If it said =1=, it would typically be part 1 of any number of ISO character
+encodings.  The exact mnemonic will depend on which of the hundreds of
+supported coding systems you are using.
+
+**** Line Endings
+#+cindex:line endings
+When you open a file, Emacs will determine the line endings used.
+
+#+cindex:DOS line endings
+#+cindex:UNIX line endings
+If the file uses DOS or UNIX line endings, they will be preserved when you open
+and save a file.
+
+The modeline will tell you what line ending you are using:
+
+: U:**-  helloworld.c       92% of 5k   ...
+
+The : means it’s UNIX-style line endings.  For DOS it would say =(DOS)=.
 
 ** Window Management
 
