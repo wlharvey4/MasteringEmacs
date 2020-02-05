@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-04 19:20
-#+macro:version Version 0.0.41
+#+date:2020-02-04 19:46
+#+macro:version Version 0.0.42
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -854,6 +854,10 @@ you want =super= use the prefix key =s-= (lower case).
 #+cindex:file, insert
 #+cindex:insert file
 #+attr_texinfo: :indic code
+In a Lisp program, if you want to look at the contents of a file but not alter
+it, the fastest way is to use ‘insert-file-contents’ in a temporary buffer.
+Visiting the file is not necessary and takes longer.
+
 - insert-file =C-x i= ::
 
      This function is for interactive use only; in Lisp code use
@@ -889,7 +893,7 @@ supplementary skills that make up navigation, like:
 #+cindex:windowing system
 - understanding Emacs’s rather complicated windowing system
 
-- movement in Emacs is local, regional or global.
+- movement in Emacs is /local/, /regional/ or /global/.
   #+cindex:local movement
 - /local movement/ is what you do when you edit and move around text near to
   the point.
@@ -918,6 +922,7 @@ then never changed again.
 
 #+texinfo:@heading Buffers
 
+#+cindex:buffers
 Buffers are rarely killed (that is, closed) when they are no longer needed;
 most Emacs hackers will simply switch away to something else, only to return to
 it when needed.  That may seem wasteful, but each buffer (aside from assorted
@@ -927,6 +932,29 @@ weeks between restarts and most Emacs hackers have many hundreds of buffers
 running without issue.
 
 ** The Basics
+Learning the basic key bindings to:
+
+- find and save files,
+- change buffers, and
+- the bare essentials of day-to-day use 
+
+
+{{{noindent}}}is the first step on the path to mastering Emacs.
+
+#+caption:Basic Commands
+#+name:basic-commands
+| Key Binding | Command                    | Purpose                                     |
+|-------------+----------------------------+---------------------------------------------|
+| C-x C-f     | find-file                  | Find and open a file                        |
+| C-x C-s     | save-buffer                | Save the buffer                             |
+| C-x b       | switch-to-buffer           | Switch buffer                               |
+| C-x k       | kill-buffer                | Kill (close) a buffer                       |
+| C-x C-b     | list-buffers               | Display all open buffers                    |
+| C-x C-c     | save-buffers-kill-terminal | Exit Emacs                                  |
+| esc-esc-esc | keyboard-escape-quit       | Exit the current mode; return to one window |
+| C-/         | undo                       | Undo changes                                |
+| F-10        | menu-bar-open              | Activate the menu bar                       |
+|-------------+----------------------------+---------------------------------------------|
 
 ** Window Management
 
