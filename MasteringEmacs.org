@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-05 04:30
-#+macro:version Version 0.0.44
+#+date:2020-02-05 21:27
+#+macro:version Version 0.0.45
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -851,6 +851,53 @@ you want =super= use the prefix key =s-= (lower case).
 * Directories---Files---Buffers
 ** Directories
 ** Files
+*** File Names
+**** Minibuffer for File Names
+
+#+texinfo:@heading Minibuffer
+
+#+cindex:minibuffer
+#+cindex:completion
+#+cindex:history
+While in the minibuffer, you can use the usual completion and history commands.
+Minibuffer history commands offer some special features for reading file names,
+
+#+findex:find-file
+#+cindex:visit file
+#+cindex:minibuffer
+- ~find-file~ (=C-x C-f=) :: use the /minibuffer/ to read a file name argument.
+  Emacs obeys this command by /visiting/ the file: it creates a buffer, copies
+  the contents of the file into the buffer, and then displays the buffer for
+  editing.  If the file does not exist, this command creates an empty buffer;
+  Emacs creates the file the first time you save this buffer.
+
+- ~save-buffer~ (=C-x C-s=) :: you can save the new text in the file by typing
+  =C-x C-s= (~save-buffer~).  This copies the altered buffer contents back into
+  the file
+
+#+texinfo:@subheading Completion
+
+#+texinfo:@subheading Permissive Completion with Confirmation
+
+#+texinfo: @subheading Minibuffer History
+
+**** Default Directory
+
+#+cindex:default directory
+#+vindex:default-directory
+- ~default-directory~ :: Each buffer has a default directory, stored in the
+  buffer-local variable ~default-directory~.  Emacs always assumes that any
+  relative file name is relative to the default directory,
+
+  When you visit a file, Emacs sets ~default-directory~ in the visiting buffer
+  to the directory of its file.
+
+  #+findex:pwd
+- ~pwd~ :: Show the current default directory.
+
+  #+findex:cd
+- ~cd DIR~ :: Make DIR become the current buffer’s default directory.
+
 ** Buffers
 ** Insert File Contents
 
