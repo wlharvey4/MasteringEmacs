@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-05 21:27
-#+macro:version Version 0.0.45
+#+date:2020-02-06 07:45
+#+macro:version Version 0.0.47
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -842,6 +842,9 @@ you want =super= use the prefix key =s-= (lower case).
 #+end_src
 *** Configuring the Emacs Frame Height
 - See [[http://irreal.org/blog/?p=1331][More on Setting the Emacs Frame Height]]
+*** Configuring File Name Completion
+If you have changed your system's case-sensitivity setting[fn:1], have a look
+at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 ** Help
 *** Info
@@ -859,8 +862,9 @@ you want =super= use the prefix key =s-= (lower case).
 #+cindex:minibuffer
 #+cindex:completion
 #+cindex:history
-While in the minibuffer, you can use the usual completion and history commands.
-Minibuffer history commands offer some special features for reading file names,
+While in the minibuffer, you can use the usual /completion/ and /history/
+commands.  Minibuffer history commands offer some special features for reading
+file names.
 
 #+findex:find-file
 #+cindex:visit file
@@ -877,9 +881,62 @@ Minibuffer history commands offer some special features for reading file names,
 
 #+texinfo:@subheading Completion
 
+<<ignore-case-variables>>
+#+vindex:read-file-name-completion-ignore-case
+- ~read-file-name-completion-ignore-case~ :: when non-nil, ignore case when
+  completing file names.
+#+vindex:read-buffer-completion-ignore-case
+- ~read-buffer-completion-ignore-case~ :: when non-nil, ignore case when
+  completing buffer names.
+  #+vindex:completion-ignored-extensions
+- ~completion-ignored-extensions~ :: When completing file names, Emacs usually
+  omits certain alternatives that are considered unlikely to be chosen, as
+  determined by this list variable.
+
+  It's value is:
+
+  src_elisp[:eval yes :results output :exports results]{(princ completion-ignored-extensions)}
+  #+vindex:completion-cycle-threshold
+- ~completion-cycle-threshold~ :: If non-nil, completion commands can cycle
+  through completion alternatives. If t, cycling is always used. 
+
 #+texinfo:@subheading Permissive Completion with Confirmation
 
 #+texinfo: @subheading Minibuffer History
+
+#+cindex:minibuffer history
+Every argument that you enter with the minibuffer is saved in a minibuffer
+history list so you can easily use it again later.  Emacs keeps separate
+history lists for several different kinds of arguments.  For example, there is
+a list for file names, used by all the commands that read file names.  Other
+history lists include buffer names, command names (used by M-x), and command
+arguments (used by commands like ~query-replace~).  Use the following arguments
+to quickly fetch an earlier argument into the minibuffer:
+
+- ~previous-history-element~ (=M-p=)
+
+- ~next-history-element~ (=M-n=)
+
+- ~previous-line-or-history-element~ (=<UP>=)
+
+- ~next-line-or-history-element~ (=<DOWN>=)
+
+- ~previous-matching-history-element~ (=M-r regexp=)
+
+- ~next-matching-history-element~ (=M-s regexp=)
+
+- ~repeat-complex-command~ (=C-x <ESC> <ESC>=) : Re-execute a recent minibuffer
+  command from the command history.  With no argument, it repeats the last such
+  command. A numeric argument specifies which command to repeat; 1 means the
+  last one, 2 the previous, and so on.  You can use the usual minibuffer
+  history commands to move through the history list.
+
+- ~list-command-history~ (=M-x list-command-history=) : open a new window with
+  the list of commands
+  #+vindex:command-history
+- ~command-history~ : The list of previous minibuffer-using commands is stored
+  as a Lisp list in this variable.  Lisp programs can re-execute a command by
+  calling eval with the command-history element.
 
 **** Default Directory
 
@@ -897,6 +954,18 @@ Minibuffer history commands offer some special features for reading file names,
 
   #+findex:cd
 - ~cd DIR~ :: Make DIR become the current buffer’s default directory.
+
+**** Quoting File Names
+You can quote an absolute file name to prevent special characters and syntax in
+it from having their special effects.  The way to do this is to add =/:= at the
+beginning.
+: /:/foo:/bar
+
+**** Completion
+After you type part of the argument, Emacs can fill in the rest, or some of it,
+based on what was typed so far.  Certain keys (usually =<TAB>=, =<RET>=, and
+=<SPC>=) are rebound in the minibuffer to special completion commands.  You can
+usually type =?= to see a list of completion alternatives.
 
 ** Buffers
 ** Insert File Contents
@@ -4397,6 +4466,9 @@ Copyright \copy 2020 by {{{author}}}
 :END:
 
 * Footnotes
+
+[fn:1]For example, Mac OS is case-insensitive by default, but can be configured
+to be case-sensitive. 
 
 * Build Tools
 :PROPERTIES:
