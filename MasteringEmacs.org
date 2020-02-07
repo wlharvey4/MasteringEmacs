@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-07 03:22
-#+macro:version Version 0.0.51
+#+date:2020-02-07 03:38
+#+macro:version Version 0.0.52
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -971,6 +971,11 @@ usually type =?= to see a list of completion alternatives.
 #+cindex:buffer
 A /buffer/ is a Lisp object containing text to be edited.  Buffers in Emacs
 editing are objects that have distinct names and hold text that can be edited.
+Each time you visit a file, a buffer is used to hold the file’s text.  Each
+buffer has a unique name, which can be of any length.  Most buffers are made by
+visiting files, and their names are derived from the files’ names; however, you
+can also create an empty buffer with any name you want.
+
 Buffers appear to Lisp programs as a special data type.  You can think of the
 contents of a buffer as a string that you can extend; insertions and deletions
 may occur in any part of the buffer.
@@ -978,13 +983,27 @@ may occur in any part of the buffer.
 #+texinfo:@heading Files and Windows
 
 Buffers are used to hold the contents of files that are being visited; there
-may also be buffers that are not visiting files.  Each buffer, including the
-current buffer, may or may not be displayed in any windows.
+may also be buffers that are not visiting files.  Each time you invoke Dired, a
+buffer is used to hold the directory listing.  If you send a message with ‘C-x
+m’, a buffer is used to hold the text of the message.  When you ask for a
+command’s documentation, that appears in a buffer named ‘*Help*’.  Each buffer,
+including the current buffer, may or may not be displayed in any windows.  When
+a buffer is displayed in a window, its name is shown in the mode line.
 
 #+texinfo:@heading Current Buffer
 
 #+cindex:current buffer
-Only one buffer is designated the [[*Current Buffer][current buffer]] at any time.
+Only one buffer is selected and designated the [[*Current Buffer][current buffer]] at any time.
+When a command operates on "the buffer", this really means that it operates on
+the current buffer.  When there is only one Emacs window, the buffer displayed
+in that window is current.  When there are multiple windows, the buffer
+displayed in the “selected window” is current.
+
+#+texinfo:@heading Properties
+
+A buffer’s “contents” consist of a series of characters, each of which
+optionally carries a set of text properties that can specify more information
+about that character.
 
 #+texinfo:@heading Buffer-Local Variables
 
@@ -993,6 +1012,12 @@ Buffer-specific information that is directly accessible is stored in
 /buffer-local variable/ bindings, which are variable values that are effective
 only in a particular buffer.  This feature allows each buffer to override the
 values of certain variables.  Most major modes override variables.
+
+Aside from its textual contents, each buffer records several pieces of
+information, such as what file it is visiting (if any), whether it is modified,
+and what major mode and minor modes are in effect.  These are stored in
+“buffer-local variables”---variables that can have a different value in each
+buffer.
 
 #+attr_texinfo: :options bufferp @var{object}
 #+begin_defun
