@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-06 20:54
-#+macro:version Version 0.0.49
+#+date:2020-02-06 21:25
+#+macro:version Version 0.0.50
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1223,6 +1223,138 @@ function clears the recorded last file modification time, after which
 #+end_defun
 
 *** Modifying Buffers
+
+#+texinfo:@heading Modified Flag
+
+#+cindex:modified flag
+Emacs keeps a flag called the “modified flag” for each buffer, to record
+whether you have changed the text of the buffer.  This flag is set to ‘t’
+whenever you alter the contents of the buffer, and cleared to ‘nil’ when you
+save it.
+
+Some Lisp programs set the flag explicitly.  For example, the function
+‘set-visited-file-name’ sets the flag to ‘t’, because the text does not match
+the newly-visited file, even if it is unchanged from the file formerly visited.
+
+**** buffer-modified-p
+
+This function returns ‘t’ if the buffer BUFFER has been modified since it was
+last read in from a file or saved, or ‘nil’ otherwise.
+
+**** set-buffer-modified-p
+
+This function marks the current buffer as modified if FLAG is non-‘nil’, or as
+unmodified if the flag is ‘nil’.
+
+Another effect of calling this function is to cause unconditional redisplay of
+the mode line for the current buffer.
+
+#+texinfo:@subheading @code{force-mode-line-update}
+
+: (set-buffer-modified-p (buffer-modified-p))
+
+**** restore-buffer-modified-p
+
+Like ‘set-buffer-modified-p’, but does not force redisplay of mode lines.
+
+**** not-modified
+
+This command marks the current buffer as unmodified, and not needing to be
+saved.
+
+If ARG is non-‘nil’, it marks the buffer as modified, so that it will be saved
+at the next suitable occasion.
+
+Don’t use this function in programs, since it prints a message in the echo
+area; use ~set-buffer-modified-p~ (above) instead.
+
+**** buffer-modified-tick
+
+This function returns BUFFER’s modification-count.  This is a counter that
+increments every time the buffer is modified.
+
+**** buffer-chars-modified-tick
+
+This function returns BUFFER’s character-change modification-count.  Changes to
+text properties leave this counter unchanged;
+
+**** with-silent-modifications
+
+Sometimes there’s a need for modifying buffer in a way that doesn’t really
+change its text, like if only its text properties are changed.  If your program
+needs to modify a buffer without triggering any hooks and features that react
+to buffer modifications, use the ~with-silent-modifications~ macro.
+
+**** Buffer Modification Time
+
+When a buffer and its visited file are changed independently of each, saving
+the buffer contents into the file would potentially lose new information.
+Emacs therefore checks the file’s modification time using the functions
+described below before saving the file.
+
+**** verify-visited-file-modtime
+
+This function compares what BUFFER (by default, the current-buffer) has
+recorded for the modification time of its visited file against the actual
+modification time of the file as recorded by the operating system.  The two
+should be the same unless some other process has written the file since Emacs
+visited or saved it.
+
+The function returns ‘t’ if the last actual modification time and Emacs’s
+recorded modification time are the same, ‘nil’ otherwise.
+
+**** clear-visited-file-modtime
+
+This function clears out the record of the last modification time of the file
+being visited by the current buffer.  As a result, the next attempt to save
+this buffer will not complain of a discrepancy in file modification times.
+
+**** visited-file-modtime
+
+This function returns the current buffer’s recorded last file modification
+time, as a list of the form ‘(HIGH LOW MICROSEC PICOSEC)’.  (This is the same
+format that ‘file-attributes’ uses to return time values;
+
+**** set-visited-file-modtime
+
+This function updates the buffer’s record of the last modification time of the
+visited file, to the value specified by TIME if TIME is not ‘nil’, and
+otherwise to the last modification time of the visited file.
+
+**** ask-user-about-supersession-threat
+
+This function is used to ask a user how to proceed after an attempt to modify a
+buffer visiting file FILENAME when the file is newer than the buffer text.
+
+**** Read-Only Buffers
+
+Read-only buffers are used in two kinds of situations:
+
+- A buffer visiting a write-protected file is normally read-only.
+
+- Modes such as Dired and Rmail make buffers read-only when altering the
+  contents with the usual editing commands would probably be a mistake.
+
+**** buffer-read-only---a variable
+
+This buffer-local variable specifies whether the buffer is read-only.
+
+**** inhibit-read-only---a variable
+
+If this variable is non-‘nil’, then read-only buffers and, depending on the
+actual value, some or all read-only characters may be modified.
+
+**** read-only-mode
+
+This is the mode command for Read Only minor mode, a buffer-local minor mode.
+When the mode is enabled, ‘buffer-read-only’ is non-‘nil’ in the buffer; when
+disabled, ‘buffer-read-only’ is ‘nil’ in the buffer.
+
+**** barf-if-buffer-read-only
+
+This function signals a ‘buffer-read-only’ error if the current buffer is
+read-only.
+
 *** The Buffer List
 *** Creating and Killing Buffers
 *** Indirect Buffers
