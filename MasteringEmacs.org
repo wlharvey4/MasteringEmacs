@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-06 08:21
-#+macro:version Version 0.0.48
+#+date:2020-02-06 20:54
+#+macro:version Version 0.0.49
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1078,6 +1078,150 @@ effect, this function returns only the visible part of the buffer.
 #+end_defun
 
 *** Buffer Names and File Names
+Each buffer has a unique name, which is a string.  Many of the functions that
+work on buffers accept either a buffer or a buffer name as an argument.  Any
+argument called BUFFER-OR-NAME is of this sort.  Any argument called BUFFER must
+be an actual buffer object, not a name.
+
+#+texinfo:@heading Buffer File Names
+
+The /buffer file name/ is the name of the file that is visited in that buffer.
+When a buffer is not visiting a file, its buffer file name is ‘nil’.  Most of
+the time, the buffer name is the same as the nondirectory part of the buffer
+file name, but the buffer file name and the buffer name are distinct and can be
+set independently.
+
+#+texinfo:@heading Buffer Name Functions
+
+**** buffer-name
+
+#+attr_texinfo: :options buffer-name &optional buffer
+#+begin_defun
+This function returns the name of BUFFER as a string.  BUFFER defaults to the
+current buffer.
+#+end_defun
+
+**** rename-buffer
+
+#+attr_texinfo: :options rename-buffer newname &optional unique
+#+begin_defun
+This function renames the current buffer to NEWNAME.
+
+Ordinarily, ‘rename-buffer’ signals an error if NEWNAME is already in use.
+However, if UNIQUE is non-‘nil’, it modifies NEWNAME to make a name that is not
+in use.
+
+This function returns the name actually given to the buffer.
+#+end_defun
+
+**** get-buffer
+
+#+attr_texinfo: :options buffer-or-name
+#+begin_defun
+This function returns the buffer specified by BUFFER-OR-NAME.
+
+If BUFFER-OR-NAME is a string and there is no buffer with that name, the value
+is ‘nil’.
+#+end_defun
+
+**** generate-new-buffer-name
+
+#+attr_texinfo: :options starting-name &optional ignore
+#+begin_defun
+This function returns a name that would be unique for a new buffer---but does
+not create the buffer.  It starts with STARTING-NAME, and produces a name not
+currently in use for any buffer by appending a number inside of ‘<...>’.
+
+If the optional second argument IGNORE is non-‘nil’, it should be a string, a
+potential buffer name.  It means to consider that potential buffer acceptable,
+if it is tried, even it is the name of an existing buffer (which would normally
+be rejected).
+#+end_defun
+
+**** buffer-file-name
+
+#+texinfo:@heading Buffer File Name Functions and Variables
+
+#+attr_texinfo: :options buffer-file-name &optional buffer
+#+begin_defun
+This function returns the absolute file name of the file that BUFFER is
+visiting (defaulting to the current buffer).  It returns 'nil' if BUFFER is not
+visiting a file.
+#+end_defun
+
+**** buffer-file-name---a permanent buffer-local variable
+
+#+attr_texinfo: :options buffer-file-name
+#+begin_defvar
+This buffer-local variable contains the name of the file being visited in the
+current buffer, or ‘nil’ if it is not visiting a file.
+
+Use ~set-visited-file-name~ to change this variable's value.
+#+end_defvar
+
+**** buffer-file-truename---a permanent buffer-local variable
+
+#+attr_texinfo: :options buffer-file-truename
+#+begin_defvar
+This buffer-local variable holds the abbreviated [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Truenames.html#Truenames][truename]] of the file visited
+in the current buffer, or ‘nil’ if no file is visited.
+#+end_defvar
+
+**** get-file-buffer
+
+#+attr_texinfo: :options get-file-buffer filename
+#+begin_defun
+This function returns the buffer visiting file FILENAME, or 'nil' if there is
+none.  The argument FILENAME, which must be a string, is expanded then compared
+against the visited file names of all live buffers.  Note that the buffer’s
+‘buffer-file-name’ must match the expansion of FILENAME exactly.
+
+In unusual circumstances, there can be more than one buffer visiting the same
+file name.  In such cases, this function returns the first such buffer in the
+buffer list.
+#+end_defun
+
+**** find-buffer-visiting
+
+#+attr_texinfo: :options find-buffer-visiting filename &optional predicate
+#+begin_defun
+This is like ‘get-file-buffer’, except that it can return any buffer visiting
+the file possibly under a different name.  That is, the buffer’s
+‘buffer-file-name’ does not need to match the expansion of FILENAME exactly, it
+only needs to refer to the same file.
+
+If PREDICATE is non-‘nil’, it should be a function of one argument, a buffer
+visiting FILENAME.  The buffer is only considered a suitable return value if
+PREDICATE returns non-‘nil’.
+#+end_defun
+
+**** set-visited-file-name
+
+#+attr_texinfo: :options set-visited-file-name filename &optional no-query along-with-file
+#+begin_defun
+If FILENAME is a non-empty string, this function changes (or sets) the name of
+the file visited in the current buffer to FILENAME.  The next time the buffer
+is saved it will go in the newly-specified file.
+
+This command marks the buffer as modified.  It also renames the buffer to
+correspond to the new file name, unless the new name is already in use.
+
+If FILENAME is ‘nil’ or the empty string, that stands for “no visited file”.
+In this case, ‘set-visited-file-name’ marks the buffer as having no visited
+file, without changing the buffer’s modified flag.
+
+Normally, this function asks the user for confirmation if there already is a
+buffer visiting FILENAME.  If NO-QUERY is non-‘nil’, that prevents asking this
+question.
+
+If ALONG-WITH-FILE is non-‘nil’, that means to assume that the former visited
+file has been renamed to FILENAME.  In this case, the command does not change
+the buffer’s modified flag, nor the buffer’s recorded last file modification
+time as reported by ‘visited-file-modtime’.  If ALONG-WITH-FILE is ‘nil’, this
+function clears the recorded last file modification time, after which
+‘visited-file
+#+end_defun
+
 *** Modifying Buffers
 *** The Buffer List
 *** Creating and Killing Buffers
