@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-07 04:02
-#+macro:version Version 0.0.53
+#+date:2020-02-07 19:28
+#+macro:version Version 0.0.55
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1026,6 +1026,32 @@ Return t if OBJECT is an editor buffer.
 
 *** Interactive Commands for Creating and Selecting Buffers
 
+#+cindex:Icomplete global minor mode
+- =Icomplete= global minor mode (=M-x icomplete-mode=) :: provides a convenient
+  way to quickly select an element among the possible completions in a
+  minibuffer.  When enabled, typing in the minibuffer continuously displays a
+  list of possible completions that match the string you have typed.  At any
+  time, you can type ‘C-j’ to select the first completion in the list.  There
+  are two ways to make an item first:
+
+  1. You can type more of the completion name and thus narrow down the list;
+
+  2. You can use ‘C-.’ and ‘C-,’ to rotate the list until the desired buffer is
+     first.
+
+  ‘M-<TAB>’ will select the first completion in the list, like ‘C-j’ but
+  without exiting the minibuffer, so you can edit it further.  This is
+  typically used when entering a file name, where ‘M-<TAB>’ can be used a few
+  times to descend in the hierarchy of directories.
+
+  - ~icomplete-mode~ variable :: nil to deselect; t to select.
+
+
+- ~ibuffer~ :: Begin using Ibuffer to edit a list of buffers.  Make a list of
+  buffers and operate on them in Dired-like fashion.  Type ‘h’ after entering
+  ibuffer for more information.
+
+
 - ~switch-to-buffer BUFFER-OR-NAME~ (=C-x b BUFFER=) ::
 
   If called interactively, read the buffer name using ‘read-buffer’.  The
@@ -1573,6 +1599,80 @@ Returns t if OBJECT is a live buffer, or 'nil' otherwise.
 #+end_defun
 
 *** Indirect Buffers
+#+cindex:indirect buffer
+#+cindex:base buffer
+An /indirect buffer/ shares the text of some other buffer, which is called the
+/base buffer/ of the indirect buffer.
+
+The text of the indirect buffer is always identical to the text of its base
+buffer; changes made by editing either one are visible immediately in the
+other.
+
+But in all other respects, the indirect buffer and its base buffer are
+completely separate.  They can have different names, different values of point,
+different narrowing, different markers, different major modes, and different
+local variables.
+
+An indirect buffer cannot visit a file, but its base buffer can.  If you try to
+save the indirect buffer, that actually works by saving the base buffer.
+Killing the base buffer effectively kills the indirect buffer, but killing an
+indirect buffer has no effect on its base buffer.
+
+**** make-indirect-buffer
+
+The general way to make an indirect buffer.
+
+#+attr_texinfo: :options make-indirect-buffer base-buffer name &optional clone
+#+begin_defun
+Create and return an indirect buffer for buffer BASE-BUFFER, named NAME.
+
+- BASE-BUFFER :: should be a live buffer or the name of an existing buffer.
+
+- NAME :: should be a string which is not the name of an existing buffer.
+
+- CLONE :: if non-nil, preserve BASE-BUFFER's state in the indirect buffer; if
+  nil, the indirect buffer's state is reset to default values.
+#+end_defun
+
+**** clone-indirect-buffer
+This function creates and returns a new indirect buffer that shares the current
+buffer’s base buffer and copies the rest of the current buffer’s attributes.
+
+If DISPLAY-FLAG is non-‘nil’, as it always is in interactive calls, that means
+to display the new buffer by calling ~pop-to-buffer~.
+
+#+attr_texinfo: :options clone-indirect-buffer newname display-flag &optional norecord
+#+begin_defun
+Create an indirect buffer that is a twin copy of the current buffer.
+
+- NEWNAME :: name to give to the new indirect buffer.  If nil, defaults to the
+  current buffer's name, modified by adding an <N> suffix to it, or
+  incrementing the N in an existing suffix.
+
+- DISPLAY-FLAG :: if non-nil, show the new buffer with ~pop-to-buffer~.
+
+- NORECORD :: if non-nil, do not put this buffer at the front fo the list of
+  recently selected ones.
+
+- RETURN VALUE :: the newly-created indirect buffer.
+#+end_defun
+
+**** clone-indirect-buffer-other-window---C-x 4 c
+
+#+attr_texinfo: :options clone-indirect-buffer-other-window NEWNAME DISPLAY-FLAG &optional NORECORD
+#+begin_defun
+Like ~clone-indirect-buffer~, but display in another window.
+#+end_defun
+
+**** buffer-base-buffer
+
+#+attr_texinfo: :options buffer-base-buffer &optional buffer
+#+begin_defun
+This function returns the base buffer of BUFFER, which defaults to the current
+buffer.  If BUFFER is not indirect, the value is ‘nil’.  Otherwise, the value
+is another buffer, which is never an indirect buffer.
+#+end_defun
+
 *** Swapping Text
 
 ** Insert File Contents
