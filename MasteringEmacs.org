@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-07 19:28
-#+macro:version Version 0.0.55
+#+date:2020-02-07 19:40
+#+macro:version Version 0.0.56
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1674,6 +1674,26 @@ is another buffer, which is never an indirect buffer.
 #+end_defun
 
 *** Swapping Text
+
+**** buffer-swap-text
+
+#+attr_texinfo: :options buffer-swap-text buffer
+#+begin_defun
+Swap the text between current buffer and BUFFER.
+
+This function is very fast because it doesn’t move any text, it only changes
+the internal data structures of the buffer object to point to a different chunk
+of text.  Using it, you can pretend that a group of two or more buffers are
+actually a single virtual buffer that holds the contents of all the individual
+buffers together.
+
+If you use ~buffer-swap-text~ on a file-visiting buffer, you should set up a
+hook to save the buffer’s original text rather than what it was swapped with.
+~write-region-annotate-functions~ works for this purpose.  You should probably
+set ~buffer-saved-size~ to −2 in the buffer, so that changes in the text it is
+swapped with will not interfere with auto-saving.
+#+end_defun
+
 
 ** Insert File Contents
 
