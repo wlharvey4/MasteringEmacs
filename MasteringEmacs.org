@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-08 06:43
-#+macro:version Version 0.0.58
+#+date:2020-02-09 21:56
+#+macro:version Version 0.0.59
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -854,35 +854,45 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 * Directories---Files---Buffers
 ** Directories
 ** Files
-- find files ::
 
-  - [[*find-file][~find-file~]] ::
+#+texinfo:@heading Visiting Files
 
-  - [[find-file-literally][~find-file-literally~]] ::
+- [[*find-file][~find-file~]] ::
 
-  - [[*find-file-noselect][~find-file-noselect~]] ::
+- [[find-file-literally][~find-file-literally~]] ::
 
-  - [[*find-file-other-window][~find-file-other-window~]] ::
+- [[*find-file-noselect][~find-file-noselect~]] ::
 
-  - [[*find-file-read-only][~find-file-read-only~]] ::
+- [[*find-file-other-window][~find-file-other-window~]] ::
 
-  - [[*find-file-wildcards --- User Option][~find-file-wildcards~]] --- user option ::
+- [[*find-file-read-only][~find-file-read-only~]] ::
 
-  - [[*find-file-hook --- User Option][~find-file-hook~]] --- user option ::
+- [[*find-file-wildcards --- User Option][~find-file-wildcards~]] --- user option ::
 
-  - [[*find-file-not-found-functions --- Variable][~find-file-not-found-functions~]] --- variable ::
+- [[*find-file-hook --- User Option][~find-file-hook~]] --- user option ::
 
-  - [[*find-file-literally --- Variable][~find-file-literally~]] --- variable :: 
+- [[*find-file-not-found-functions --- Variable][~find-file-not-found-functions~]] --- variable ::
 
-  - file names ::
+- [[*find-file-literally --- Variable][~find-file-literally~]] --- variable :: 
 
-    - ~expand-file-name~
 
-    - magic file names ::
+#+texinfo:@heading Saving Files
 
-- visit files :: 
+- ~save-buffer~ ::
 
-- create ::
+- ~save-some-buffers~ ::
+
+- ~write-file~ :: 
+
+
+#+texinfo:@heading File Names
+
+- ~expand-file-name~
+
+- magic file names ::
+
+
+#+texinfo:@heading Creating Files
 
 - view ::
 
@@ -1163,6 +1173,60 @@ After you type part of the argument, Emacs can fill in the rest, or some of it,
 based on what was typed so far.  Certain keys (usually =<TAB>=, =<RET>=, and
 =<SPC>=) are rebound in the minibuffer to special completion commands.  You can
 usually type =?= to see a list of completion alternatives.
+
+*** Saving Files
+
+**** save-buffer
+
+#+attr_texinfo: :options save-buffer &optional arg
+#+begin_defun
+Save current buffer in visited file if modified.
+
+- arg :: how to deal with backup files
+#+end_defun
+
+**** save-some-buffers
+
+#+attr_texinfo: :options save-some-buffers &optional ARG PRED
+#+begin_defun
+Save some modified file-visiting buffers.  Asks user about each one.  You can
+answer ‘y’ to save, ‘n’ not to save, ‘C-r’ to look at the buffer in question
+with ~view-buffer~ before deciding or ‘d’ to view the differences using
+~diff-buffer-with-file~.
+
+This command first saves any buffers where ~buffer-save-without-query~ is
+non-nil, without asking.
+
+- ARG :: Optional argument ARG (interactively, prefix argument) non-nil means
+  save all with no questions.
+
+- PRED :: Optional second argument PRED determines which buffers are
+  considered:
+
+  - If PRED is nil, all the file-visiting buffers are considered.
+
+  - If PRED is t, then certain non-file buffers will also be considered.
+
+  - If PRED is a zero-argument function, it indicates for each buffer whether
+    to consider it or not when called with that buffer current.
+
+  - PRED defaults to the value of ‘save-some-buffers-default-predicate’.
+
+
+See ~save-some-buffers-action-alist~ if you want to change the additional
+actions you can take on files.
+#+end_defun
+
+**** write-file
+
+#+attr_texinfo: :options write-file FILENAME &optional CONFIRM
+#+begin_defun
+Write current buffer into file FILENAME.  This makes the buffer visit that
+file, and marks it as not modified.
+
+If optional second arg CONFIRM is non-nil, this function asks for confirmation
+before overwriting an existing file.
+#+end_defun
 
 ** Buffers
 #+cindex:buffer
