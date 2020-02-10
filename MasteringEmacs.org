@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-09 21:56
-#+macro:version Version 0.0.59
+#+date:2020-02-09 23:12
+#+macro:version Version 0.0.60
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -878,11 +878,15 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 #+texinfo:@heading Saving Files
 
-- ~save-buffer~ ::
+- [[*save-buffer][~save-buffer~]] ::
 
-- ~save-some-buffers~ ::
+- [[*save-some-buffers][~save-some-buffers~]] ::
 
-- ~write-file~ :: 
+- [[*write-file][~write-file~]] ::
+
+- [[*set-visited-file-name][~set-visited-file-name~]] ::
+
+- [[*not-modified][~not-modified~]] :: 
 
 
 #+texinfo:@heading File Names
@@ -1228,6 +1232,146 @@ If optional second arg CONFIRM is non-nil, this function asks for confirmation
 before overwriting an existing file.
 #+end_defun
 
+**** set-visited-file-name
+
+#+attr_texinfo: :options set-visited-file-name FILENAME &optional NO-QUERY ALONG-WITH-FILE
+#+begin_defun
+Change name of file visited in current buffer to FILENAME.  This also renames
+the buffer to correspond to the new file.  The next time the buffer is saved it
+will go in the newly specified file.
+
+FILENAME nil or an empty string means mark buffer as not visiting any file.
+
+The optional second argument NO-QUERY, if non-nil, inhibits asking for
+confirmation in the case where another buffer is already visiting FILENAME.
+
+The optional third argument ALONG-WITH-FILE, if non-nil, means that the old
+visited file has been renamed to the new name FILENAME.
+#+end_defun
+**** not-modified
+
+If you have changed a buffer but do not wish to save the changes, you should
+take some action to prevent it.  Otherwise, each time you use =C-x s= or =C-x
+C-c=, you are liable to save this buffer by mistake.  One thing you can do is
+type =M-~= (not-modified), which clears out the indication that the buffer is
+modified.  If you do this, none of the save commands will believe that the
+buffer needs to be saved. (‘~’ is often used as a mathematical symbol for
+“not”; thus =M-~= is “not”, metafied.)
+
+#+attr_texinfo: :options not-modified &optional ARG
+#+begin_defun
+This function is for interactive use only; in Lisp code use
+~set-buffer-modified-p~ instead.
+
+Mark current buffer as unmodified, not needing to be saved.
+
+With prefix ARG, mark buffer as modified, so C-x C-s will save.
+#+end_defun
+
+*** Backing Up Files
+
+**** ~make-backup-files~---a variable
+
+Emacs can be configured to make backup files on save in several different
+ways, using the variable ~make-backup-files~, which by default is t.
+
+- ~make-backup-files~ ::
+
+  - non-nil means make a backup of a file the first time it is saved.  This can
+    be done:
+
+    - by renaming the file; the existing file is renamed so that it is a backup
+      file; the buffer is then written into a new file with the original file
+      name.
+
+    - by copying the file; the existing file is copied into a backup file; then
+      the buffer is written into the file, overwriting it with new content.
+
+    - the choice of renaming or copying is controlled by the variables:
+
+      - ~backup-by-copying~ :: non-nil means using copying
+
+      - ~backup-by-copying-when-linked~ :: non-nil means using copying for
+        files with multiple names.  The alternate names will refer to the
+        latest version as edited.  ~backup-by-copying~ must be nil.
+
+      - ~backup-by-copying-when-mismatch~ :: Non-nil means create backups by
+        copying if this preserves owner or group.
+
+      - ~backup-by-copying-when-priviledged-mismatch~ :: Non-nil means create
+        backups by copying to preserve a privileged owner.
+
+      - ~backup-inhibited~ :: If non-nil, backups will be inhibited.
+
+**** Making Interactive Backups
+
+By default, Emacs will only make a backup of a file the first time it is
+saved.  You can explicitly control further backups as follows:
+
+- =C-u C-x C-s= :: the version thus saved will be made into a backup file if
+  you save the buffer again.
+
+- =C-u C-u C-x C-s= :: saves the buffer, but first makes the previous file
+  contents into a new backup file. 
+
+- =C-u C-u C-u C-x C-s= :: does both things: it makes a backup from the
+  previous contents, and arranges to make another from the newly saved contents
+  if you save again.
+
+**** Making Backups into Specific Directories
+
+- ~backup-directory-alist~---a variable ::
+
+  Use this variable to specify that files matching certain patterns should be
+  backed up in specific directories.  A typical use is to add an element =("."
+  . dir)= to make all backups in the directory with absolute name ~dir~.
+  Alternatively, adding, =("." . ".~")= would make backups in the invisible
+  subdirectory =.~= of the original file’s directory.
+
+**** Single or Numbered Backups
+
+When Emacs makes a backup file, its name is normally constructed by appending
+‘~’ to the file name being edited.
+
+Emacs can also make numbered backup files. Numbered backup file names contain
+‘.~’, the number, and another ‘~’ after the original file name.
+
+- ~version-control~ --- a variable :: determines whether to make single backup
+  files or mul- tiple numbered backup files.  The usual way to set this
+  variable is globally, through your init file or the customization buffer.
+  But you can set version-control locally in an individual buffer to control
+  the making of backups for that buffer’s file.
+
+  - nil :: make single backups, unless files already have numbered backups.
+
+  - t :: make numbered backups.
+
+  - never :: never make numbered backups; always make single backups.
+
+- ~make-backup-file-name-function~ :: tell Emacs what function to use to make
+  backup names.
+
+**** Automatic Backup Deletion
+
+To prevent excessive consumption of disk space, Emacs can delete numbered
+backup versions automatically.  Generally Emacs keeps the first few backups and
+the latest few backups, deleting any in between.  This happens every time a new
+backup is made.
+
+- ~kept-old-versions~---a variable ::
+
+  the number of oldest (lowest-numbered) backups to keep (default 2)
+
+- ~kept-new-version~---a variable ::
+
+  the number of newest (highest-numbered) ones to keep (default 2)
+
+- ~delete-old-versions~ :: if t, Emacs deletes the excess backup files
+  silently.  If nil, the default, Emacs asks you whether it should delete the
+  excess backup versions.  If any other value, Emacs never automatically
+  deletes backups.
+
+- Dired =.= command :: can be used to delete old versions.
 ** Buffers
 #+cindex:buffer
 A /buffer/ is a Lisp object containing text to be edited.  Buffers in Emacs
