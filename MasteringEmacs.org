@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-09 23:12
-#+macro:version Version 0.0.60
+#+date:2020-02-10 23:09
+#+macro:version Version 0.0.61
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -888,10 +888,19 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 - [[*not-modified][~not-modified~]] :: 
 
+#+texinfo:@heading Hooks Related to Saving
+
+- [[*write-file-functions---a hook][~write-file-functions~]] ::
+
+- [[*write-contents-functions---a hook][~write-contents-functions~]] ::
+
+- [[*before-save-hook][~before-save-hook~]] ::
+
+- [[*after-save-hook][~after-save-hook~]] :: 
 
 #+texinfo:@heading File Names
 
-- ~expand-file-name~
+- ~expand-file-name~ ::
 
 - magic file names ::
 
@@ -1180,6 +1189,13 @@ usually type =?= to see a list of completion alternatives.
 
 *** Saving Files
 
+#+cindex:hooks
+#+cindex:format conversion
+Saving a buffer runs several hooks.  It also performs format conversion.  These
+hooks are only run by ~save-buffer~; they are not run by other primitives and
+functions that write buffer text to files.  Auto-saving does not run these
+hooks.
+
 **** save-buffer
 
 #+attr_texinfo: :options save-buffer &optional arg
@@ -1267,6 +1283,51 @@ Mark current buffer as unmodified, not needing to be saved.
 
 With prefix ARG, mark buffer as modified, so C-x C-s will save.
 #+end_defun
+**** write-file-functions---a hook
+
+#+attr_texinfo: :options write-file-functions
+#+begin_defvar
+This variable a list of functions to be called before writing out a buffer to
+its visited file.  If one of them returns non-‘nil’, the file is considered
+already written and the rest of the functions are not called, nor is the usual
+code for writing the file executed.  In addition, if a function in
+~write-file-functions~ returns non-‘nil’, it is responsible for making a backup
+file, using the following code:
+
+: (or buffer-backed-up (backup-buffer))
+
+Even though this is not a normal hook, you can use ‘add-hook’ and ‘remove-hook’
+to manipulate the list.
+#+end_defvar
+
+**** write-contents-functions---a hook
+
+#+attr_texinfo: :options write-contents-functions
+#+begin_defvar
+This works just like ‘write-file-functions’, but it is intended for hooks that
+pertain to the buffer’s contents, not to the particular visited file or its
+location, and can be used to create arbitrary save processes for buffers that
+aren’t visiting files at all.  Such hooks are usually set up by major modes, as
+buffer-local bindings for this variable.
+
+If any of the functions in this hook returns non-‘nil’, the file is considered
+already written and the rest are not called and neither are the functions in
+~write-file-functions~.
+#+end_defvar
+
+**** before-save-hook
+
+#+attr_texinfo: :options before-save-hook
+#+begin_defvar
+This normal hook runs before a buffer is saved in its visited file, regardless
+of whether that is done normally or by one of the hooks described above.
+#+end_defvar
+**** after-save-hook
+
+#+attr_texinfo: :options after-save-hook
+#+begin_defvar
+This normal hook runs after a buffer has been saved in its visited file.
+#+end_defvar
 
 *** Backing Up Files
 
