@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-10 23:09
-#+macro:version Version 0.0.61
+#+date:2020-02-10 23:31
+#+macro:version Version 0.0.62
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -888,6 +888,7 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 - [[*not-modified][~not-modified~]] :: 
 
+
 #+texinfo:@heading Hooks Related to Saving
 
 - [[*write-file-functions---a hook][~write-file-functions~]] ::
@@ -897,6 +898,16 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 - [[*before-save-hook][~before-save-hook~]] ::
 
 - [[*after-save-hook][~after-save-hook~]] :: 
+
+
+#+texinfo:@heading Writing Buffers to Files
+
+- [[*append-to-file][~append-to-file~]] ::
+
+- [[*write-region][~write-region~]] ::
+
+- [[*with-temp-file][~with-temp-file~]] ::
+
 
 #+texinfo:@heading File Names
 
@@ -1433,6 +1444,63 @@ backup is made.
   deletes backups.
 
 - Dired =.= command :: can be used to delete old versions.
+*** Writing to Files
+You can write the contents of a buffer, or part of a buffer, directly to a file
+on disk using the functions:
+
+- ~append-to-file~
+
+- ~write-region~
+
+
+But don’t use these functions to write to files that are being visited.
+
+**** append-to-file
+
+#+attr_texinfo: :options append-to-file start end filename
+#+begin_defun
+This function appends the contents of the region delimited by START and END in
+the current buffer to the end of file FILENAME.  If that file does not exist,
+it is created.
+
+When called from Lisp, this function is completely equivalent to:
+
+: (write-region start end filename t)
+
+- RETURN VALUE :: nil
+#+end_defun
+
+**** write-region
+
+#+attr_texinfo: :options write-region start end filename &optional append visit lockname mustbenew
+#+begin_defun
+This function writes the region delimited by START and END in the current
+buffer into the file specified by FILENAME.
+
+If START is ‘nil’, then the command writes the entire buffer contents (_not_
+just the accessible portion) to the file and ignores END.
+
+If START is a string, then ‘write-region’ writes or appends that string, rather
+than text from the buffer.  END is ignored in this case.
+
+If APPEND is non-‘nil’, then the specified text is appended to the existing
+file contents (if any).  If APPEND is a number, ‘write-region’ seeks to that
+byte offset from the start of the file and writes the data from there.
+#+end_defun
+
+**** with-temp-file
+
+#+attr_texinfo: :options with-temp-file file body
+#+begin_defun
+The ‘with-temp-file’ macro evaluates the BODY forms with a temporary buffer as
+the current buffer; then, at the end, it writes the buffer contents into file
+FILE.  It kills the temporary buffer when finished, restoring the buffer that
+was current before the ‘with-temp-file’ form.  Then it returns the value of the
+last form in BODY.
+
+See also [[*with-temp-buffer][~with-temp-buffer~]].
+#+end_defun
+
 ** Buffers
 #+cindex:buffer
 A /buffer/ is a Lisp object containing text to be edited.  Buffers in Emacs
