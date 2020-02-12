@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-10 23:31
-#+macro:version Version 0.0.62
+#+date:2020-02-11 20:37
+#+macro:version Version 0.0.63
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1502,6 +1502,51 @@ See also [[*with-temp-buffer][~with-temp-buffer~]].
 #+end_defun
 
 ** Buffers
+
+#+texinfo:@heading Working with Buffers
+
+- [[ibuffer][=ibuffer=]] list of buffers
+
+- [[Icomplete][=Icomplete=]] global minor mode
+
+
+#+texinfo:@heading Interactive Buffer Commands using Windows
+
+- [[switch-to-buffer][~switch-to-buffer~]] display a buffer in a window
+
+- [[switch-to-buffer-other-window][~switch-to-buffer-other-window~]]
+
+- [[switch-to-buffer-other-frame][~switch-to-buffer-other-frame~]]
+
+- [[previous-buffer][~previous-buffer~]]
+
+- [[next-buffer][~next-buffer~]]
+
+
+#+texinfo:@heading The Current Buffer for Editing
+
+- [[*current-buffer][~current-buffer~]] return the current buffer
+
+- [[*set-buffer][~set-buffer~]] make buffer current for editing
+
+- [[*save-current-buffer][~save-current-buffer~]] save the current buffer before editing
+
+- [[*with-current-buffer][~with-current-buffer~]] make buffer current temporarily for editing
+
+- [[*with-temp-buffer][~with-temp-buffer~]] create a temporary buffer for editing
+
+
+#+texinfo:@heading Moving Around Within a Buffer
+
+- [[goto-line][~goto-line~]]
+
+- [[forward-line][~forward-line~]]
+
+
+#+texinfo:@heading Working with Buffer Contents
+
+= [[*buffer-string][~buffer-string~]] return a buffer as a string
+
 #+cindex:buffer
 A /buffer/ is a Lisp object containing text to be edited.  Buffers in Emacs
 editing are objects that have distinct names and hold text that can be edited.
@@ -1561,12 +1606,12 @@ Return t if OBJECT is an editor buffer.
 *** Interactive Commands for Creating and Selecting Buffers
 
 #+cindex:Icomplete global minor mode
-- =Icomplete= global minor mode (=M-x icomplete-mode=) :: provides a convenient
-  way to quickly select an element among the possible completions in a
-  minibuffer.  When enabled, typing in the minibuffer continuously displays a
-  list of possible completions that match the string you have typed.  At any
-  time, you can type ‘C-j’ to select the first completion in the list.  There
-  are two ways to make an item first:
+- =Icomplete= <<Icomplete>>global minor mode (=M-x icomplete-mode=) :: provides
+  a convenient way to quickly select an element among the possible completions
+  in a minibuffer.  When enabled, typing in the minibuffer continuously
+  displays a list of possible completions that match the string you have typed.
+  At any time, you can type ‘C-j’ to select the first completion in the list.
+  There are two ways to make an item first:
 
   1. You can type more of the completion name and thus narrow down the list;
 
@@ -1581,9 +1626,9 @@ Return t if OBJECT is an editor buffer.
   - ~icomplete-mode~ variable :: nil to deselect; t to select.
 
 
-- ~ibuffer~ :: Begin using Ibuffer to edit a list of buffers.  Make a list of
-  buffers and operate on them in Dired-like fashion.  Type ‘h’ after entering
-  ibuffer for more information.
+- ~ibuffer~ :: <<ibuffer>>Begin using Ibuffer to edit a list of buffers.  Make
+  a list of buffers and operate on them in Dired-like fashion.  Type ‘h’ after
+  entering ibuffer for more information.
 
 
 - ~switch-to-buffer BUFFER-OR-NAME~ (=C-x b BUFFER=) ::
@@ -1601,17 +1646,22 @@ Return t if OBJECT is an editor buffer.
   window-buffer correspondences.
 
 - ~switch-to-buffer-other-window~ (=C-x 4 b BUFFER=) ::
+  <<switch-to-buffer-other-window>>
 
 - ~switch-to-buffer-other-frame~ (=C-x 5 b BUFFER=) ::
+  <<switch-to-buffer-other-frame>>
 
 - ~previous-buffer~ (=C-x <LEFT>=) ::
+  <<previous-buffer>>
 
 - ~next-buffer~ (=C-x <RIGHT>=) ::
+  <<next-buffer>>
 
-- ~goto-line LINE &optional BUFFER~ (=M-g g=) :: 
+- ~goto-line LINE &optional BUFFER~ (=M-g g=) ::
+  <<goto-line>>
 
-  This function is for interactive use only; in Lisp code use ~forward-line~
-  instead.
+  This function is for interactive use only (because it sets mark); in Lisp
+  code use [[forward-line][~forward-line~]] instead.
 
   Go to LINE, counting from line 1 at beginning of buffer.  If called
   interactively, a numeric prefix argument specifies LINE; without a numeric
@@ -1645,6 +1695,17 @@ Return t if OBJECT is an editor buffer.
   Note that prefix arguments other than just ‘C-u’ behave differently.  ‘C-u 4
   M-g M-g’ goes to line 4 in the _current_ buffer, without reading a number
   from the minibuffer.
+
+- ~forward-line &optional N~ ::
+  <<forward-line>>
+
+  Move N lines forward (backward if N is negative).  Precisely, if point is on
+  line I, move to the start of line I + N.  If there isn’t room, go as far as
+  possible (no error).
+
+  - RETURN VALUE :: Returns the count of lines left to move.  If moving
+    forward, that is N minus number of lines moved; if backward, N plus number
+    moved.
 
 *** Current Buffer
 #+cindex:current buffer
@@ -1680,8 +1741,8 @@ functions described in Switching Buffers.  However, when writing a Lisp
 function, do not rely on this behavior of the command loop to restore the
 current buffer after an operation.
 
-To operate temporarily on another buffer, put the set-buffer within a
-~save-current-buffer~ form.
+To operate temporarily on another buffer, put the ~set-buffer~ within a
+[[*save-current-buffer][~save-current-buffer~]] form.
 
 **** save-current-buffer
 
