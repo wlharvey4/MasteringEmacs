@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-11 20:37
-#+macro:version Version 0.0.63
+#+date:2020-02-11 21:19
+#+macro:version Version 0.0.64
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1604,6 +1604,20 @@ Return t if OBJECT is an editor buffer.
 #+end_defun
 
 *** Interactive Commands for Creating and Selecting Buffers
+
+- ~list-buffers &optional ARG~ (=C-x C-b=) ::
+  Display a list of existing buffers.  With prefix argument ARG, show only
+  buffers that are visiting files.
+
+- ~buffer-menu &optional ARG~ ::
+  Switch to the Buffer Menu.
+
+  |            C            |       R       |           M           | Buffer | Size | Mode       | File         |
+  |           <c>           |      <c>      |          <c>          |        |      |            |              |
+  |-------------------------+---------------+-----------------------+--------+------+------------+--------------|
+  | ~.~ the current buffer  | ~%~ read-only |     ~*~ modified      | name   | size | major mode | visited file |
+  | ~>~ marked for display  |               | ~S~ marked for saving |        |      |            |              |
+  | ~D~ marked for deletion |               |                       |        |      |            |              |
 
 #+cindex:Icomplete global minor mode
 - =Icomplete= <<Icomplete>>global minor mode (=M-x icomplete-mode=) :: provides
