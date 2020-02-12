@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-11 22:19
-#+macro:version Version 0.0.65
+#+date:2020-02-11 23:04
+#+macro:version Version 0.0.66
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1505,7 +1505,9 @@ See also [[*with-temp-buffer][~with-temp-buffer~]].
 
 #+texinfo:@heading Working with Buffers
 
-- [[ibuffer][=ibuffer=]] list of buffers
+- [[list-buffers][~list-buffers~]] invoke Buffer Menu
+
+- [[ibuffer][=ibuffer=]] invoke Ibuffer-mode
 
 - [[Icomplete][=Icomplete=]] global minor mode
 
@@ -1545,7 +1547,18 @@ See also [[*with-temp-buffer][~with-temp-buffer~]].
 
 #+texinfo:@heading Working with Buffer Contents
 
-= [[*buffer-string][~buffer-string~]] return a buffer as a string
+- [[*buffer-string][~buffer-string~]] return a buffer as a string
+
+
+#+texinfo:@heading Creating and Killing Buffers
+
+- [[*get-buffer-create][~get-buffer-create~]] creates or returns an existing buffer
+
+- [[*generate-new-buffer][~generate-new-buffer~]] generate a new buffer with a unique name
+
+- [[*create-file-buffer][~create-file-buffer~]] create a buffer and visit a file
+
+- [[*kill-buffer][~kill-buffer~]] kill a buffer
 
 #+cindex:buffer
 A /buffer/ is a Lisp object containing text to be edited.  Buffers in Emacs
@@ -1607,6 +1620,7 @@ Return t if OBJECT is an editor buffer.
 
 #+findex:list-buffers
 - ~list-buffers &optional ARG~ (=C-x C-b=) ::
+  <<list-buffers>>
   Invoke the Buffer Menu.  Display a list of existing buffers.  With prefix
   argument ARG, show only buffers that are visiting files.
   #+findex:buffer-menu
@@ -1626,7 +1640,7 @@ Return t if OBJECT is an editor buffer.
   - q --- leave Buffer Menu
   - RET --- select new current buffer this window
   - o --- select new current buffer other window
-  - V --- select new current buffer in [[help:view-mode][View mode]]
+  - V --- select new current buffer in View mode
   - M-x Buffer-menu-view-other-window
   - C-o --- display buffer in another window
   - m --- make for display
@@ -1671,11 +1685,11 @@ Return t if OBJECT is an editor buffer.
   - ~icomplete-mode~ variable :: nil to deselect; t to select.
 
 
+#+cindex:Ibuffer-mode
 - ~ibuffer~ :: <<ibuffer>>Begin using Ibuffer to edit a list of buffers.  Make
   a list of buffers and operate on them in Dired-like fashion.  Type ‘h’ after
   entering ibuffer for more information.
-
-
+  #+findex:switch-to-buffer
 - ~switch-to-buffer BUFFER-OR-NAME~ (=C-x b BUFFER=) ::
   <<switch-to-buffer>>
 
@@ -2113,6 +2127,7 @@ read-only.
 
 #+texinfo:@heading Creating Buffers
 
+#+cindex:create
 There are two primitives for creating buffers, plus several others:
 
 - ~get-buffer-create~ ::
@@ -2129,6 +2144,7 @@ There are two primitives for creating buffers, plus several others:
 
 #+texinfo:@heading Killing Buffers
 
+#+cindex:kill
 /Killing a buffer/ makes its name unknown to Emacs and makes the memory space
 it occupied available for other use.  The ‘buffer-name’ of a buffer is ‘nil’
 if, and only if, the buffer is killed.  If you kill a buffer that is current or
@@ -2137,6 +2153,7 @@ buffer instead.  Killing a buffer can change the current buffer.  If you kill a
 buffer that is the base buffer of one or more indirect buffers, the indirect
 buffers are automatically killed as well.
 
+#+cindex:live buffer
 A buffer that has not been killed is called a /live/ buffer.  To test whether a
 buffer is live or killed, use the function ~buffer-live-p~ (see below).
 
@@ -2166,9 +2183,23 @@ buffer is live or killed, use the function ~buffer-live-p~ (see below).
   The major mode for the new buffer is set to Fundamental mode.
 #+end_defun
 
+**** with-output-to-temp-buffer
+
+#+attr_texinfo: :options with-output-to-temp-buffer bufname &rest body
+#+begin_defun
+Bind ‘standard-output’ to buffer BUFNAME, eval BODY, then show that buffer.
+#+end_defun
+
+**** create-file-buffer
+
+#+attr_texinfo: :options create-file-buffer filename
+#+begin_defun
+Create a suitably named buffer for visiting FILENAME, and return it.
+#+end_defun
+
 **** kill-buffer
 
-#+attr_texinfo: :options &optional buffer-or-name
+#+attr_texinfo: :options kill-buffer &optional buffer-or-name
 #+begin_defun
 - BUFFER-OR-NAME ::
 
