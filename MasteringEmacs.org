@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-11 23:04
-#+macro:version Version 0.0.66
+#+date:2020-02-11 23:24
+#+macro:version Version 0.0.67
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1512,6 +1512,13 @@ See also [[*with-temp-buffer][~with-temp-buffer~]].
 - [[Icomplete][=Icomplete=]] global minor mode
 
 
+#+texinfo:@heading Buffer Names
+
+- [[*buffer-name][~buffer-name~]] return the name of the buffer
+
+- [[*rename-buffer][~rename-buffer~]] rename a buffer
+
+
 #+texinfo:@heading Interactive Buffer Commands using Windows
 
 - [[switch-to-buffer][~switch-to-buffer~]] display a buffer in a window
@@ -1523,6 +1530,13 @@ See also [[*with-temp-buffer][~with-temp-buffer~]].
 - [[previous-buffer][~previous-buffer~]]
 
 - [[next-buffer][~next-buffer~]]
+
+
+#+texinfo:@heading Moving Around Within a Buffer
+
+- [[goto-line][~goto-line~]]
+
+- [[forward-line][~forward-line~]]
 
 
 #+texinfo:@heading The Current Buffer for Editing
@@ -1538,11 +1552,19 @@ See also [[*with-temp-buffer][~with-temp-buffer~]].
 - [[*with-temp-buffer][~with-temp-buffer~]] create a temporary buffer for editing
 
 
-#+texinfo:@heading Moving Around Within a Buffer
+#+texinfo:@heading Working with Buffer Names
 
-- [[goto-line][~goto-line~]]
+- [[*get-buffer][~get-buffer~]] return a buffer given a name
 
-- [[forward-line][~forward-line~]]
+- [[*generate-new-buffer-name][~generate-new-buffer-name~]] just return a unique buffer name
+
+- [[*buffer-file-name][~buffer-file-name~]] return the visited file's name
+
+- [[*get-file-buffer][~get-file-buffer~]] return the buffer visiting the file name (exact) or nil
+
+- [[*find-buffer-visiting][~find-buffer-visiting~]] return a buffer visiting the file name (not exact)
+
+- [[set-visited-file-name][~set-visited-file-name~]] change the name of the visited file
 
 
 #+texinfo:@heading Working with Buffer Contents
@@ -1881,6 +1903,8 @@ in use.
 This function returns the name actually given to the buffer.
 #+end_defun
 
+Also ~rename-uniquely~
+
 **** get-buffer
 
 #+attr_texinfo: :options buffer-or-name
@@ -1963,6 +1987,7 @@ PREDICATE returns non-‘nil’.
 #+end_defun
 
 **** set-visited-file-name
+<<set-visited-file-name>>
 
 #+attr_texinfo: :options set-visited-file-name filename &optional no-query along-with-file
 #+begin_defun
