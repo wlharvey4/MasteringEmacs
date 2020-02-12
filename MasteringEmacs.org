@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-11 21:19
-#+macro:version Version 0.0.64
+#+date:2020-02-11 22:19
+#+macro:version Version 0.0.65
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1605,11 +1605,13 @@ Return t if OBJECT is an editor buffer.
 
 *** Interactive Commands for Creating and Selecting Buffers
 
+#+findex:list-buffers
 - ~list-buffers &optional ARG~ (=C-x C-b=) ::
-  Display a list of existing buffers.  With prefix argument ARG, show only
-  buffers that are visiting files.
-
+  Invoke the Buffer Menu.  Display a list of existing buffers.  With prefix
+  argument ARG, show only buffers that are visiting files.
+  #+findex:buffer-menu
 - ~buffer-menu &optional ARG~ ::
+- ~buffer-menu-other-window~ ::
   Switch to the Buffer Menu.
 
   |            C            |       R       |           M           | Buffer | Size | Mode       | File         |
@@ -1618,6 +1620,35 @@ Return t if OBJECT is an editor buffer.
   | ~.~ the current buffer  | ~%~ read-only |     ~*~ modified      | name   | size | major mode | visited file |
   | ~>~ marked for display  |               | ~S~ marked for saving |        |      |            |              |
   | ~D~ marked for deletion |               |                       |        |      |            |              |
+
+- ~buffer-menu-mode~ is the major mode for Buffer Menu buffers.
+
+  - q --- leave Buffer Menu
+  - RET --- select new current buffer this window
+  - o --- select new current buffer other window
+  - V --- select new current buffer in [[help:view-mode][View mode]]
+  - M-x Buffer-menu-view-other-window
+  - C-o --- display buffer in another window
+  - m --- make for display
+  - v --- select this buffer and show marked buffers in other windows
+  - 1 --- select this buffer in full-frame window
+  - 2 --- select this buffer in half-window and other buffer in half window
+  - M-s a C-s --- Incremental search in marked buffers
+  - M-s a C-M-s --- Isearch for regext in marked buffers
+  - t --- visit-tags-table this buffer
+  - ~ --- clear modified flog on buffer
+  - s --- mark for saving
+  - C-k --- mark for deletion
+  - C-d --- makr for deletion and move up
+  - x --- delete or save marked buffers
+  - u --- remove marks (ARG and move up)
+  - M-DEL --- remove a mark from all lines
+  - U --- remove all marks from all lines
+  - DEL --- back up a line and remove marks
+  - % --- toggle read-only status
+  - g --- update
+  - T --- toggle displaying only file buffers
+  - b --- bury buffer
 
 #+cindex:Icomplete global minor mode
 - =Icomplete= <<Icomplete>>global minor mode (=M-x icomplete-mode=) :: provides
