@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-14 07:55
-#+macro:version Version 0.0.77
+#+date:2020-02-14 08:04
+#+macro:version Version 0.0.78
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -906,6 +906,11 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 - [[*file-name-quoted-p][~file-name-quoted-p~]] --- tests whether a file name is quoted
 
+
+#+texinfo: @heading Magic File Names
+
+- magic file names :: TODO
+
 *** File Name Components
 
 The operating system groups files into directories.  To specify exactly and
@@ -1305,20 +1310,7 @@ part of the name.
 - [[*with-temp-file][~with-temp-file~]] ::
 
 
-#+texinfo:@heading File Names
-
-- ~expand-file-name~ ::
-
-- magic file names ::
-
-
-#+texinfo:@heading Creating Files
-
-- view ::
-
-- save ::
-
-- work with ::
+#+texinfo:@heading Errors
 
 - handle errors :: 
 
