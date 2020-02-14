@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-14 06:26
-#+macro:version Version 0.0.72
+#+date:2020-02-14 07:05
+#+macro:version Version 0.0.73
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -853,100 +853,6 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 * Directories---Files---Buffers
 
-** File Name Components
-
-The operating system groups files into directories.  To specify a file[fn::I
-would call this a /path/], you must specify the directory and the file's name
-within that directory.
-
-Therefore, Emacs considers a file name[fn:path:path] as having two main parts:
-
-#+cindex:directory name
-- the /directory name/ part, and 
-
-- the nondirectory part (or file name within the directory).
-
-
-Either part may be empty. Concatenating these two parts reproduces the original
-file name[fn:path].  On most systems, the directory part is everything up to
-and including the last slash; the nondirectory part is the rest.
-
-*** Absolute and Relative File Names---Expanding File Names---Quoting
-
-#+texinfo:@heading Absolute File Names
-
-A file name can specify all the directory names starting from the root of the
-tree.  An absolute file name starts with a ‘/’.
-
-#+texinfo:@heading Relative File Names
-
-A file name can specify the position of the file in the tree relative to a
-default directory.  A relative file name does NOT start with a ‘/’.
-
-#+texinfo:@heading Expanding File Names
-
-Expanding a file name means converting a relative file name to an absolute one.
-Since this is done relative to a default directory, you must specify the
-default directory as well as the file name to be expanded.  It also involves
-expanding abbreviations (e.g., =~=).
-
-- see [[*expand-file-name][~expand-file-name~]]
-
-- see [[*substitute-in-file-name][~substitute-in-file-name~]]
-
-
-#+texinfo:@heading Quoting File Name
-
-Sometimes, it is not desired to expand file names.  In such cases, the file
-name can be quoted to suppress the expansion, and to handle the file name
-literally.  Quoting happens by prefixing the file name with ‘/:’.
-
-**** file-name-quote
-
-This macro adds the quotation prefix ‘/:’ to the file name.
-
-#+attr_texinfo: :options file-name-quote name
-#+begin_defun
-- NAME :: a file name upon which to operate;
-
-- RETURN VALUE :: the file name to which has been added the quotation prefix:
-  ‘/:’;
-
-  - local file name :: prefixes name with ‘/:’.
-
-  - remote file name :: the local part of name (see Magic File Names) is
-    quoted;
-
-  - quote name :: If name is already a quoted file name, name is returned
-    unchanged.
-#+end_defun
-
-**** file-name-unquote
-
-This macro removes the quotation prefix ‘/:’ from the file name, if any.
-
-#+attr_texinfo: :options file-name-unquote name
-#+begin_defun
-- NAME :: a file name upon which to operate
-
-- RETURN VALUE :: the NAME without a quote prefix.  If name is a remote file
-  name, the local part of name is unquoted.
-#+end_defun
-
-**** file-name-quoted-p
-
-This macro returns non-nil, when name is quoted with the prefix ‘/:’.
-
-#+attr_texinfo: :options file-name-quoted-p name
-#+begin_defun
-- NAME :: a file name to test
-
-= RETURN VALUE :: returns non-nil, when name is quoted with the prefix ‘/:’; if
-  name is a remote file name, the local part of name is checked.
-#+end_defun
-
-** Directories and File Names
-
 - [[*default-directory---a variable][~default-directory~]] --- a variable representing the current buffer's default
   directory
 
@@ -972,11 +878,17 @@ This macro returns non-nil, when name is quoted with the prefix ‘/:’.
 - [[*file-relative-name][~file-relative-name~]] --- returns a relative file name in relation to a
   directory
 
+
+#+texinfo:@heading Expanding File Names
+
 - [[*expand-file-name][~expand-file-name~]] --- expands to absolute an abbreviated file name
 
 - [[*substitute-in-file-name][~substitute-in-file-name~]] --- expands environment variables in a path
 
 - [[*abbreviate-file-name][~abbreviate-file-name~]] --- abbreviates an absolute file or directory name
+
+
+#+texinfo:@heading Quoting File Names
 
 - [[*file-name-quote][~file-name-quote~]] --- adds quote prefix to a file name
 
@@ -984,21 +896,62 @@ This macro returns non-nil, when name is quoted with the prefix ‘/:’.
 
 - [[*file-name-quoted-p][~file-name-quoted-p~]] --- tests whether a file name is quoted
 
-*** default-directory---a variable
+** File Name Components
 
-#+attr_texinfo: :options default-directory
-#+begin_defvar
-Name of default directory of current buffer.  It should be a [[directory-name][directory name]] (as
-opposed to a [[directory-file-name][directory file name]]).  On GNU and Unix systems, [[directory-name][directory names]]
-end in a slash ‘/’.
-#+end_defvar
+The operating system groups files into directories.  To specify exactly and
+precisely (absolutely) a file[fn::some would call this a /path/], you must
+specify the *directory* and the file's *file name* within that directory.
 
-*** Directory Names and Directory File Names
+Therefore, Emacs considers a file name[fn:path:path] as having two main parts:
+
+#+cindex:directory name
+- the /directory name/ part, and 
+
+- the nondirectory part (or /file name/ within the directory).  This is also
+  sometimes referred to as a /relative file name/, since it is *relative* to
+  the directory part.  The file name often has a /base name/ and an optional
+  /extension/.
+
+
+Either part may be empty.  Concatenating these two parts reproduces the
+original file name[fn:path].  On most systems, the directory part is everything
+up to and including the last slash; the nondirectory part is the rest.
+
+#+texinfo:@heading Absolute File Names
+
+An /absolute file name/ specifies all the directory names starting from the
+root of the tree.  An absolute file name starts with a ‘/’.
+
+#+texinfo:@heading Relative File Names
+
+A /relative file name/ specifies the position of the file in the tree relative
+to a default directory.  A relative file name does NOT start with a ‘/’.  It
+can use abbreviations such as =.=, =..=, and =~=.
+
+#+texinfo:@heading Expanding File Names
+
+Expanding a file name means converting a relative file name to an absolute one.
+Since this is done relative to a default directory, you must specify the
+default directory as well as the file name to be expanded.  It also involves
+expanding abbreviations (e.g., =~=).
+
+- see [[*expand-file-name][~expand-file-name~]]
+
+- see [[*substitute-in-file-name][~substitute-in-file-name~]]
+
+
+#+texinfo:@heading Quoting File Name
+
+Sometimes, it is not desired to expand file names.  In such cases, the file
+name can be quoted to suppress the expansion, and to handle the file name
+literally.  Quoting happens by prefixing the file name with ‘/:’.
+
+** Directory Names and Directory File Names
 
 #+texinfo:@heading Directory Name
 
 #+cindex:directory name
-A /directory name/<<directory-name>> is a string that must name a directory if
+A /directory name/ <<directory-name>> is a string that must name a directory if
 it names any file at all.
 
 #+texinfo:@heading Directory File Name
@@ -1027,18 +980,32 @@ crucial:
 
 - When [[*file-name-directory][~file-name-directory~]] returns a string, that is always a directory name.
 
-**** file-name-directory
+** Directory and File Variables and Functions
+*** default-directory---a variable
+
+#+attr_texinfo: :options default-directory
+#+begin_defvar
+Name of default directory of current buffer.  It should be a [[directory-name][directory name]] (as
+opposed to a [[directory-file-name][directory file name]]).  On GNU and Unix systems, [[directory-name][directory names]]
+end in a slash ‘/’.
+#+end_defvar
+
+*** file-name-directory
 
 #+attr_texinfo: :options file-name-directory filename
 #+begin_defun
-- FILENAME :: a file name to process; obtain its directory name;
+This function returns the /directory component/ of a file name.  Given a Unix
+syntax file name, it returns a string ending in slash (=/=).
 
-- RETURN VALUE :: return the directory component in the file name, or =nil= if
-  the file name does not include a directory.  Given a Unix syntax file name,
-  returns a string ending in slash.
+- FILENAME :: a file name (path)
+
+- RETURN VALUE :: the directory component ([[directory-name][directory name]]) from FILENAME
+  (path);
+
+  nil if FILENAME does not include a directory.
 #+end_defun
 
-**** file-name-nondirectory
+*** file-name-nondirectory
 
 This function takes a full file name (path) and returns everything after the
 last slash, or the full name if it contains no slash.  If the file name ends in
@@ -1050,8 +1017,7 @@ a slash, then this function will return the empty string.
 
 - RETURN VALUE :: file name without its directory.
 #+end_defun
-
-**** file-name-extension
+*** file-name-extension
 
 #+attr_texinfo: :options file-name-extension filename &optional period
 #+begin_defun
@@ -1064,8 +1030,7 @@ a slash, then this function will return the empty string.
   last ‘.’, or nil for extensionless file name, or the empty string if the file
   name ends with a period.
 #+end_defun
-
-**** file-name-sans-extension
+*** file-name-sans-extension
 
 #+attr_texinfo: :options file-name-sans-extension filename
 #+begin_defun
@@ -1073,8 +1038,7 @@ a slash, then this function will return the empty string.
 
 - RETURN VALUE :: a file name without an extension;
 #+end_defun
-
-**** file-name-base
+*** file-name-base
 
 #+attr_texinfo: :options file-name-base &optional filename
 #+begin_defun
@@ -1084,8 +1048,7 @@ a slash, then this function will return the empty string.
 - RETURN VALUE :: the base name of the file name, i.e., no directory and no
   extension
 #+end_defun
-
-**** directory-file-name
+*** directory-file-name
 
 This function returns a string representing /dirname/ in a form that the
 operating system will interpret as the name of a file (a directory file name).
@@ -1101,8 +1064,7 @@ directory is different from its name as a file.
 - RETURN VALUE :: the file name of the directory named DIRECTORY (its directory
   file name).
 #+end_defun
-
-**** file-name-as-directory
+*** file-name-as-directory
 
 This operation exists because a directory is also a file, but its name as a
 directory is different from its name as a file.  The result can be used as the
@@ -1117,8 +1079,7 @@ value of ~default-directory~ or passed as second argument to
   as a directory.  For a Unix-syntax file name, just appends a slash unless a
   trailing slash is already present.
 #+end_defun
-
-**** directory-name-p
+*** directory-name-p
 
 #+attr_texinfo: :options directory-name-p name
 #+begin_defun
@@ -1126,8 +1087,7 @@ value of ~default-directory~ or passed as second argument to
 
 - RETURN VALUE :: non-nil if NAME ends with a directory separator character.
 #+end_defun
-
-**** file-name-absolute-p
+*** file-name-absolute-p
 
 This function tests whether a file name is absolute.  Given a possibly relative
 file name, you can expand any leading ‘~’ and convert the result to an absolute
@@ -1140,8 +1100,7 @@ name using [[*expand-file-name][~expand-file-name~]].
 - RETURN VALUE :: returns t if FILENAME is an absolute file name or begins with
   =~=; returns nil if not.
 #+end_defun
-
-**** file-relative-name
+*** file-relative-name
 
 Convert an absolute file name to a relative file name in relation to a
 directory.
@@ -1157,7 +1116,49 @@ directory.
   combination with DIRECTORY.
 #+end_defun
 
-**** expand-file-name
+*** file-name-quote
+
+This macro adds the quotation prefix ‘/:’ to the file name.
+
+#+attr_texinfo: :options file-name-quote name
+#+begin_defun
+- NAME :: a file name upon which to operate;
+
+- RETURN VALUE :: the file name to which has been added the quotation prefix:
+  ‘/:’;
+
+  - local file name :: prefixes name with ‘/:’.
+
+  - remote file name :: the local part of name (see Magic File Names) is
+    quoted;
+
+  - quote name :: If name is already a quoted file name, name is returned
+    unchanged.
+#+end_defun
+*** file-name-unquote
+
+This macro removes the quotation prefix ‘/:’ from the file name, if any.
+
+#+attr_texinfo: :options file-name-unquote name
+#+begin_defun
+- NAME :: a file name upon which to operate
+
+- RETURN VALUE :: the NAME without a quote prefix.  If name is a remote file
+  name, the local part of name is unquoted.
+#+end_defun
+*** file-name-quoted-p
+
+This macro returns non-nil, when name is quoted with the prefix ‘/:’.
+
+#+attr_texinfo: :options file-name-quoted-p name
+#+begin_defun
+- NAME :: a file name to test
+
+= RETURN VALUE :: returns non-nil, when name is quoted with the prefix ‘/:’; if
+  name is a remote file name, the local part of name is checked.
+#+end_defun
+
+*** expand-file-name
 
 Convert a relative file name to an absolute one and canonacilize it.  However,
 use =(directory-file-name (file-name-directory dirname))= to traverse a
@@ -1176,8 +1177,7 @@ filesystem tree, not =(expand-file-name ".." dirname)=.
 
 - RETURN VALUE :: an absolute, canonacalized file name.
 #+end_defun
-
-**** substitute-in-file-name
+*** substitute-in-file-name
 
 This function replaces environment variable references in filename with the
 environment variable values.
@@ -1193,8 +1193,7 @@ literally. Quoting happens by prefixing the file name with ‘/:’.
 
 - RETURN VALUE :: an absolute file name
 #+end_defun
-
-**** abbreviate-file-name
+*** abbreviate-file-name
 
 Converts a directory name to its abbreviation.  You can use this function for
 directory names and for file names, because it recognizes abbreviations even as
