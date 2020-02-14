@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-14 07:29
-#+macro:version Version 0.0.74
+#+date:2020-02-14 07:32
+#+macro:version Version 0.0.75
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -852,6 +852,7 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 *** Describe
 
 * Directories---Files---Buffers
+** Directories and File Names
 
 #+texinfo:@heading Variables
 
@@ -904,7 +905,7 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 - [[*file-name-quoted-p][~file-name-quoted-p~]] --- tests whether a file name is quoted
 
-** File Name Components
+*** File Name Components
 
 The operating system groups files into directories.  To specify exactly and
 precisely (absolutely) a file[fn::some would call this a /path/], you must
@@ -970,7 +971,7 @@ literally.  Quoting happens by prefixing the file name with ‘/:’.
 
 - see [[*file-name-quoted-p][~file-name-quoted-p~]]
 
-** Directory Names and Directory File Names
+*** Directory Names and Directory File Names
 
 #+texinfo:@heading Directory Name
 
@@ -1013,8 +1014,8 @@ crucial:
 - When [[*file-name-directory][~file-name-directory~]] returns a string, that is always a /directory
   name/.
 
-** Directory and File Variables and Functions
-*** default-directory---a variable
+*** Directory and File Variables and Functions
+**** default-directory---a variable
 
 #+attr_texinfo: :options default-directory
 #+begin_defvar
@@ -1023,7 +1024,7 @@ opposed to a [[directory-file-name][directory file name]]).  On GNU and Unix sys
 end in a slash ‘/’.
 #+end_defvar
 
-*** file-name-directory
+**** file-name-directory
 
 #+attr_texinfo: :options file-name-directory filename
 #+begin_defun
@@ -1038,7 +1039,7 @@ syntax file name, it returns a string ending in slash (=/=).
   nil if FILENAME does not include a directory.
 #+end_defun
 
-*** file-name-nondirectory
+**** file-name-nondirectory
 
 This function takes a full file name (path) and returns everything after the
 last slash, or the full name if it contains no slash.  If the file name ends in
@@ -1050,7 +1051,7 @@ a slash, then this function will return the empty string.
 
 - RETURN VALUE :: file name without its directory.
 #+end_defun
-*** file-name-extension
+**** file-name-extension
 
 #+attr_texinfo: :options file-name-extension filename &optional period
 #+begin_defun
@@ -1063,7 +1064,7 @@ a slash, then this function will return the empty string.
   last ‘.’, or nil for extensionless file name, or the empty string if the file
   name ends with a period.
 #+end_defun
-*** file-name-sans-extension
+**** file-name-sans-extension
 
 #+attr_texinfo: :options file-name-sans-extension filename
 #+begin_defun
@@ -1071,7 +1072,7 @@ a slash, then this function will return the empty string.
 
 - RETURN VALUE :: a file name without an extension;
 #+end_defun
-*** file-name-base
+**** file-name-base
 
 #+attr_texinfo: :options file-name-base &optional filename
 #+begin_defun
@@ -1081,7 +1082,7 @@ a slash, then this function will return the empty string.
 - RETURN VALUE :: the base name of the file name, i.e., no directory and no
   extension
 #+end_defun
-*** directory-file-name
+**** directory-file-name
 
 This function returns a string representing /dirname/ in a form that the
 operating system will interpret as the name of a file (a directory file name).
@@ -1098,7 +1099,7 @@ directory is different from its name as a file.
 - RETURN VALUE :: the file name of the directory named DIRECTORY (its directory
   file name).
 #+end_defun
-*** file-name-as-directory
+**** file-name-as-directory
 
 This operation exists because a directory is also a file, but its name as a
 directory is different from its name as a file.  The result can be used as the
@@ -1113,7 +1114,7 @@ value of ~default-directory~ or passed as second argument to
   as a directory.  For a Unix-syntax file name, just appends a slash unless a
   trailing slash is already present.
 #+end_defun
-*** directory-name-p
+**** directory-name-p
 
 #+attr_texinfo: :options directory-name-p name
 #+begin_defun
@@ -1121,7 +1122,7 @@ value of ~default-directory~ or passed as second argument to
 
 - RETURN VALUE :: non-nil if NAME ends with a directory separator character.
 #+end_defun
-*** file-name-absolute-p
+**** file-name-absolute-p
 
 This function tests whether a file name is absolute.  Given a possibly relative
 file name, you can expand any leading ‘~’ and convert the result to an absolute
@@ -1134,7 +1135,7 @@ name using [[*expand-file-name][~expand-file-name~]].
 - RETURN VALUE :: returns t if FILENAME is an absolute file name or begins with
   =~=; returns nil if not.
 #+end_defun
-*** file-relative-name
+**** file-relative-name
 
 Convert an absolute file name to a relative file name in relation to a
 directory.
@@ -1150,7 +1151,7 @@ directory.
   combination with DIRECTORY.
 #+end_defun
 
-*** file-name-quote
+**** file-name-quote
 
 This macro adds the quotation prefix ‘/:’ to the file name.
 
@@ -1169,7 +1170,7 @@ This macro adds the quotation prefix ‘/:’ to the file name.
   - quote name :: If name is already a quoted file name, name is returned
     unchanged.
 #+end_defun
-*** file-name-unquote
+**** file-name-unquote
 
 This macro removes the quotation prefix ‘/:’ from the file name, if any.
 
@@ -1180,7 +1181,7 @@ This macro removes the quotation prefix ‘/:’ from the file name, if any.
 - RETURN VALUE :: the NAME without a quote prefix.  If name is a remote file
   name, the local part of name is unquoted.
 #+end_defun
-*** file-name-quoted-p
+**** file-name-quoted-p
 
 This macro returns non-nil, when name is quoted with the prefix ‘/:’.
 
@@ -1192,7 +1193,7 @@ This macro returns non-nil, when name is quoted with the prefix ‘/:’.
   name is a remote file name, the local part of name is checked.
 #+end_defun
 
-*** expand-file-name
+**** expand-file-name
 
 Convert a relative file name to an absolute one and canonacilize it.  However,
 use =(directory-file-name (file-name-directory dirname))= to traverse a
@@ -1211,7 +1212,7 @@ filesystem tree, not =(expand-file-name ".." dirname)=.
 
 - RETURN VALUE :: an absolute, canonacalized file name.
 #+end_defun
-*** substitute-in-file-name
+**** substitute-in-file-name
 
 This function replaces environment variable references in filename with the
 environment variable values.
@@ -1227,7 +1228,7 @@ literally. Quoting happens by prefixing the file name with ‘/:’.
 
 - RETURN VALUE :: an absolute file name
 #+end_defun
-*** abbreviate-file-name
+**** abbreviate-file-name
 
 Converts a directory name to its abbreviation.  You can use this function for
 directory names and for file names, because it recognizes abbreviations even as
