@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-14 07:05
-#+macro:version Version 0.0.73
+#+date:2020-02-14 07:29
+#+macro:version Version 0.0.74
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -853,11 +853,19 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 * Directories---Files---Buffers
 
+#+texinfo:@heading Variables
+
 - [[*default-directory---a variable][~default-directory~]] --- a variable representing the current buffer's default
   directory
 
+
+#+texinfo:@heading File Name Components
+
 - [[*file-name-directory][~file-name-directory~]] --- the directory name of a file name (path) (ends with
   a trailing slash =/=)
+
+- [[*file-name-as-directory][~file-name-as-directory~]] --- given a file, return its directory name (with a
+  slash)
 
 - [[*file-name-nondirectory][~file-name-nondirectory~]] --- the file name of a path (everything after last
   slash)
@@ -866,12 +874,12 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 - [[*file-name-sans-extension][~file-name-sans-extension~]] --- return a file name without its extension
 
+- [[*directory-name-p][~directory-name-p~]] --- returns true for directory names
+
 - [[*directory-file-name][~directory-file-name~]] --- a directory file name (without a trailing slash)
 
-- [[*file-name-as-directory][~file-name-as-directory~]] --- given a file, return its directory name (with a
-  slash)
 
-- [[*directory-name-p][~directory-name-p~]] --- returns true for directory names
+#+texinfo:@heading Absolute and Relative File Names
 
 - [[*file-name-absolute-p][~file-name-absolute-p~]] --- returns true if the file name is absolute
 
@@ -879,7 +887,7 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
   directory
 
 
-#+texinfo:@heading Expanding File Names
+#+texinfo:@heading Expanding and Abbreviating File Names
 
 - [[*expand-file-name][~expand-file-name~]] --- expands to absolute an abbreviated file name
 
@@ -905,12 +913,16 @@ specify the *directory* and the file's *file name* within that directory.
 Therefore, Emacs considers a file name[fn:path:path] as having two main parts:
 
 #+cindex:directory name
-- the /directory name/ part, and 
+- the /directory name/ part; see [[*file-name-directory][~file-name-directory~]] and [[*file-name-as-directory][~file-name-as-directory~]]
 
 - the nondirectory part (or /file name/ within the directory).  This is also
   sometimes referred to as a /relative file name/, since it is *relative* to
   the directory part.  The file name often has a /base name/ and an optional
   /extension/.
+
+  - see [[*file-name-nondirectory][~file-name-nondirectory~]]
+
+  - see [[*file-name-extension][~file-name-extension~]] and [[*file-name-sans-extension][~file-name-sans-extension~]]
 
 
 Either part may be empty.  Concatenating these two parts reproduces the
@@ -922,11 +934,15 @@ up to and including the last slash; the nondirectory part is the rest.
 An /absolute file name/ specifies all the directory names starting from the
 root of the tree.  An absolute file name starts with a ‘/’.
 
+- see [[*file-name-absolute-p][~file-name-absolute-p~]]
+
 #+texinfo:@heading Relative File Names
 
 A /relative file name/ specifies the position of the file in the tree relative
 to a default directory.  A relative file name does NOT start with a ‘/’.  It
 can use abbreviations such as =.=, =..=, and =~=.
+
+- see [[*file-relative-name][~file-relative-name~]]
 
 #+texinfo:@heading Expanding File Names
 
@@ -939,12 +955,20 @@ expanding abbreviations (e.g., =~=).
 
 - see [[*substitute-in-file-name][~substitute-in-file-name~]]
 
+- see [[*abbreviate-file-name][~abbreviate-file-name~]]
+
 
 #+texinfo:@heading Quoting File Name
 
 Sometimes, it is not desired to expand file names.  In such cases, the file
 name can be quoted to suppress the expansion, and to handle the file name
 literally.  Quoting happens by prefixing the file name with ‘/:’.
+
+- see [[*file-name-quote][~file-name-quote~]]
+
+- see [[*file-name-unquote][~file-name-unquote~]]
+
+- see [[*file-name-quoted-p][~file-name-quoted-p~]]
 
 ** Directory Names and Directory File Names
 
@@ -954,31 +978,40 @@ literally.  Quoting happens by prefixing the file name with ‘/:’.
 A /directory name/ <<directory-name>> is a string that must name a directory if
 it names any file at all.
 
+- see [[*file-name-directory][~file-name-directory~]]
+
+- see [[*file-name-as-directory][~file-name-as-directory~]]
+
+
 #+texinfo:@heading Directory File Name
 
 #+cindex:directory
 #+cindex:directory file name
 A /directory/ is actually a kind of file, and it has a file name (called the
-/directory file name/<<directory-file-name>>, which is related to the
-/directory name/ but is typically not identical.
+/directory file name/ <<directory-file-name>>, which is related to the
+/directory name/ but is typically not identical, e.g., it will not have a
+trailing slash.
+
+- See [[*directory-file-name][~directory-file-name~]]
 
 #+texinfo:@heading The Difference
 
 These two names for the same entity are related by a syntactic transformation:
 
-- On GNU and other POSIX-like systems, this is simple: to obtain a directory
-  name, append a ‘/’ to a directory file name that does not already end in ‘/’.
+- On GNU and other POSIX-like systems, to obtain a directory name, append a ‘/’
+  to a directory file name that does not already end in ‘/’.
 
   : directory name = directory file name + /
 
 
-The difference between a directory name and a directory file name is subtle but
+The difference between a [[directory-name][directory name]] and a [[directory-file-name][directory file name]] is subtle but
 crucial:
 
-- When an Emacs variable or function argument is described as being a directory
-  name, a directory file name is not acceptable.
+- When an Emacs variable or function argument is described as being a
+  /directory name/, a /directory file name/ is not acceptable.
 
-- When [[*file-name-directory][~file-name-directory~]] returns a string, that is always a directory name.
+- When [[*file-name-directory][~file-name-directory~]] returns a string, that is always a /directory
+  name/.
 
 ** Directory and File Variables and Functions
 *** default-directory---a variable
@@ -1052,6 +1085,7 @@ a slash, then this function will return the empty string.
 
 This function returns a string representing /dirname/ in a form that the
 operating system will interpret as the name of a file (a directory file name).
+In general, it will return a name without a trailing slash.
 
 This operation exists because a directory is also a file, but its name as a
 directory is different from its name as a file.
