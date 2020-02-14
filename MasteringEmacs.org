@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-13 22:48
-#+macro:version Version 0.0.69
+#+date:2020-02-13 23:25
+#+macro:version Version 0.0.70
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -852,11 +852,39 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 *** Describe
 
 * Directories---Files---Buffers
+
+** File Name Components
+
+The operating system groups files into directories.  To specify a file[fn::I
+would call this a /path/], you must specify the directory and the file's name
+within that directory.
+
+Therefore, Emacs considers a file name[fn:path:path] as having two main parts:
+
+#+cindex:directory name
+- the /directory name/ part, and 
+
+- the nondirectory part (or file name within the directory).
+
+
+Either part may be empty. Concatenating these two parts reproduces the original
+file name[fn:path].  On most systems, the directory part is everything up to
+and including the last slash; the nondirectory part is the rest.
+
 ** Directories
 
-- [[*default-directory][~default-directory~]] --- a variable representing the current buffer's default directory
+- [[*default-directory---a variable][~default-directory~]] --- a variable representing the current buffer's default
+  directory
 
-- [[*file-name-directory][~file-name-directory~]] --- a directory name (with a trailing slash =/=)
+- [[*file-name-directory][~file-name-directory~]] --- the directory name of a file name (path) (ends with
+  a trailing slash =/=)
+
+- [[*file-name-nondirectory][~file-name-nondirectory~]] --- the file name of a path (everything after last
+  slash)
+
+- [[*file-name-extension][~file-name-extension~]] --- return a file name's extension
+
+- [[*file-name-sans-extension][~file-name-sans-extension~]] --- return a file name without its extension
 
 - [[*directory-file-name][~directory-file-name~]] --- a directory file name (without a trailing slash)
 
@@ -868,7 +896,7 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 - [[*abbreviate-file-name][~abbreviate-file-name~]] --- abbreviates an absolute file or directory name
 
-*** default-directory
+*** default-directory---a variable
 
 #+attr_texinfo: :options default-directory
 #+begin_defvar
@@ -920,6 +948,53 @@ crucial:
 - RETURN VALUE :: return the directory component in the file name, or =nil= if
   the file name does not include a directory.  Given a Unix syntax file name,
   returns a string ending in slash.
+#+end_defun
+
+**** file-name-nondirectory
+
+This function takes a full file name (path) and returns everything after the
+last slash, or the full name if it contains no slash.  If the file name ends in
+a slash, then this function will return the empty string.
+
+#+attr_texinfo: :options file-name-nondirectory filename
+#+begin_defun
+- FILENAME :: a full file name (path)
+
+- RETURN VALUE :: file name without its directory.
+#+end_defun
+
+**** file-name-extension
+
+#+attr_texinfo: :options file-name-extension filename &optional period
+#+begin_defun
+- FILENAME :: a file name
+
+- PERIOD :: if non-nil, include the period in the returned value; if file name
+  has no extension, return the empty string rather than nil.
+
+- RETURN VALUE :: the FILENAME's extension, i.e., the part that begins with the
+  last ‘.’, or nil for extensionless file name, or the empty string if the file
+  name ends with a period.
+#+end_defun
+
+**** file-name-sans-extension
+
+#+attr_texinfo: :options file-name-sans-extension filename
+#+begin_defun
+- FILENAME :: a file name to work upon
+
+- RETURN VALUE :: a file name without an extension;
+#+end_defun
+
+**** file-name-base
+
+#+attr_texinfo: :options file-name-base &optional filename
+#+begin_defun
+- FILENAME :: a file name upon which to operate, defaulting to
+  [[*buffer-file-name][~buffer-file-name~]]
+
+- RETURN VALUE :: the base name of the file name, i.e., no directory and no
+  extension
 #+end_defun
 
 **** directory-file-name
