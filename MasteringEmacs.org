@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-14 07:37
-#+macro:version Version 0.0.76
+#+date:2020-02-14 07:55
+#+macro:version Version 0.0.77
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -926,6 +926,8 @@ Therefore, Emacs considers a file name[fn:path:path] as having two main parts:
 
   - see [[*file-name-extension][~file-name-extension~]] and [[*file-name-sans-extension][~file-name-sans-extension~]]
 
+  - see [[*file-name-base][~file-name~base~]]
+
 
 Either part may be empty.  Concatenating these two parts reproduces the
 original file name[fn:path].  On most systems, the directory part is everything
@@ -1071,14 +1073,14 @@ a slash, then this function will return the empty string.
 #+begin_defun
 - FILENAME :: a file name to work upon
 
-- RETURN VALUE :: a file name without an extension;
+- RETURN VALUE :: a file name without an extension; this includes the directory
+  portion of the FILENAME, if any.
 #+end_defun
 **** file-name-base
 
 #+attr_texinfo: :options file-name-base &optional filename
 #+begin_defun
-- FILENAME :: a file name upon which to operate, defaulting to
-  [[*buffer-file-name][~buffer-file-name~]]
+- FILENAME :: a file name to work upon; the default is [[*buffer-file-name][~buffer-file-name~]]
 
 - RETURN VALUE :: the base name of the file name, i.e., no directory and no
   extension
@@ -2916,7 +2918,6 @@ Visiting the file is not necessary and takes longer.
        REPLACE is non-nil, the second return value is the number of characters
        that replace previous buffer contents.
      #+end_defun
-
 * Movement
 
 Movement in Emacs is more than characters in a buffer; there’s a host of
