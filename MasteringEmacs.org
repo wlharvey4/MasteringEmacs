@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-13 22:42
-#+macro:version Version 0.0.68
+#+date:2020-02-13 22:48
+#+macro:version Version 0.0.69
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -870,7 +870,7 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 *** default-directory
 
-#+texinfo: :options default-directory
+#+attr_texinfo: :options default-directory
 #+begin_defvar
 Name of default directory of current buffer.  It should be a [[directory-name][directory name]] (as
 opposed to a [[directory-file-name][directory file name]]).  On GNU and Unix systems, [[directory-name][directory names]]
@@ -1805,6 +1805,7 @@ Return t if OBJECT is an editor buffer.
   | ~.~ the current buffer  | ~%~ read-only |     ~*~ modified      | name   | size | major mode | visited file |
   | ~>~ marked for display  |               | ~S~ marked for saving |        |      |            |              |
   | ~D~ marked for deletion |               |                       |        |      |            |              |
+
 
 - ~buffer-menu-mode~ is the major mode for Buffer Menu buffers.
 
