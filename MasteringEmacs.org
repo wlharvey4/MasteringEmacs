@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-14 07:32
-#+macro:version Version 0.0.75
+#+date:2020-02-14 07:37
+#+macro:version Version 0.0.76
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -854,7 +854,7 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 * Directories---Files---Buffers
 ** Directories and File Names
 
-#+texinfo:@heading Variables
+#+texinfo:@heading Directory Variables
 
 - [[*default-directory---a variable][~default-directory~]] --- a variable representing the current buffer's default
   directory
@@ -865,34 +865,35 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 - [[*file-name-directory][~file-name-directory~]] --- the directory name of a file name (path) (ends with
   a trailing slash =/=)
 
-- [[*file-name-as-directory][~file-name-as-directory~]] --- given a file, return its directory name (with a
+- [[*file-name-as-directory][~file-name-as-directory~]] --- the directory name of a file name, or path (with
+  a slash)
+
+- [[*file-name-nondirectory][~file-name-nondirectory~]] --- the filename of a path (everything after last
   slash)
 
-- [[*file-name-nondirectory][~file-name-nondirectory~]] --- the file name of a path (everything after last
-  slash)
+- [[*file-name-extension][~file-name-extension~]] --- the filename's extension
 
-- [[*file-name-extension][~file-name-extension~]] --- return a file name's extension
+- [[*file-name-sans-extension][~file-name-sans-extension~]] --- the filename without its extension
 
-- [[*file-name-sans-extension][~file-name-sans-extension~]] --- return a file name without its extension
+- [[*directory-name-p][~directory-name-p~]] --- true for a directory name
 
-- [[*directory-name-p][~directory-name-p~]] --- returns true for directory names
-
-- [[*directory-file-name][~directory-file-name~]] --- a directory file name (without a trailing slash)
+- [[*directory-file-name][~directory-file-name~]] --- a directory file name (dirname) (file name without
+  a trailing slash)
 
 
 #+texinfo:@heading Absolute and Relative File Names
 
-- [[*file-name-absolute-p][~file-name-absolute-p~]] --- returns true if the file name is absolute
+- [[*file-name-absolute-p][~file-name-absolute-p~]] --- true if the file name is absolute
 
-- [[*file-relative-name][~file-relative-name~]] --- returns a relative file name in relation to a
-  directory
+- [[*file-relative-name][~file-relative-name~]] --- a relative file name in relation to a directory
 
 
 #+texinfo:@heading Expanding and Abbreviating File Names
 
 - [[*expand-file-name][~expand-file-name~]] --- expands to absolute an abbreviated file name
 
-- [[*substitute-in-file-name][~substitute-in-file-name~]] --- expands environment variables in a path
+- [[*substitute-in-file-name][~substitute-in-file-name~]] --- expands environment variables in a file name
+  (path)
 
 - [[*abbreviate-file-name][~abbreviate-file-name~]] --- abbreviates an absolute file or directory name
 
