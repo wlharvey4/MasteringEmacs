@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-13 23:25
-#+macro:version Version 0.0.70
+#+date:2020-02-14 00:12
+#+macro:version Version 0.0.71
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -871,7 +871,81 @@ Either part may be empty. Concatenating these two parts reproduces the original
 file name[fn:path].  On most systems, the directory part is everything up to
 and including the last slash; the nondirectory part is the rest.
 
-** Directories
+*** Absolute and Relative File Names---Expanding File Names---Quoting
+
+#+texinfo:@heading Absolute File Names
+
+A file name can specify all the directory names starting from the root of the
+tree.  An absolute file name starts with a ‘/’.
+
+#+texinfo:@heading Relative File Names
+
+A file name can specify the position of the file in the tree relative to a
+default directory.  A relative file name does NOT start with a ‘/’.
+
+#+texinfo:@heading Expanding File Names
+
+Expanding a file name means converting a relative file name to an absolute one.
+Since this is done relative to a default directory, you must specify the
+default directory as well as the file name to be expanded.  It also involves
+expanding abbreviations (e.g., =~=).
+
+- see [[*expand-file-name][~expand-file-name~]]
+
+- see [[*substitute-in-file-name][~substitute-in-file-name~]]
+
+
+#+texinfo:@heading Quoting File Name
+
+Sometimes, it is not desired to expand file names.  In such cases, the file
+name can be quoted to suppress the expansion, and to handle the file name
+literally.  Quoting happens by prefixing the file name with ‘/:’.
+
+**** file-name-quote
+
+This macro adds the quotation prefix ‘/:’ to the file name.
+
+#+attr_texinfo: :options file-name-quote name
+#+begin_defun
+- NAME :: a file name upon which to operate;
+
+- RETURN VALUE :: the file name to which has been added the quotation prefix:
+  ‘/:’;
+
+  - local file name :: prefixes name with ‘/:’.
+
+  - remote file name :: the local part of name (see Magic File Names) is
+    quoted;
+
+  - quote name :: If name is already a quoted file name, name is returned
+    unchanged.
+#+end_defun
+
+**** file-name-unquote
+
+This macro removes the quotation prefix ‘/:’ from the file name, if any.
+
+#+attr_texinfo: :options file-name-unquote name
+#+begin_defun
+- NAME :: a file name upon which to operate
+
+- RETURN VALUE :: the NAME without a quote prefix.  If name is a remote file
+  name, the local part of name is unquoted.
+#+end_defun
+
+**** file-name-quoted-p
+
+This macro returns non-nil, when name is quoted with the prefix ‘/:’.
+
+#+attr_texinfo: :options file-name-quoted-p name
+#+begin_defun
+- NAME :: a file name to test
+
+= RETURN VALUE :: returns non-nil, when name is quoted with the prefix ‘/:’; if
+  name is a remote file name, the local part of name is checked.
+#+end_defun
+
+** Directories and File Names
 
 - [[*default-directory---a variable][~default-directory~]] --- a variable representing the current buffer's default
   directory
@@ -888,13 +962,27 @@ and including the last slash; the nondirectory part is the rest.
 
 - [[*directory-file-name][~directory-file-name~]] --- a directory file name (without a trailing slash)
 
-- [[*file-name-as-directory][~file-name-as-directory~]] --- given a file, return its directory name (with a slash)
+- [[*file-name-as-directory][~file-name-as-directory~]] --- given a file, return its directory name (with a
+  slash)
 
 - [[*directory-name-p][~directory-name-p~]] --- returns true for directory names
 
+- [[*file-name-absolute-p][~file-name-absolute-p~]] --- returns true if the file name is absolute
+
+- [[*file-relative-name][~file-relative-name~]] --- returns a relative file name in relation to a
+  directory
+
 - [[*expand-file-name][~expand-file-name~]] --- expands to absolute an abbreviated file name
 
+- [[*substitute-in-file-name][~substitute-in-file-name~]] --- expands environment variables in a path
+
 - [[*abbreviate-file-name][~abbreviate-file-name~]] --- abbreviates an absolute file or directory name
+
+- [[*file-name-quote][~file-name-quote~]] --- adds quote prefix to a file name
+
+- [[*file-name-unquote][~file-name-unquote~]] --- removes quote prefix from a file name
+
+- [[*file-name-quoted-p][~file-name-quoted-p~]] --- tests whether a file name is quoted
 
 *** default-directory---a variable
 
@@ -1039,6 +1127,36 @@ value of ~default-directory~ or passed as second argument to
 - RETURN VALUE :: non-nil if NAME ends with a directory separator character.
 #+end_defun
 
+**** file-name-absolute-p
+
+This function tests whether a file name is absolute.  Given a possibly relative
+file name, you can expand any leading ‘~’ and convert the result to an absolute
+name using [[*expand-file-name][~expand-file-name~]].
+
+#+attr_texinfo: :options file-name-absolute-p filename
+#+begin_defun
+- FILENAME :: the file name to test
+
+- RETURN VALUE :: returns t if FILENAME is an absolute file name or begins with
+  =~=; returns nil if not.
+#+end_defun
+
+**** file-relative-name
+
+Convert an absolute file name to a relative file name in relation to a
+directory.
+
+#+attr_texinfo: :options file-relative-name filename &optional directory
+#+begin_defun
+- FILENAME :: a file name upon which to operate to convert it to be relative to
+  DIRECTORY, which defaults to [[*default-directory---a variable][~default-directory~]].
+
+- DIRECTORY :: a directory to act as a reference for this function;
+
+- RETURN VALUE :: a relative file name which is equivalent to FILENAME in
+  combination with DIRECTORY.
+#+end_defun
+
 **** expand-file-name
 
 Convert a relative file name to an absolute one and canonacilize it.  However,
@@ -1057,6 +1175,23 @@ filesystem tree, not =(expand-file-name ".." dirname)=.
   ~default-directory~ is used.
 
 - RETURN VALUE :: an absolute, canonacalized file name.
+#+end_defun
+
+**** substitute-in-file-name
+
+This function replaces environment variable references in filename with the
+environment variable values.
+
+Sometimes, it is not desired to expand file names. In such cases, the file name
+can be quoted to suppress the expansion, and to handle the file name
+literally. Quoting happens by prefixing the file name with ‘/:’.
+
+#+attr_texinfo: :options substitute-in-file-name filename
+#+begin_defun
+- FILENAME :: a file name upon which to operate; in FILENAME, substitute
+  environment variables
+
+- RETURN VALUE :: an absolute file name
 #+end_defun
 
 **** abbreviate-file-name
