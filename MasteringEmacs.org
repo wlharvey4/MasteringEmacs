@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-14 00:12
-#+macro:version Version 0.0.71
+#+date:2020-02-14 06:26
+#+macro:version Version 0.0.72
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -1289,6 +1289,17 @@ part of the name.
 
   - ~locale-coding-system~ (a variable) :: 
 
+
+#+texinfo:@heading Creating Temporary Files
+
+- [[*make-temp-file][~make-temp-file~]] :: create a unique temporary file
+
+- [[*temporary-file-directory---a user option][~temporary-file-directory~]]---a user option :: default directory for storing
+  temporary files
+
+- [[*small-temporary-file-directory---a user option][~small-temporary-file-directory~]]---a user option :: a default directory for
+  storing small temporary files
+
 *** Visiting or Finding Files
 
 #+cindex:visit a file
@@ -1859,6 +1870,90 @@ last form in BODY.
 
 See also [[*with-temp-buffer][~with-temp-buffer~]].
 #+end_defun
+
+**** make-temp-file
+
+Some programs need to write temporary files.  Here is the usual way to
+construct a name for such a file.  The job of ~make-temp-file~ is to prevent
+two different users or two different jobs from trying to use the exact same
+file name.
+
+#+attr_texinfo: :options make-temp-file prefix &optional dir-flag suffix text
+#+begin_defun
+This function creates a temporary file and returns its name by adding to PREFIX
+some random characters that are different in each Emacs job.
+
+- PREFIX :: a user-provided string that should be unique to this program; this
+  helps Emacs generate a unique file name despite numerous programs in
+  different jobs running simultaneously and using this macro.
+
+- DIR-FLAG :: if non-nil, create a new, empty directory instead of a file.
+
+- SUFFIX :: if non-nil, it is added to the end of the file name.
+
+- TEXT :: if a string, insert it into the new file before returning; DIR-FLAG
+  should be nil;
+
+  if nil, leave the file empty.
+
+- RETURN VALUE :: the newly-created file name pointing to a new-created file
+  that is empty unless TEXT contains a string, in which case the file contains
+  TEXT.
+#+end_defun
+
+If you want to write a temporary file which is likely to be small, you should
+compute the directory like this:
+
+#+caption:Creating a Small Temporary File
+#+name:create-small-temp-file
+#+begin_src elisp :eval never
+  (make-temp-file
+   (expand-file-name prefix
+                     (or small-temporary-file-directory
+                         temporary-file-directory)))
+#+end_src
+
+**** temporary-file-directory---a user option
+
+The default directory for temporary files is controlled by the variable
+~temporary-file-directory~.  This variable gives the user a uniform way to
+specify the directory for all temporary files.  It will have a default value
+consistent with the operating system so it does not need to be explicitly
+created.
+
+#+attr_texinfo: :options temporary-file-directory
+#+begin_defvar
+This variable specifies the directory name for creating temporary files.  Its
+value should be a [[directory-name][directory name]], but a program should be able to handle a
+[[directory-file-name][directory file name]] instead.
+
+The default value is determined in a reasonable way for your operating system;
+it is based on the =TMPDIR=, =TMP= and =TEMP= environment variables, with a
+fall-back to a system-dependent name if none of these variables is defined.  At
+the time of writing this, this variable’s default value is:
+: /var/folders/x_/v2pfz45s7h3245q6wlvvvnyh0000gn/T/
+
+The variable’s value can be customized from within Emacs.
+
+The directory ~/var/folders/~ is owned by =root=, but the folders ~x/~ and
+above are owned by the User.  ~x/~ was apparently created at the time the User
+account was created, and the folders inside it were created in the recent past.
+
+This variable works well as the optional default directory for
+[[*expand-file-name][~expand-file-name~]].
+#+end_defvar
+
+**** small-temporary-file-directory---a user option
+
+#+attr_texinfo: :options small-temporary-file-directory
+#+begin_defvar
+The directory for writing small temporary files.  If non-nil, use this
+directory instead of [[*temporary-file-directory---a user option][~temporary-file-directory~]] when creating small temporary
+files.  This is for systems that have fast storage with limited space, such as
+a RAM disk.
+
+It’s default value is nil.  It’s value can be customized.
+#+end_defvar
 
 ** Buffers
 
