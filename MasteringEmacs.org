@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-11 23:24
-#+macro:version Version 0.0.67
+#+date:2020-02-13 22:42
+#+macro:version Version 0.0.68
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -853,6 +853,155 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 
 * Directories---Files---Buffers
 ** Directories
+
+- [[*default-directory][~default-directory~]] --- a variable representing the current buffer's default directory
+
+- [[*file-name-directory][~file-name-directory~]] --- a directory name (with a trailing slash =/=)
+
+- [[*directory-file-name][~directory-file-name~]] --- a directory file name (without a trailing slash)
+
+- [[*file-name-as-directory][~file-name-as-directory~]] --- given a file, return its directory name (with a slash)
+
+- [[*directory-name-p][~directory-name-p~]] --- returns true for directory names
+
+- [[*expand-file-name][~expand-file-name~]] --- expands to absolute an abbreviated file name
+
+- [[*abbreviate-file-name][~abbreviate-file-name~]] --- abbreviates an absolute file or directory name
+
+*** default-directory
+
+#+texinfo: :options default-directory
+#+begin_defvar
+Name of default directory of current buffer.  It should be a [[directory-name][directory name]] (as
+opposed to a [[directory-file-name][directory file name]]).  On GNU and Unix systems, [[directory-name][directory names]]
+end in a slash ‘/’.
+#+end_defvar
+
+*** Directory Names and Directory File Names
+
+#+texinfo:@heading Directory Name
+
+#+cindex:directory name
+A /directory name/<<directory-name>> is a string that must name a directory if
+it names any file at all.
+
+#+texinfo:@heading Directory File Name
+
+#+cindex:directory
+#+cindex:directory file name
+A /directory/ is actually a kind of file, and it has a file name (called the
+/directory file name/<<directory-file-name>>, which is related to the
+/directory name/ but is typically not identical.
+
+#+texinfo:@heading The Difference
+
+These two names for the same entity are related by a syntactic transformation:
+
+- On GNU and other POSIX-like systems, this is simple: to obtain a directory
+  name, append a ‘/’ to a directory file name that does not already end in ‘/’.
+
+  : directory name = directory file name + /
+
+
+The difference between a directory name and a directory file name is subtle but
+crucial:
+
+- When an Emacs variable or function argument is described as being a directory
+  name, a directory file name is not acceptable.
+
+- When [[*file-name-directory][~file-name-directory~]] returns a string, that is always a directory name.
+
+**** file-name-directory
+
+#+attr_texinfo: :options file-name-directory filename
+#+begin_defun
+- FILENAME :: a file name to process; obtain its directory name;
+
+- RETURN VALUE :: return the directory component in the file name, or =nil= if
+  the file name does not include a directory.  Given a Unix syntax file name,
+  returns a string ending in slash.
+#+end_defun
+
+**** directory-file-name
+
+This function returns a string representing /dirname/ in a form that the
+operating system will interpret as the name of a file (a directory file name).
+
+This operation exists because a directory is also a file, but its name as a
+directory is different from its name as a file.
+
+#+attr_texinfo: :options directory-file-name directory
+#+begin_defun
+- DIRECTORY :: a directory to process; obtain its file name; in Unix-syntax,
+  this function just removes the final slash.
+
+- RETURN VALUE :: the file name of the directory named DIRECTORY (its directory
+  file name).
+#+end_defun
+
+**** file-name-as-directory
+
+This operation exists because a directory is also a file, but its name as a
+directory is different from its name as a file.  The result can be used as the
+value of ~default-directory~ or passed as second argument to
+~expand-file-name~.
+
+#+attr_texinfo: :options file-name-as-directory file
+#+begin_defun
+- FILE :: a file
+
+- RETURN VALUE :: Return a string representing the file name FILE interpreted
+  as a directory.  For a Unix-syntax file name, just appends a slash unless a
+  trailing slash is already present.
+#+end_defun
+
+**** directory-name-p
+
+#+attr_texinfo: :options directory-name-p name
+#+begin_defun
+- NAME :: potential file name to test
+
+- RETURN VALUE :: non-nil if NAME ends with a directory separator character.
+#+end_defun
+
+**** expand-file-name
+
+Convert a relative file name to an absolute one and canonacilize it.  However,
+use =(directory-file-name (file-name-directory dirname))= to traverse a
+filesystem tree, not =(expand-file-name ".." dirname)=.
+
+#+attr_texinfo: :options expand-file-name name &optional default-directory
+#+begin_defun
+- NAME :: a file name (a string that is a valid file name) upon which to
+  operate: convert the file name to absolute and canonicalize it.  =~/= expands
+  to the home directory.  =~USER= expands to USER's home directory.
+
+- DEFAULT-DIRECTORY :: a directory used to start with if NAME is relative (does
+  not start with slash or tilde);  this can be either a directory name or a
+  directory file name; if nil or missing, the current buffer's value of
+  ~default-directory~ is used.
+
+- RETURN VALUE :: an absolute, canonacalized file name.
+#+end_defun
+
+**** abbreviate-file-name
+
+Converts a directory name to its abbreviation.  You can use this function for
+directory names and for file names, because it recognizes abbreviations even as
+part of the name.
+
+#+attr_texinfo: :options abbreviate-file-name filename
+#+begin_defun
+- FILENAME :: an absolute file name upon which to operate;
+
+- RETURN VALUE :: a shortened version of FILENAME, using
+  ~directory-abbrev-alist~.  Also substitute =~= for the user's home directory
+  and remove automounter prefixes.
+
+  When this function is first called, it caches the user’s home directory as a
+  regexp in ~abbreviated-home-dir~, and reuses it afterwards.
+#+end_defun
+
 ** Files
 
 #+texinfo:@heading Visiting Files
