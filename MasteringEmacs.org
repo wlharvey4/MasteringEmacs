@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-14 08:04
-#+macro:version Version 0.0.78
+#+date:2020-02-15 09:58
+#+macro:version Version 0.0.80
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -26,6 +26,10 @@ brighter; it simply makes everything else vanish.
 - [[https://www.gnu.org/software/emacs/manual/][Emacs Online Reference Manual]]
 
 - [[https://www.gnu.org/software/emacs/manual/elisp.html][Emacs Online Lisp Reference Manual]]
+
+- [[https://www.gnu.org/software/emacs/refcards/pdf/refcard.pdf][Emacs 26 Reference Card]]
+
+- [[https://www.gnu.org/software/emacs/refcards/pdf/survival.pdf][Emacs 26 Survival Card]]
 
 
 
@@ -100,6 +104,20 @@ maintainer of MELPA, and has written and reviewed a lot of elisp code.
 #+CINDEX: Awesome Emacs
 :END:
     + [[https://github.com/emacs-tw/awesome-emacs]]
+
+*** Doom Emacs
+
+“An Emacs configuration for the stubborn martian vimmer”
+
+#+begin_quote
+Doom is a configuration framework for GNU Emacs tailored for Emacs bankruptcy
+veterans who want less framework in their frameworks and the performance of a
+hand rolled config (or better). It can be a foundation for your own config or a
+resource for Emacs enthusiasts to learn more about our favorite OS.
+#+end_quote
+
+#+cindex:doom-emacs
++ https://github.com/hlissner/doom-emacs
 
 *** Xah Emacs List of Starter Kits
 
@@ -253,22 +271,25 @@ See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
 
 * First Steps
 ** Installing
-*** Version
+*** What is Your Version
 #+CINDEX: version
-To check Emacs' version, type: ~emacs --version~
+To check your Emacs' version, type: ~emacs --version~
 
-As of 2015 the upcoming version is GNU Emacs 25. If your version of Emacs is
-version 23.x or older --- upgrade.
+#+caption:Your Emacs Version using the Shell
+#+name:your-emacs-version-via-shell
+#+header: :exports both :results output
+#+begin_src sh
+emacs --version
+#+end_src
 
-#+BEGIN_EXAMPLE
-$ /usr/bin/emacs --version
-GNU Emacs 22.1.1
-Copyright (C) 2007 Free Software Foundation, Inc.
-GNU Emacs comes with ABSOLUTELY NO WARRANTY.
-You may redistribute copies of Emacs
-under the terms of the GNU General Public License.
-For more information about these matters, see the file named COPYING.
-#+END_EXAMPLE
+The version can also be checked from within Emacs, using ~M-x version~:
+
+#+caption:Your Emacs Version using Emacs
+#+name:your-emacs-version-via-emacs
+#+header: :exports both :results output
+#+begin_src emacs-lisp
+(print (emacs-version))
+#+end_src
 
 *** Emacs on Mac OS
 :CI:
