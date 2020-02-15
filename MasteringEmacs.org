@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-15 10:52
-#+macro:version Version 0.0.81
+#+date:2020-02-15 11:39
+#+macro:version Version 0.0.82
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -869,16 +869,23 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 *** Enabling Your Trash
 
 #+vindex:delete-by-moving-to-trash
-- ~delete-by-moving-to-trash~
+- [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]]
 
+
+#+begin_src emacs-lisp :exports results
+  (with-output-to-string
+    (princ "Your value of 'delete-by-moving-to-trash' is currently: ")
+    (princ delete-by-moving-to-trash))
+#+end_src
 
 #+cindex:Trash
 #+cindex:delete using Trash
 By default, Emacs =deletion= commands do not use the =Trash= facility.  To use
 the =Trash= facility (when it is available) for common deletion commands,
-change the variable ~delete-by-moving-to-trash~ to =t=.  This affects the
-commands =M-x delete-file= and =M-x delete-directory= (see Directories), as
-well as the deletion commands in =Dired= (see Dired Deletion).
+change the variable [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]] to =t=.  This affects the
+commands =M-x delete-file= [[*delete-file][delete-file]] and =M-x delete-directory=
+[[*delete-directory][delete-directory]] (see Directories), as well as the deletion commands in =Dired=
+(see Dired Deletion).
 
 ** Help
 *** Info
@@ -915,7 +922,7 @@ invoke with =C-x d=;
 
 - ~directory-free-space-args~ (a variable)
 
-- ~delete-by-moving-to-trash~ (a variable)
+- [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]] (a variable)
 
 - ~trash-directory~ (a variable)
 
@@ -975,7 +982,7 @@ Delete the directory named DIRECTORY.  Symlinks are /not/ followed.
 
 - RECURSIVE :: If non-nil, delete all files contained inside DIRECTORY;
 
-- TRASH :: If non-nil, and if variable [[delete-by-moving-to-trash][~delete-by-moving-to-trash~]] is also
+- TRASH :: If non-nil, and if variable [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]] is also
   non-nil, move the DIRECTORY into the trash or recycle bin using
   [[*move-file-to-trash][~move-file-to-trash~]].
 #+end_defun
@@ -988,7 +995,7 @@ FILENAME as an argument.
 Otherwise, move the file (or directory) named FILENAME to the trash, or if the
 variable ~trash-directory~ is defined[fn::by default it is nil], to it.
 
-When ~delete-by-moving-to-trash~ is non-nil, this function is called by
+When [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]] is non-nil, this function is called by
 [[*delete-file][~delete-file~]] and [[*delete-directory][~delete-directory~]] instead of deleting files outright.
 
 #+attr_texinfo: :options move-file-to-trash filename
@@ -1004,6 +1011,20 @@ Move file or directory named FILENAME to the recycle bin.
 #+begin_defun
 - FILENAME :: file or directory to move to the trash
 #+end_defun
+
+*** delete-by-moving-to-trash---a variable
+
+#+attr_texinfo: :options delete-by-moving-to-trash
+#+begin_defvar
+If non-nil (nil is the default), some file deletion commands using the function
+~move-file-to-trash~ instead of deleting them outright.  These commnds include:
+- [[*delete-file][~delete-file~]]
+- [[*delete-directory][~delete-directory~]]
+- =Dired= deletion commands
+
+
+The variable can be customized.
+#+end_defvar
 
 ** Directories and File Names
 
@@ -1442,6 +1463,10 @@ part of the name.
 
 - [[*not-modified][~not-modified~]] :: 
 
+
+#+texinfo:@heading Deleting Files
+
+- [[*delete-file][~delete-file~]] ::
 
 #+texinfo:@heading Hooks Related to Saving
 
@@ -2136,6 +2161,17 @@ a RAM disk.
 
 It’s default value is nil.  It’s value can be customized.
 #+end_defvar
+*** Deleting Files
+**** delete-file
+Delete file named FILENAME.  If it is a symlink, remove the symlink.
+
+#+attr_texinfo: :options delete-file filename &optional trash
+#+begin_defun
+- FILENAME :: file name to delete.
+
+- TRASH :: if non-nil, and if the variable [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]] is also
+  non-nil, then use the Trash facility to delete the file.
+#+end_defun
 
 ** Buffers
 
