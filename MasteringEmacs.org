@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-15 09:58
-#+macro:version Version 0.0.80
+#+date:2020-02-15 10:52
+#+macro:version Version 0.0.81
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -866,6 +866,19 @@ you want =super= use the prefix key =s-= (lower case).
 *** Configuring File Name Completion
 If you have changed your system's case-sensitivity setting[fn:1], have a look
 at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
+*** Enabling Your Trash
+
+#+vindex:delete-by-moving-to-trash
+- ~delete-by-moving-to-trash~
+
+
+#+cindex:Trash
+#+cindex:delete using Trash
+By default, Emacs =deletion= commands do not use the =Trash= facility.  To use
+the =Trash= facility (when it is available) for common deletion commands,
+change the variable ~delete-by-moving-to-trash~ to =t=.  This affects the
+commands =M-x delete-file= and =M-x delete-directory= (see Directories), as
+well as the deletion commands in =Dired= (see Dired Deletion).
 
 ** Help
 *** Info
@@ -873,6 +886,125 @@ at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
 *** Describe
 
 * Directories---Files---Buffers
+** File Directories
+A /directory listing/ is a list of all the files in a directory.
+
+Emacs provides commands to create and delete directories, and to make directory
+listings in /brief format/ (file names only) and /verbose format/ (sizes,
+dates, and other attributes included).
+
+#+cindex:Dired
+Emacs also includes a directory browser feature called Dired, which you can
+invoke with =C-x d=;
+
+- [[*list-directory][~list-directory~]] (=C-x C-d=)
+
+- [[*make-directory][~make-directory~]]
+
+- [[*delete-directory][~delete-directory~]]
+
+- [[*move-file-to-trash][~move-file-to-trash~]] (a Lisp function)
+
+- [[*system-move-file-to-trash][~system-move-file-to-trash~]] (a non-interactive built-in C function)
+
+- ~list-directory-brief-switches~ (a variable)
+
+- ~list-directory-verbose-switches~ (a variable)
+
+- ~directory-free-space-program~ (a variable)
+
+- ~directory-free-space-args~ (a variable)
+
+- ~delete-by-moving-to-trash~ (a variable)
+
+- ~trash-directory~ (a variable)
+
+*** list-directory
+
+#+attr_texinfo: :options list-directory dirname &optional verbose
+#+begin_defun
+Display a list of files in or matching DIRNAME, a la ‘ls’.  When called
+interactively, a prefix argument switches on verbose mode.
+
+- DIRNAME :: a directory file name; wildcard characters can be included; it
+  will be globbed by the shell if necessary;
+
+- VERBOSE :: if non-nil, supply the {{{option (-l)}}} switch.
+
+
+The variables:
+
+- ~list-directory-brief-switches~
+- ~list-directory-verbose-switches~
+
+
+control which switches are passed to the ~ls~ command in brief and verbose
+listings.
+
+The variables:
+
+- ~directory-free-space-program~ (~df~)
+- ~directory-free-space-args~ (args to pass to ~df~)
+
+
+customize the display of free space on the disk containing the directory in
+verbose mode.
+
+#+end_defun
+
+*** make-directory
+
+Create the directory DIR and optionally any nonexistent parent dirs.  When
+called interactively, non-existent parent dirs will automatically be created.
+
+#+attr_texinfo: :options make-directory dir &optional parents
+#+begin_defun
+- DIR :: The DIR to create; if DIR exists, signal an error unless PARENTS is
+  non-nil.
+
+- PARENTS :: If non-nil, create any non-existent parent directories.
+#+end_defun
+
+*** delete-directory
+
+Delete the directory named DIRECTORY.  Symlinks are /not/ followed.
+
+#+attr_texinfo: :options delete-directory directory &optional recursive trash
+#+begin_defun
+- DIRECTORY :: The directory to delete;
+
+- RECURSIVE :: If non-nil, delete all files contained inside DIRECTORY;
+
+- TRASH :: If non-nil, and if variable [[delete-by-moving-to-trash][~delete-by-moving-to-trash~]] is also
+  non-nil, move the DIRECTORY into the trash or recycle bin using
+  [[*move-file-to-trash][~move-file-to-trash~]].
+#+end_defun
+
+*** move-file-to-trash
+
+First, if the function [[*system-move-file-to-trash][~system-move-file-to-trash~]] is defined, call it with
+FILENAME as an argument.
+
+Otherwise, move the file (or directory) named FILENAME to the trash, or if the
+variable ~trash-directory~ is defined[fn::by default it is nil], to it.
+
+When ~delete-by-moving-to-trash~ is non-nil, this function is called by
+[[*delete-file][~delete-file~]] and [[*delete-directory][~delete-directory~]] instead of deleting files outright.
+
+#+attr_texinfo: :options move-file-to-trash filename
+#+begin_defun
+- FILENAME :: file or directory to move to trash.
+#+end_defun
+
+*** system-move-file-to-trash
+
+Move file or directory named FILENAME to the recycle bin.
+
+#+attr_texinfo: :options system-move-file-to-trash filename
+#+begin_defun
+- FILENAME :: file or directory to move to the trash
+#+end_defun
+
 ** Directories and File Names
 
 #+texinfo:@heading Directory Variables
