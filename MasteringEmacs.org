@@ -4,7 +4,7 @@
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
 #+date:2020-02-15 11:39
-#+macro:version Version 0.0.84
+#+macro:version Version 0.0.85
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -693,6 +693,12 @@ key combo.
 *** Remembering Keys
 ** Configuring
 *** Must Do’s
+**** Add to Init File
+
+- install MELPA repository ::
+  1. http://melpa.org/#/getting-started
+  2. ~(add-to-list ’package-archives (cons "melpa" "https://melpa.org/packages/") t)
+
 - set Mac Command key to Emacs Meta ::
   1. M-x customize-group RET ns
   2. Ns Command Modifier: “meta”
@@ -702,16 +708,25 @@ key combo.
   1. M-x customize-group RET global-linum
   2. Global Linum Mode: “t”
 
-- install MELPA repository ::
-  1. http://melpa.org/#/getting-started
-  2. ~(add-to-list ’package-archives (cons "melpa" "https://melpa.org/packages/") t)
+**** Must-Have Packages
 
-**** Must Have Packages
+- Org Mode ::
+  - https://orgmode.org/
 
-- Org ::
   1. M-x ~package-refresh-contents~
   2. M-x ~package-list-packages~
   3. Find Org and install---current version is now 9.3.6
+
+- Magit Mode ::
+  - https://magit.vc/
+
+  1. M-x ~package-refresh-contents~
+  2. M-x ~package-list-packages~
+  3. Find Magit and install---current version is now
+     : Magit 20200217.135, Git 2.17.2 (Apple Git-113), Emacs 27.0.50, darwin
+  4. Install global key bindings to work with Magit from any buffer
+     a. ~(global-set-key (kbd "C-x g") 'magit-status)~
+     b. ~(global-set-key (kbd "C-x M-g") 'magit-dispatch)~
 
 *** Customizing
 *** Evaluating Lisp
