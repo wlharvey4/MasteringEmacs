@@ -4,7 +4,7 @@
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
 #+date:2020-02-15 11:39
-#+macro:version Version 0.0.82
+#+macro:version Version 0.0.83
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -692,6 +692,16 @@ key combo.
 *** Universal
 *** Remembering Keys
 ** Configuring
+*** Must Do’s
+- set Mac Command key to Emacs Meta ::
+  1. M-x customize-group RET ns
+  2. Ns Command Modifier: “meta”
+  3. Ns Alternate Modified: “No modifier”
+
+- set Global line number mode ::
+  1. M-x customize-group RET global-linum
+  2. Global Linum Mode: “t”
+
 *** Customizing
 *** Evaluating Lisp
 *** Package Manager
@@ -6999,6 +7009,6 @@ sync.
 * Local Variables                                                  :noexport:
 # Local variables:
 # fill-column: 79
-# electric-quote-local-mode: t
+# eval: (electric-quote-local-mode)
 # time-stamp-pattern:"8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
 # End:
