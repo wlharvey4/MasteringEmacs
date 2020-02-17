@@ -4,7 +4,7 @@
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
 #+date:2020-02-15 11:39
-#+macro:version Version 0.0.83
+#+macro:version Version 0.0.84
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -701,6 +701,17 @@ key combo.
 - set Global line number mode ::
   1. M-x customize-group RET global-linum
   2. Global Linum Mode: “t”
+
+- install MELPA repository ::
+  1. http://melpa.org/#/getting-started
+  2. ~(add-to-list ’package-archives (cons "melpa" "https://melpa.org/packages/") t)
+
+**** Must Have Packages
+
+- Org ::
+  1. M-x ~package-refresh-contents~
+  2. M-x ~package-list-packages~
+  3. Find Org and install---current version is now 9.3.6
 
 *** Customizing
 *** Evaluating Lisp
