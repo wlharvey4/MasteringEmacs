@@ -4,7 +4,7 @@
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
 #+date:2020-02-15 11:39
-#+macro:version Version 0.0.86
+#+macro:version Version 0.0.87
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -685,6 +685,53 @@ key combo.
    commands.
 
 ** Starting
+*** Starting the Emacs Server
+#+cindex:@var{EDITOR}
+By convention, your choice of editor is specified by the environment variable
+=EDITOR=.  If you set =EDITOR= to ‘emacs’, Emacs would be invoked, but in an
+inconvenient way---by starting a new Emacs process.  This is inconvenient
+because the new Emacs process doesn't share buffers, a command history, or
+other kinds of information with any existing Emacs process.
+
+You can solve this problem by setting up Emacs as an edit server, so that it
+“listens” for external edit requests and acts accordingly.  There are various
+ways to start an Emacs server:
+
+- Run the command ~server-start~ from within a process, either interactively as
+  =M-x server-start=, or from within your =INIT= file as ~(server-start)~.  The
+  existing Emacs process is the server.
+
+- Run Emacs as a daemon by invoking Emacs from the command line with a
+  @@texinfo:@option{@@--daemon@@texinfo:}@@ option.  When Emacs is started this
+  way, it calls ~server-start~ after initialization and does not open an
+  initial frame.  It then waits for edit requests from clients (using
+  ~emacsclient~).
+
+  - ~-daemon~
+
+  - ~--daemon[=name]~
+
+  - ~--bg-daemon[=name]~ ::
+
+    A “background” daemon disconnects from the terminal and runs in the
+    background (~--daemon~ is an alias for ~bg-daemon~).
+
+    To kill a daemon session, type =M-x kill-emacs=.
+
+  - ~--fg-daemon[=name]~
+
+  - ~emacsclient~ ::
+
+    Once an Emacs server is started, you can use a shell command called
+    ~emacsclient~ to connect to the Emacs process and tell it to visit a file.
+    You can then set the =EDITOR= environment variable to ‘emacsclient’, so
+    that external programs will use the existing Emacs process for editing.
+
+    - ‘-s server-name’ or ‘--socket-name=server-name’ Connect to the Emacs
+      server named =server-name=.  The server name is given by the variable
+      server-name on the Emacs server. If this option is omitted, ~emacsclient~
+      connects to the first server it finds.
+
 ** Interface
 ** Keys
 *** Control
@@ -703,6 +750,10 @@ key combo.
 
 - Set Default Frame Size ::
   : (setq default-frame-alist '((top . 10) (left . 10) (width . 300) (height . 150)))
+
+- Inhibit the Startup Screen ::
+  1. M-x customize-group RET Initialization group
+  2. Inhibit Startup Screen: “t”
 
 - set Mac Command key to Emacs Meta ::
   1. M-x customize-group RET ns
@@ -775,7 +826,57 @@ key combo.
     a. ~(global-set-key (kbd "C-x g") 'magit-status)~
     b. ~(global-set-key (kbd "C-x M-g") 'magit-dispatch)~
 
+**** Start the Emacs server
+- from ~/.bash_profile: ~/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs --daemon~
+- from ~/.bash_profile: ~EDITOR=emacsclient~
+
 *** Customizing
+**** Custom Indexing Command
+#+header_args: :eval no
+***** insert-cindex
+#+begin_src emacs-lisp
+(defun insert-cindex ()
+  "Insert #+cindex: in an Orgmode document."
+  (interactive)
+  (insert-char #x0a)
+  (indent-according-to-mode)
+  (insert "#+cindex:"))
+(global-set-key (kbd "C-c I") 'insert-cindex)
+#+end_src
+
+***** insert-pindex
+#+begin_src emacs-lisp
+(defun insert-pindex ()
+  "Insert #+pindex: in an Orgmode document."
+  (interactive)
+  (insert-char #x0a)
+  (indent-according-to-mode)
+  (insert "#+pindex:"))
+(global-set-key (kbd "C-c P") 'insert-pindex)
+#+end_src
+
+***** insert-vindex
+#+begin_src emacs-lisp
+(defun insert-vindex ()
+  "Insert #+vindex: in an Orgmode document."
+  (interactive)
+  (insert-char #x0a)
+  (indent-according-to-mode)
+  (insert "#+vindex:"))
+(global-set-key (kbd "C-c V") 'insert-vindex)
+#+end_src
+
+***** insert-findex
+#+begin_src emacs-lisp
+(defun insert-findex ()
+  "Insert #+findex: in an Orgmode document."
+  (interactive)
+  (insert-char #x0a)
+  (indent-according-to-mode)
+  (insert "#+findex:"))
+(global-set-key (kbd "C-c F") 'insert-findex)
+#+end_src
+
 *** Evaluating Lisp
 *** Package Manager
 *** Color Themes
