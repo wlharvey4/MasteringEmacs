@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-18 18:53
-#+macro:version Version 0.0.88
+#+date:2020-02-18 20:30
+#+macro:version Version 0.0.89
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -2388,6 +2388,19 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 - [[next-buffer][~next-buffer~]]
 
 
+#+texinfo:@heading Position within a Buffer
+
+- [[point][~point~]]
+
+- [[point-min][~point-min~]]
+
+- [[point-max][~point-max~]]
+
+- [[buffer-end][~buffer-end~]]
+
+- [[buffer-size][~buffer-size~]]
+
+
 #+texinfo:@heading Moving Around Within a Buffer
 
 - [[goto-char][~goto-char~]]
@@ -2396,6 +2409,7 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 
 - [[forward-line][~forward-line~]]
 
+- ~eobp~
 
 #+texinfo:@heading The Current Buffer for Editing
 
@@ -2492,6 +2506,20 @@ information, such as what file it is visiting (if any), whether it is modified,
 and what major mode and minor modes are in effect.  These are stored in
 “buffer-local variables”---variables that can have a different value in each
 buffer.
+
+#+texinfo:@heading Buffer Positions
+
+#+cindex:position
+A /position/ is the index of a character in the text of a buffer.  A position
+actually identifies the place between characters or before the first character,
+or after the last character.  One speaks of the character either before or
+after a given position.  When one says the character “at” a position, one
+usually is referring to the character /after/ that position.
+
+#+cindex:marker
+Positions can be represented either by integers or by markers.  A /marker/ is a
+special object that relocates automatically when text is inserted or deleted so
+it stays with the surrounding characters.
 
 #+attr_texinfo: :options bufferp @var{object}
 #+begin_defun
@@ -2743,6 +2771,71 @@ Create a temporary buffer, and evaluate BODY there like ‘progn’.
 #+begin_defun
 Return the contents of the current buffer as a string.  If narrowing is in
 effect, this function returns only the visible part of the buffer.
+#+end_defun
+
+*** Positions
+#+cindex:point
+/Point/ is a special buffer position used by many editing commands, and like
+other positions, designates a place between two characters (or before the first
+character, or after the last character), rather than a particular character.
+Usually terminals display the cursor over the character that immediately
+follows point; point is actually before the character on which the cursor sits.
+
+The value of point is a number no less than 1, and no greater than the buffer
+size plus 1.
+
+Each buffer has its own value of point.  Each window also has its own value of
+point, independent of the value of point in other windows displaying the same
+buffer.  This makes it useful to have multiple windows showing one buffer:
+This is why point can have different values in various windows that display the
+same buffer.
+
+**** point
+
+#+attr_texinfo: :options point
+#+begin_defun
+Return value of point as an integer.
+#+end_defun
+
+**** point-min
+
+#+attr_texinfo: :options point-min
+#+begin_defun
+Return the minimum permissible value of point in the current buffer.  This is
+1, unless narrowing (a buffer restriction) is in effect.
+#+end_defun
+
+**** point-max
+
+#+attr_texinfo: :options point-max
+#+begin_defun
+Return the maximum permissible value of point in the current buffer.  This is
+(1+ (buffer-size)), unless narrowing (a buffer restriction) is in effect, in
+which case it is less.
+#+end_defun
+
+**** buffer-end
+
+#+attr_texinfo: :options buffer-end arg
+#+begin_defun
+- ARG :: If position, return the end position (~point-max~) of the buffer.
+  Otherwise, return the beginning (~point-min~) of the buffer.
+#+end_defun
+
+**** buffer-size
+
+#+attr_texinfo: :options buffer-size &optional buffer
+#+begin_defun
+Return the number of characters in the current buffer, without taking into
+account narrowing.
+
+- BUFFER :: if non-nil, return the number of characters in this buffer.
+
+
+To count the number of characters in the accessible portion of the current
+buffer, use ~(- (point-max) (point-min))~, and to count the number of
+characters in some other BUFFER, use ~(with-current-buffer BUFFER (-
+(point-max) (point-min)))~.
 #+end_defun
 
 *** Buffer Names and File Names
