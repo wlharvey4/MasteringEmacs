@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-15 11:39
-#+macro:version Version 0.0.83
+#+date:2020-02-18 18:50
+#+macro:version Version 0.0.84
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -2216,6 +2216,8 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 
 #+texinfo:@heading Moving Around Within a Buffer
 
+- [[goto-char][~goto-char~]]
+
 - [[goto-line][~goto-line~]]
 
 - [[forward-line][~forward-line~]]
@@ -2237,6 +2239,8 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 #+texinfo:@heading Working with Buffer Names
 
 - [[*get-buffer][~get-buffer~]] return a buffer given a name
+
+- [[other-buffer][~other-buffer~]] return the previous buffer
 
 - [[*generate-new-buffer-name][~generate-new-buffer-name~]] just return a unique buffer name
 
@@ -2421,6 +2425,19 @@ Return t if OBJECT is an editor buffer.
 - ~next-buffer~ (=C-x <RIGHT>=) ::
   <<next-buffer>>
 
+- ~goto-char~ (=M-g c=) ::
+  <<goto-char>>
+
+  #+attr_texinfo: :options goto-char position
+  #+begin_defun
+  Set point to POSITION.  The beginning of the buffers is ~(point-min)~, and
+  the end is ~(point-max)~.
+
+  - POSITION :: a number or marker indicating buffer position.
+
+  - RETURN VALUE :: POSITION
+  #+end_defun
+
 - ~goto-line LINE &optional BUFFER~ (=M-g g=) ::
   <<goto-line>>
 
@@ -2463,13 +2480,18 @@ Return t if OBJECT is an editor buffer.
 - ~forward-line &optional N~ ::
   <<forward-line>>
 
+  #+attr_texinfo: :options forward-line &optional n
+  #+begin_defun
   Move N lines forward (backward if N is negative).  Precisely, if point is on
   line I, move to the start of line I + N.  If there isn’t room, go as far as
   possible (no error).
 
+  - N :: number of lines to move;
+
   - RETURN VALUE :: Returns the count of lines left to move.  If moving
     forward, that is N minus number of lines moved; if backward, N plus number
     moved.
+  #+end_defun
 
 *** Current Buffer
 #+cindex:current buffer
@@ -2550,6 +2572,8 @@ effect, this function returns only the visible part of the buffer.
 #+end_defun
 
 *** Buffer Names and File Names
+#+cindex:buffer name
+#+cindex:buffer-or-name
 Each buffer has a unique name, which is a string.  Many of the functions that
 work on buffers accept either a buffer or a buffer name as an argument.  Any
 argument called BUFFER-OR-NAME is of this sort.  Any argument called BUFFER must
@@ -2557,6 +2581,7 @@ be an actual buffer object, not a name.
 
 #+texinfo:@heading Buffer File Names
 
+#+cindex:buffer file name
 The /buffer file name/ is the name of the file that is visited in that buffer.
 When a buffer is not visiting a file, its buffer file name is ‘nil’.  Most of
 the time, the buffer name is the same as the nondirectory part of the buffer
@@ -2596,6 +2621,27 @@ This function returns the buffer specified by BUFFER-OR-NAME.
 
 If BUFFER-OR-NAME is a string and there is no buffer with that name, the value
 is ‘nil’.
+#+end_defun
+
+**** other-buffer
+
+#+attr_texinfo: :options other-buffer &optional buffer visible-ok frame
+#+begin_defun
+Return most recently select buffer other than BUFFER.  This is done by scanning
+the selected or specified frame’s buffer list first, followed by the list of
+all buffers.
+
+- BUFFER :: Return a buffer other than this one if possible; ignore this buffer
+  completely unless it is a live buffer.
+
+- VISIBLE-OK :: Buffers not visible in windows are preferred to visible
+  buffers, unless optional second argument VISIBLE-OK is non-nil.
+
+- FRAME :: if non-nil, and is a live frame, use that frame’s buffer list, not
+  the selected frame’s buffer list.
+
+- RETURN VALUE :: return a found buffer; if no other buffer exists, return the
+  =*scratch*= buffer, and create it if necessary.
 #+end_defun
 
 **** generate-new-buffer-name
