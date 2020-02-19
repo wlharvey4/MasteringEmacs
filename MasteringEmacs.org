@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-18 20:30
-#+macro:version Version 0.0.89
+#+date:2020-02-18 21:25
+#+macro:version Version 0.0.90
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -2387,8 +2387,12 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 
 - [[next-buffer][~next-buffer~]]
 
+- [[beginning-of-buffer][~beginning-of-buffer~]]
 
-#+texinfo:@heading Position within a Buffer
+- [[end-of-buffer][~end-of-buffer~]]
+
+
+#+texinfo:@heading Positions within a Buffer
 
 - [[point][~point~]]
 
@@ -2405,11 +2409,38 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 
 - [[goto-char][~goto-char~]]
 
+- [[forward-char][~forward-char~]]
+
+- [[backward-char][~backward-char~]]
+
+- [[forward-word][~forward-word~]]
+
+- [[backward-word][~backward-word~]]
+
 - [[goto-line][~goto-line~]]
 
 - [[forward-line][~forward-line~]]
 
-- ~eobp~
+- [[beginning-of-line][~beginning-of-line~]]
+
+- [[line-beginning-position][~line-beginning-position~]]
+
+- [[end-of-line][~end-of-line~]]
+
+- [[line-end-position][~line-end-position~]]
+
+- [[forward-line][~forward-line~]]
+
+- [[count-lines][~count-lines~]]
+
+- [[count-words][~count-words~]]
+
+- [[line-number-at-pos][~line-number-at-pos~]]
+
+- [[bobp][~bobp~]]
+
+- [[eobp][~eobp
+~]]
 
 #+texinfo:@heading The Current Buffer for Editing
 
@@ -2627,17 +2658,65 @@ Return t if OBJECT is an editor buffer.
 - ~next-buffer~ (=C-x <RIGHT>=) ::
   <<next-buffer>>
 
+- ~beginning-of-buffer~ (=M-<=)
+  <<beginning-of-buffer>>
+
+  This function is for interactive use only; move point to the beginning of the
+  buffer.  With numeric arg N, put point N/10 of the way from the beginning.
+
+- ~end-of-buffer~ (=M->=)
+  <<end-of-buffer>>
+
+  This function is for interactive use only; move point to the end of the
+  buffer.  With numeric arg N, put point N/10 of the way from the end.  If the
+  buffer is narrowed, this command uses the end of the accessible part of the
+  buffer.
+
 - ~goto-char~ (=M-g c=) ::
   <<goto-char>>
 
   #+attr_texinfo: :options goto-char position
   #+begin_defun
-  Set point to POSITION.  The beginning of the buffers is ~(point-min)~, and
-  the end is ~(point-max)~.
+  Set point to POSITION.  The beginning of the buffer is ~(point-min)~, and the
+  end is ~(point-max)~.
 
   - POSITION :: a number or marker indicating buffer position.
 
   - RETURN VALUE :: POSITION
+
+
+  If narrowing is in effect, position still counts from the beginning of the
+  buffer, but point cannot go outside the accessible portion.  If position is
+  out of range, ~goto-char~ moves point to the beginning or the end of the
+  accessible portion.
+  #+end_defun
+
+  To move point to the beginning (end) of the buffer, write:
+  : (goto-char (point-min))
+  : (goto-char (point-max))
+
+- ~forward-char~ ~backward-char~
+  <<forward-char>> <<backward-char>>
+
+  #+attr_texinfo: :options forward-char &optional count
+  #+begin_defun
+  Move point COUNT characters forward (backward if COUNT is negative).  Signal
+  error if the beginning or ending of the buffer is reached.
+
+  - COUNT :: if nil, use a default value of 1.
+  #+end_defun
+
+- ~forward-word~ ~backward-word~ ~forward-word-strictly~ ~backward-word-strictly~
+  <<forward-word>> <<backward-word>>
+
+  #+attr_texinfo: :options forward-word &optional count
+  #+begin_defun
+  Move point forward (backward) COUNT words.
+
+  - COUNT :: if nil, default is 1.
+
+  - RETURN VALUE :: t; but if an edge of the buffer or a field boundary is
+    reached, point is left there and the function returns nil.
   #+end_defun
 
 - ~goto-line LINE &optional BUFFER~ (=M-g g=) ::
@@ -2694,6 +2773,68 @@ Return t if OBJECT is an editor buffer.
     forward, that is N minus number of lines moved; if backward, N plus number
     moved.
   #+end_defun
+
+- ~beginning-of-line~ ::
+  <<beginning-of-line>>
+
+  Move point to the beginning of current line.  With argument N > 1, move
+  forward =N - 1= lines first.  Stop when reaching the beginning or ending of
+  the buffer without error.
+
+- ~line-beginning-position~ ::
+  <<line-beginning-position>>
+
+  Return the position that ~(beginning-of-line count)~ would move to.
+
+  - RETURN VALUE :: Return the character position of the first character on the
+    current line.  With optional argument N, scan forward N - 1 lines first.
+    If the scan reaches the end of the buffer, return that position.
+
+- ~end-of-line~ ::
+  <<end-of-line>>
+
+  Move point to end of current line (in the logical order). With argument N not
+  nil or 1, move forward N - 1 lines first.  If point reaches the beginning or
+  end of buffer, it stops there.
+
+- ~line-end-position~ ::
+  <<line-end-position>>
+
+  Return the character position of the last character on the current line. With
+  argument N not nil or 1, move forward N - 1 lines first.  If scan reaches end
+  of buffer, return that position.
+
+- ~forward-line~ ::
+  <<forward-line>>
+
+  Move N lines forward (backward if N is negative).  If point is on line I,
+  move to the start of line I + N.  If there isn’t room, go as far as possible
+  (no error).
+
+  Returns the count of lines left to move.  That is, N minus moved lines.
+
+- ~count-lines start end~ ::
+  <<count-lines>>
+
+  Return number of lines between START and END.  This is usually the number of
+  newlines between them.
+
+- ~count-words start end~ ::
+  <<count-words>>
+
+  Count words between START and END.
+
+- ~line-number-at-pos~ ::
+  <<line-number-at-pos>>
+
+  Return buffer line number at position POS. If POS is nil, use current buffer
+  location.
+
+- bobp :: Return t if point is at the beginning of the buffer.
+  <<bobp>>
+
+- eobp :: Return t if point is at the end of the buffer.
+  <<eobp>>
 
 *** Current Buffer
 #+cindex:current buffer
