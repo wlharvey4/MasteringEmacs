@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-18 21:25
-#+macro:version Version 0.0.90
+#+date:2020-02-19 04:20
+#+macro:version Version 0.0.91
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -755,32 +755,32 @@ ways to start an Emacs server:
   1. M-x customize-group RET Initialization group
   2. Inhibit Startup Screen: “t”
 
-- set Mac Command key to Emacs Meta ::
+- Set Mac Command key to Emacs Meta ::
   1. M-x customize-group RET ns
   2. Ns Command Modifier: “meta”
   3. Ns Alternate Modified: “No modifier”
 
-- set Global line number mode and column number mode ::
+- Set Global line number mode and column number mode ::
   1. M-x customize-group RET global-linum
   2. Global Linum Mode: “t”
   3. M-x customize-group RET mode-line
   4. Column Number Mode: “t”
 
-- set Show Paren mode ::
+- Set Show Paren mode ::
   1. M-x customize-group RET paren matching
 
-- set show-trailing-whitespace
+- Set show-trailing-whitespace ::
   1. M-x customize-group RET Editing Basics
   2. Show Trailing Whitespace: “t”
 
-- set Electricity Group ::
+- Set Electricity Group ::
   1. M-x customize-group RET electricity
 
-- set Icomplete mode ::
+- Set Icomplete mode ::
   1. M-x customize-group RET Icomplete
   2. Icomplete mode: “t”
 
-- set up Calendar date style to ISO (for Org-mode time stamps) ::
+- Set up Calendar date style to ISO (for Org-mode time stamps) ::
   1. M-x customize-group RET Calendar group
   2. Calendar Date Style: ISO
 
@@ -2361,6 +2361,8 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 
 #+texinfo:@heading Working with Buffers
 
+- [[bufferp][~bufferp~]]
+
 - [[list-buffers][~list-buffers~]] invoke Buffer Menu
 
 - [[ibuffer][=ibuffer=]] invoke Ibuffer-mode
@@ -2439,8 +2441,7 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 
 - [[bobp][~bobp~]]
 
-- [[eobp][~eobp
-~]]
+- [[eobp][~eobp~]]
 
 #+texinfo:@heading The Current Buffer for Editing
 
@@ -2487,6 +2488,11 @@ Delete file named FILENAME.  If it is a symlink, remove the symlink.
 
 - [[*kill-buffer][~kill-buffer~]] kill a buffer
 
+
+*** About Buffers
+
+#+texinfo:@heading A Buffer is a Lisp Object---a special data type
+
 #+cindex:buffer
 A /buffer/ is a Lisp object containing text to be edited.  Buffers in Emacs
 editing are objects that have distinct names and hold text that can be edited.
@@ -2502,24 +2508,26 @@ may occur in any part of the buffer.
 #+texinfo:@heading Files and Windows
 
 Buffers are used to hold the contents of files that are being visited; there
-may also be buffers that are not visiting files.  Each time you invoke Dired, a
-buffer is used to hold the directory listing.  If you send a message with ‘C-x
-m’, a buffer is used to hold the text of the message.  When you ask for a
-command’s documentation, that appears in a buffer named ‘*Help*’.  Each buffer,
-including the current buffer, may or may not be displayed in any windows.  When
-a buffer is displayed in a window, its name is shown in the mode line.
+may also be buffers that are not visiting files.  For examppl each time you
+invoke Dired, a buffer is used to hold the directory listing.  If you send a
+message with =C-x m=, a buffer is used to hold the text of the message.  When
+you ask for a command’s documentation, that appears in a buffer named =*Help*=.
+Each buffer, including the current buffer, may or may not be displayed in any
+windows.  When a buffer is displayed in a window, its name is shown in the mode
+line.
 
 #+texinfo:@heading Current Buffer
 
 #+cindex:current buffer
 Only one buffer is selected and designated the [[*Current Buffer][current buffer]] at any time.
-When a command operates on "the buffer", this really means that it operates on
-the current buffer.  When there is only one Emacs window, the buffer displayed
-in that window is current.  When there are multiple windows, the buffer
-displayed in the “selected window” is current.
+When a command operates on “the buffer”, this really means that it operates on
+the /current buffer/.  When there is only one Emacs window, the buffer
+displayed in that window is current.  When there are multiple windows, the
+buffer displayed in the “selected window” is current.
 
 #+texinfo:@heading Properties
 
+#+cindex:text properties
 A buffer’s “contents” consist of a series of characters, each of which
 optionally carries a set of text properties that can specify more information
 about that character.
@@ -2552,6 +2560,7 @@ Positions can be represented either by integers or by markers.  A /marker/ is a
 special object that relocates automatically when text is inserted or deleted so
 it stays with the surrounding characters.
 
+<<bufferp>>
 #+attr_texinfo: :options bufferp @var{object}
 #+begin_defun
 Return t if OBJECT is an editor buffer.
@@ -2658,13 +2667,13 @@ Return t if OBJECT is an editor buffer.
 - ~next-buffer~ (=C-x <RIGHT>=) ::
   <<next-buffer>>
 
-- ~beginning-of-buffer~ (=M-<=)
+- ~beginning-of-buffer~ (=M-<=) ::
   <<beginning-of-buffer>>
 
   This function is for interactive use only; move point to the beginning of the
   buffer.  With numeric arg N, put point N/10 of the way from the beginning.
 
-- ~end-of-buffer~ (=M->=)
+- ~end-of-buffer~ (=M->=) ::
   <<end-of-buffer>>
 
   This function is for interactive use only; move point to the end of the
@@ -2695,7 +2704,7 @@ Return t if OBJECT is an editor buffer.
   : (goto-char (point-min))
   : (goto-char (point-max))
 
-- ~forward-char~ ~backward-char~
+- ~forward-char~ ~backward-char~ ::
   <<forward-char>> <<backward-char>>
 
   #+attr_texinfo: :options forward-char &optional count
@@ -2706,7 +2715,7 @@ Return t if OBJECT is an editor buffer.
   - COUNT :: if nil, use a default value of 1.
   #+end_defun
 
-- ~forward-word~ ~backward-word~ ~forward-word-strictly~ ~backward-word-strictly~
+- ~forward-word~ ~backward-word~ ::
   <<forward-word>> <<backward-word>>
 
   #+attr_texinfo: :options forward-word &optional count
@@ -2718,6 +2727,10 @@ Return t if OBJECT is an editor buffer.
   - RETURN VALUE :: t; but if an edge of the buffer or a field boundary is
     reached, point is left there and the function returns nil.
   #+end_defun
+
+- ~forward-word-strictly~ ~backward-word-strictly~ ::
+
+  See above
 
 - ~goto-line LINE &optional BUFFER~ (=M-g g=) ::
   <<goto-line>>
