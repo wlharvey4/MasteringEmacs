@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-18 18:50
-#+macro:version Version 0.0.84
+#+date:2020-02-18 18:53
+#+macro:version Version 0.0.88
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -37,7 +37,7 @@ brighter; it simply makes everything else vanish.
 ** In The Beginning
    + [[http://project.cyberpunk.ru/lib/in_the_beginning_was_the_command_line/][In the Beginning was the Command Line]]
    + Emacs began in 1976 https://www.gnu.org/software/emacs/manual/html_node/efaq/Origin-of-the-term-Emacs.html#Origin-of-the-term-Emacs
-     
+
    + Came from an editor called Teco
 ** Some Implementations
 :CP:
@@ -685,6 +685,53 @@ key combo.
    commands.
 
 ** Starting
+*** Starting the Emacs Server
+#+cindex:@var{EDITOR}
+By convention, your choice of editor is specified by the environment variable
+=EDITOR=.  If you set =EDITOR= to ‘emacs’, Emacs would be invoked, but in an
+inconvenient way---by starting a new Emacs process.  This is inconvenient
+because the new Emacs process doesn't share buffers, a command history, or
+other kinds of information with any existing Emacs process.
+
+You can solve this problem by setting up Emacs as an edit server, so that it
+“listens” for external edit requests and acts accordingly.  There are various
+ways to start an Emacs server:
+
+- Run the command ~server-start~ from within a process, either interactively as
+  =M-x server-start=, or from within your =INIT= file as ~(server-start)~.  The
+  existing Emacs process is the server.
+
+- Run Emacs as a daemon by invoking Emacs from the command line with a
+  @@texinfo:@option{@@--daemon@@texinfo:}@@ option.  When Emacs is started this
+  way, it calls ~server-start~ after initialization and does not open an
+  initial frame.  It then waits for edit requests from clients (using
+  ~emacsclient~).
+
+  - ~-daemon~
+
+  - ~--daemon[=name]~
+
+  - ~--bg-daemon[=name]~ ::
+
+    A “background” daemon disconnects from the terminal and runs in the
+    background (~--daemon~ is an alias for ~bg-daemon~).
+
+    To kill a daemon session, type =M-x kill-emacs=.
+
+  - ~--fg-daemon[=name]~
+
+  - ~emacsclient~ ::
+
+    Once an Emacs server is started, you can use a shell command called
+    ~emacsclient~ to connect to the Emacs process and tell it to visit a file.
+    You can then set the =EDITOR= environment variable to ‘emacsclient’, so
+    that external programs will use the existing Emacs process for editing.
+
+    - ‘-s server-name’ or ‘--socket-name=server-name’ Connect to the Emacs
+      server named =server-name=.  The server name is given by the variable
+      server-name on the Emacs server. If this option is omitted, ~emacsclient~
+      connects to the first server it finds.
+
 ** Interface
 ** Keys
 *** Control
@@ -693,16 +740,143 @@ key combo.
 *** Remembering Keys
 ** Configuring
 *** Must Do’s
+**** Add to Init File
+
+- install MELPA and ORG repositories ::
+  1. http://melpa.org/#/getting-started
+  2. ~(add-to-list ’package-archives (cons "melpa" "https://melpa.org/packages/") t)~
+  3. https://orgmode.org/
+  4. ~(add-to-list 'package-archives (cons "org"   "https://orgmode.org/elpa")    t)~
+
+- Set Default Frame Size ::
+  : (setq default-frame-alist '((top . 10) (left . 10) (width . 300) (height . 150)))
+
+- Inhibit the Startup Screen ::
+  1. M-x customize-group RET Initialization group
+  2. Inhibit Startup Screen: “t”
+
 - set Mac Command key to Emacs Meta ::
   1. M-x customize-group RET ns
   2. Ns Command Modifier: “meta”
   3. Ns Alternate Modified: “No modifier”
 
-- set Global line number mode ::
+- set Global line number mode and column number mode ::
   1. M-x customize-group RET global-linum
   2. Global Linum Mode: “t”
+  3. M-x customize-group RET mode-line
+  4. Column Number Mode: “t”
+
+- set Show Paren mode ::
+  1. M-x customize-group RET paren matching
+
+- set show-trailing-whitespace
+  1. M-x customize-group RET Editing Basics
+  2. Show Trailing Whitespace: “t”
+
+- set Electricity Group ::
+  1. M-x customize-group RET electricity
+
+- set Icomplete mode ::
+  1. M-x customize-group RET Icomplete
+  2. Icomplete mode: “t”
+
+- set up Calendar date style to ISO (for Org-mode time stamps) ::
+  1. M-x customize-group RET Calendar group
+  2. Calendar Date Style: ISO
+
+**** Must-Have Packages
+
+- Org Mode ::
+  - https://orgmode.org/
+
+  - M-x ~package-refresh-contents~ ::
+  - M-x ~package-list-packages~ ::
+  - Find Org and install :: current version is now 9.3.6
+  - Install global key bindings ::
+    - ~org-store-link~ :: (global-set-key (kbd “C-c l”) 'org-store-link)
+    - ~org-agenda~ :: (global-set-key (kbd “C-c a”) ’org-agenda)
+    - ~org-capture~ :: (global-set-key (kbd “C-c c”) ’org-capture)
+    - ~org-switchb~ :: (global-set-key (kbd “C-c b”) ’org-switchb)
+  - Set up Org Babel :: Babel group
+    - ~org-babel-load-languages~ ::
+      - shell
+      - perl
+      - js
+    - ~org-confirm-babel-evaluate~ ::
+      - set to ’nil’
+  - Set up Org Export Backends ::
+    - M-x customize-group RET Org Group
+    - Org Export Backends: texinfo, md
+  - Set up Org Indent Mode for cleaner view ::
+    - M-x customize-group RET Org Structure group
+      - Org startup indented : “t”
+  - Set up auto-fill-mode for Org mode file ::
+    - ~(add-hook 'org-mode-hook 'auto-fill-mode)~
+  - Set up time-stamp ::
+    - ~(add-hook ’org-mode-hook 'time-stamp)~
+
+- Magit Mode ::
+  - https://magit.vc/
+
+  - M-x ~package-refresh-contents~
+  - M-x ~package-list-packages~
+  - Find Magit and install---current version is now
+    : Magit 20200217.135, Git 2.17.2 (Apple Git-113), Emacs 27.0.50, darwin
+  - Install global key bindings to work with Magit from any buffer
+    a. ~(global-set-key (kbd "C-x g") 'magit-status)~
+    b. ~(global-set-key (kbd "C-x M-g") 'magit-dispatch)~
+
+**** Start the Emacs server
+- from ~/.bash_profile: ~/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs --daemon~
+- from ~/.bash_profile: ~EDITOR=emacsclient~
 
 *** Customizing
+**** Custom Indexing Command
+#+header_args: :eval no
+***** insert-cindex
+#+begin_src emacs-lisp
+(defun insert-cindex ()
+  "Insert #+cindex: in an Orgmode document."
+  (interactive)
+  (insert-char #x0a)
+  (indent-according-to-mode)
+  (insert "#+cindex:"))
+(global-set-key (kbd "C-c I") 'insert-cindex)
+#+end_src
+
+***** insert-pindex
+#+begin_src emacs-lisp
+(defun insert-pindex ()
+  "Insert #+pindex: in an Orgmode document."
+  (interactive)
+  (insert-char #x0a)
+  (indent-according-to-mode)
+  (insert "#+pindex:"))
+(global-set-key (kbd "C-c P") 'insert-pindex)
+#+end_src
+
+***** insert-vindex
+#+begin_src emacs-lisp
+(defun insert-vindex ()
+  "Insert #+vindex: in an Orgmode document."
+  (interactive)
+  (insert-char #x0a)
+  (indent-according-to-mode)
+  (insert "#+vindex:"))
+(global-set-key (kbd "C-c V") 'insert-vindex)
+#+end_src
+
+***** insert-findex
+#+begin_src emacs-lisp
+(defun insert-findex ()
+  "Insert #+findex: in an Orgmode document."
+  (interactive)
+  (insert-char #x0a)
+  (indent-according-to-mode)
+  (insert "#+findex:"))
+(global-set-key (kbd "C-c F") 'insert-findex)
+#+end_src
+
 *** Evaluating Lisp
 *** Package Manager
 *** Color Themes
@@ -1458,7 +1632,7 @@ part of the name.
 
 - [[*find-file-not-found-functions --- Variable][~find-file-not-found-functions~]] --- variable ::
 
-- [[*find-file-literally --- Variable][~find-file-literally~]] --- variable :: 
+- [[*find-file-literally --- Variable][~find-file-literally~]] --- variable ::
 
 
 #+texinfo:@heading Saving Files
@@ -1471,7 +1645,7 @@ part of the name.
 
 - [[*set-visited-file-name][~set-visited-file-name~]] ::
 
-- [[*not-modified][~not-modified~]] :: 
+- [[*not-modified][~not-modified~]] ::
 
 
 #+texinfo:@heading Deleting Files
@@ -1486,7 +1660,7 @@ part of the name.
 
 - [[*before-save-hook][~before-save-hook~]] ::
 
-- [[*after-save-hook][~after-save-hook~]] :: 
+- [[*after-save-hook][~after-save-hook~]] ::
 
 
 #+texinfo:@heading Writing Buffers to Files
@@ -1500,11 +1674,11 @@ part of the name.
 
 #+texinfo:@heading Errors
 
-- handle errors :: 
+- handle errors ::
 
   - ~system-messages-locale~ (a variable) ::
 
-  - ~locale-coding-system~ (a variable) :: 
+  - ~locale-coding-system~ (a variable) ::
 
 
 #+texinfo:@heading Creating Temporary Files
@@ -1716,7 +1890,7 @@ file names.
   src_elisp[:eval yes :results output :exports results]{(princ completion-ignored-extensions)}
   #+vindex:completion-cycle-threshold
 - ~completion-cycle-threshold~ :: If non-nil, completion commands can cycle
-  through completion alternatives. If t, cycling is always used. 
+  through completion alternatives. If t, cycling is always used.
 
 #+texinfo:@subheading Permissive Completion with Confirmation
 
@@ -1971,7 +2145,7 @@ saved.  You can explicitly control further backups as follows:
   you save the buffer again.
 
 - =C-u C-u C-x C-s= :: saves the buffer, but first makes the previous file
-  contents into a new backup file. 
+  contents into a new backup file.
 
 - =C-u C-u C-u C-x C-s= :: does both things: it makes a backup from the
   previous contents, and arranges to make another from the newly saved contents
@@ -2894,7 +3068,7 @@ There are two primitives for creating buffers, plus several others:
 
 - ~with-output-to-temp-buffer~ ::
 
-- ~create-file-buffer~ :: 
+- ~create-file-buffer~ ::
 
 #+texinfo:@heading Killing Buffers
 
@@ -3139,7 +3313,7 @@ Visiting the file is not necessary and takes longer.
      #+attr_texinfo: :options insert-file-contents @var{filename} &optional @var{visit} @var{end} @var{replace}
      #+begin_defun
      Insert contents of file FILENAME after point.  Returns list of absolute
-     file name and number of characters inserted. 
+     file name and number of characters inserted.
 
      - VISIT if non-nil, the buffer’s visited filename and last save file
        modtime are set, and it is marked unmodified.
@@ -3206,7 +3380,7 @@ Learning the basic key bindings to:
 
 - find and save files,
 - change buffers, and
-- the bare essentials of day-to-day use 
+- the bare essentials of day-to-day use
 
 
 {{{noindent}}}is the first step on the path to mastering Emacs.
@@ -3226,7 +3400,7 @@ Learning the basic key bindings to:
 | F-10        | ~menu-bar-open~              | Activate the menu bar                       |
 |-------------+------------------------------+---------------------------------------------|
 
-*** find-file =C-x C-f= 
+*** find-file =C-x C-f=
 #+findex:find-file
 To *open* a file is to /find/ or /visit/ it.  The two are synonymous.  If the
 file does not exist, Emacs will open an empty buffer associated with that
@@ -3546,7 +3720,7 @@ Things to note:
 #+texinfo:@heading Rules Regarding ]
 
 The exact rules are that:
-- at the beginning of a regexp, ‘[’ is special and ‘]’ not. 
+- at the beginning of a regexp, ‘[’ is special and ‘]’ not.
 - This lasts until the first unquoted ‘[’,
   - after which we are in a character alternative;
   - ‘[’ is no longer special
@@ -5497,7 +5671,7 @@ the process terminated.
      current buffer in place of the input.
 
      #+attr_texinfo: :indic var
-     - destination, display :: 
+     - destination, display ::
 
        The arguments DESTINATION and DISPLAY control what to do with the output
        from the subprocess, and whether to update the display as it comes in.
@@ -5506,7 +5680,7 @@ the process terminated.
        and returns ‘nil’ immediately, without waiting for the subprocess to
        finish.
 
-     - args :: 
+     - args ::
 
        The remaining arguments, ARGS, are strings that specify command line
        arguments for the program.
@@ -6485,7 +6659,7 @@ in each message in the Messages buffer:
       "Find out who said that thing. and say so."
       (let ((trace nil) (n 1) (frame nil))
         (while (setq frame (backtrace-frame n))
-          (setq n     (1+ n) 
+          (setq n     (1+ n)
                 trace (cons (cadr frame) trace)) )
         (ad-set-arg 0 (concat "<<%S>>:\n" (ad-get-arg 0)))
         (ad-set-args 1 (cons trace (ad-get-args 1))) ))
@@ -6503,7 +6677,7 @@ To get timestamps:
 #+begin_src elisp
   (defadvice message (before when-was-that activate)
       "Add timestamps to `message' output."
-      (ad-set-arg 0 (concat (format-time-string "[%Y-%m-%d %T %Z] ") 
+      (ad-set-arg 0 (concat (format-time-string "[%Y-%m-%d %T %Z] ")
                             (ad-get-arg 0)) ))
 #+end_src
 
@@ -6619,7 +6793,7 @@ Copyright \copy 2020 by {{{author}}}
 * Footnotes
 
 [fn:1]For example, Mac OS is case-insensitive by default, but can be configured
-to be case-sensitive. 
+to be case-sensitive.
 
 * Build Tools
 :PROPERTIES:
@@ -6689,7 +6863,7 @@ to be case-sensitive.
   # DIR is not necessarily the same as PROJ; it is the exported .info
   # name found at #+texinfo_filename:<DIR>.info without its extension,
   # used as the directory name for the html exports; use the lowercased
-  # PROJ name if there is no texinfo_filename in the Org file 
+  # PROJ name if there is no texinfo_filename in the Org file
 
   DIR := $(shell sed -nEe '/^[[:space:]]*\#\+(texinfo_filename|TEXINFO_FILENAME):(.*)\.info/ { s//\2/p; q; }' $(ORG))
   DIR ?= $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
