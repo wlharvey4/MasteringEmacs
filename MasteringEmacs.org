@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-21 23:17
-#+macro:version Version 0.0.95
+#+date:2020-02-22 13:14
+#+macro:version Version 0.0.96
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -272,10 +272,59 @@ See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
 * Help
 - =C-h ...= ::
 
+- =C-h a= :: [[*apropos-command][~apropos-command~]] search for commands (interactive functions);
+  with a prefix argument, search for non-interactive functions also.
+
+- =M-x apropos= :: search for functions and variables
+
+- =C-h d= :: [[*apropos-documentation][~apropos-documentation~]]
+
+- =C-h f= :: [[*describe-function][~describe-function~]]
+
+- =C-h v= :: [[*describe-variable][~describe-variable~]]
+
+- =C-h o= :: [[*describe-symbol][~describe-symbol~]]
+
+- =C-h F= :: [[*Info-goto-emacs-command-node][~Info-goto-emacs-command-node~]]
+
+** Help Mode
+
+Help buffers provide the same commands as View mode.  A few special commands
+are also provided:
+
+- <RET> ~help-follow~ :: follow a cross-reference at point
+
+- <TAB> ~forward-button~ :: move point forward to the next hyperlink
+
+- S-<TAB> ~backward-button~ :: move point back to the previous hyperlink
+
+- =C-c C-c= ~help-follow-symbol~ :: show all documentation about the symbol at
+  point
+
+- =C-c C-f=  ~help-go-forward~ ::
+- r :: go forward to the next help topic
+
+- =C-c C-b= ~help-go-back~ ::
+- l :: got back to the previous help topic
 
 ** Apropos
 
-- ~apropos~ ::
+By default, all ~apropos~ command except ~apropos-documentation~ list their
+results in alphabetical order.  See [[apropos-sort-by-scores][~apropos-sort-by-scores~]] to change.
+
+Following the conventions for naming Emacs commands, here are some words that
+you’ll find useful in apropos patterns.  By using them in ‘C-h a’, you will
+also get a feel for the naming conventions.
+
+#+begin_example
+char, line, word, sentence, paragraph, region, page, sexp, list,
+defun, rect, buffer, frame, window, face, file, dir, register,
+mode, beginning, end, forward, backward, next, previous, up, down,
+search, goto, kill, delete, mark, insert, yank, fill, indent, case,
+change, set, what, list, find, view, describe, default.
+#+end_example
+
+*** apropos
 
   #+attr_texinfo: :options apropos pattern &optional do-all
   #+begin_defun
@@ -315,7 +364,10 @@ See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
       string.
   #+end_defun
 
-- ~apropos-command~ =[C-u] C-h a= ::
+*** apropos-command
+
+- =[C-u] C-h a=
+
 
   #+attr_texinfo: :options apropos-command pattern &optional do-all var-predicate
   #+begin_defun
@@ -334,9 +386,78 @@ See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
     satisfy the predicate =VAR-PREDICATE=.
   #+end_defun
 
+*** apropos-documentation
+
+- =C-h d=
+
+
+#+attr_texinfo: :options apropos-documentation pattern &optional do-all
+#+begin_defun
+Show symbols whose documentation contains matches for PATTERN.  This function
+lists its results in order of relevance by default.  To list them in
+alphabetical order, change ~apropos-documentation-sort-by-scores~ to nil.
+
+- PATTERN ::
+
+  =PATTERN= can be a word, a list of words (separated by spaces), or a regexp
+  (using some regexp special characters).  If it is a word, search for matches
+  for that word as a substring.  If it is a list of words, search for matches
+  for any two (or more) of those words.
+#+end_defun
+
+Note that by default this command only searches in the file specified by
+‘internal-doc-file-name’; i.e., the etc/DOC file.  With C-u prefix, or if
+‘apropos-do-all’ is non-nil, it searches all currently defined documentation
+strings.
+
+*** apropos variables
+
+- ~apropos-do-all~ :: if non-nil, most apropos commands behave as if they had
+  been given the prefix argument.
+
+- ~apropos-sort-by-scores~ <<apropos-sort-by-scores>> :: if non-nil, ~apropos~
+  command try to guess the relevance of each result, and display the most
+  relevant ones first.
+
+- =M-x apropos-user-option= :: search for user-customizable variables; with a
+  prefix argument, search for non-customizable variables too.
+
+- =M-x apropos-variable= :: search for (all) variables; with a prefix argument,
+  search for customizable variables also.  This ignores the ~apropos-do-all~
+  variable.
+
+- =M-x apropos-local-variable= :: search for buffer-local variables
+
+- =M-x apropos-local-value= :: search for buffer-local variables whose values
+  match the specified pattern
+
 ** Info
 ** Describe
 ** Documentation
+*** ElDoc Mode
+
+- =M-x eldoc-mode=
+
+ElDoc mode is a buffer-local minor mode that helps with looking up Lisp
+documentation.  When enabled, the echo area displays information about a
+function or variable in the text where point is.  If point is on a documented
+variable, it displays the first line of that variable’s doc string.  Otherwise
+it displays the argument list of the function called in the expression point is
+on.
+
+*** Info-goto-emacs-command-node
+
+#+attr_texinfo: :options Info-goto-emacs-command-node command
+#+begin_defun
+Go to the Info node in the Emacs manual for command COMMAND.
+
+The command is found by:
+
+- looking up in Emacs manual’s indices or
+- in another manual found via COMMAND’s =info-file= property or
+- the variable ~Info-file-list-for-emacs~
+#+end_defun
+
 *** documentation-property
 #+attr_texinfo: :options documentation-property symbol property &optional verbatim
 #+begin_defun
@@ -371,6 +492,55 @@ function definition, reading it from a file if called for.
 
 See [[info:elisp#Accessing Documentation][Access to Documentation Strings]] for an example of using these functions in
 ELisp code.
+
+*** describe-function
+
+- ~describe-function~ (=C-h f=)
+
+
+This is the only way to get the documentation of a command that is not bound to
+any key.  It describes the function called by the innermost Lisp expression in
+the buffer around point.
+
+#+attr_texinfo: :options describe-function function
+#+begin_defun
+Display the full documentation of FUNCTION.
+
+- FUNCTION :: a symbol
+#+end_defun
+
+*** describe-variable
+
+- ~describe-variable~ (=C-h v=)
+
+#+attr_texinfo: :options describe-variable variable &optional buffer frame
+#+begin_defun
+Display the full documentation of VARIABLE (a symbol).  Returns the
+documentation as a string, also.
+
+- VARIABLE :: a symbol; default to using the current buffer and current frame;
+
+- BUFFER :: if VARIABLE has a buffer-local value in BUFFER, it is displayed
+  along with the global value.
+
+- FRAME :: if VARIABLE has a buffer-local value in FRAME, it is displayed along
+  with the global value.
+#+end_defun
+
+*** describe-symbol
+
+#+attr_texinfo: :options describe-symbol
+#+begin_defun
+Display the full documentation of SYMBOL.  Will show the info of SYMBOL as a
+function, variable, and/or face.
+
+- SYMBOL :: the symbol to use; default to the current buffer and selected
+  frame.
+
+- BUFFER :: use BUFFER  to show the information about SYMBOL
+
+- FRAME :: use FRAME  to show the information about SYMBOL
+#+end_defun
 
 ** Doc and Data Directory
 
