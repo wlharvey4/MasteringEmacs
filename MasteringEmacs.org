@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-21 21:17
-#+macro:version Version 0.0.92
+#+date:2020-02-21 21:34
+#+macro:version Version 0.0.93
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -269,6 +269,74 @@ how you interact with it in some way.
 From the blog /Mastering Emacs/.  Check out the [[https://www.masteringemacs.org/all-articles][index of articles]].
 See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
 
+* Help
+- =C-h ...= ::
+
+
+** Apropos
+
+- ~apropos~ ::
+
+  #+attr_texinfo: :options apropos pattern &optional do-all
+  #+begin_defun
+  [[help:apropos][apropos.el]]
+
+  Find all meaningful Lisp symbols whose names contain a match for the apropos
+  pattern =PATTERN=.
+
+  - =PATTERN= is either ::
+    - a word to match; if a word, search for matches of that word as a
+      substring;
+    - a space-separated list of words of which at least two must match
+    - a regular expression
+
+  - =DO-ALL= ::
+    if non-nil, or if the user option ‘apropos-do-all’ is non-‘nil’, then
+    ~apropos~ also shows key bindings for the functions that are found.
+
+  - RETURN ::
+    The function returns a list of elements that look like this:
+
+    #+begin_example
+    (SYMBOL SCORE FUNCTION-DOC VARIABLE-DOC
+     PLIST-DOC WIDGET-DOC FACE-DOC GROUP-DOC)
+    #+end_example
+
+    - SCORE ::
+      an integer measure of how important the symbol seems to be as a match
+
+    - REST ::
+      Each of the remaining elements is a documentation string, or ‘nil’, for
+      SYMBOL as a function, variable, etc.
+
+    - =*apropos*= buffer ::
+      It also displays the symbols in a buffer named ‘*Apropos*’, each with a
+      one-line description taken from the beginning of its documentation
+      string.
+  #+end_defun
+
+- ~apropos-command~ =[C-u] C-h a= ::
+
+  #+attr_texinfo: :options apropos-command pattern &optional do-all var-predicate
+  #+begin_defun
+  Interactive; show commands (interactively callable functions) that match
+  PATTERN.
+
+  - =PATTERN= ::
+    - word; search for matches for that word as a substring;
+    - list of words; search for matches for any two or more of those words;
+    - regexp
+
+  - =DO-ALL= :: =C-u= prefix, or ~apropos-do-all~ is non-nil, also show
+    noninteractive functions.
+
+  - =VAR-PREDICATE= :: when non-nil, show only variables, and only those that
+    satisfy the predicate =VAR-PREDICATE=.
+  #+end_defun
+
+** Info
+** Apropos
+** Describe
 * First Steps
 ** Installing
 *** What is Your Version
@@ -1070,50 +1138,6 @@ change the variable [[*delete-by-moving-to-trash---a variable][~delete-by-moving
 commands =M-x delete-file= [[*delete-file][delete-file]] and =M-x delete-directory=
 [[*delete-directory][delete-directory]] (see Directories), as well as the deletion commands in =Dired=
 (see Dired Deletion).
-
-** Help
-- =C-h ...= ::
-
-- ~apropos~ ::
-
-  #+attr_texinfo: :options apropos pattern &optional do-all
-  #+begin_defun
-  Find all meaningful symbols whose names contain a match for the apropos
-  pattern =PATTERN=.
-
-  - =PATTERN= is either ::
-    - a word to match
-    - a space-separated list of words of which at least two must match
-    - a regular expression
-
-  - =DO-ALL= ::
-    if non-nil, or if the user option ‘apropos-do-all’ is non-‘nil’, then
-    ~apropos~ also shows key bindings for the functions that are found.
-
-  - RETURN ::
-    The function returns a list of elements that look like this:
-
-    #+begin_example
-    (SYMBOL SCORE FUNCTION-DOC VARIABLE-DOC
-     PLIST-DOC WIDGET-DOC FACE-DOC GROUP-DOC)
-    #+end_example
-
-    - SCORE ::
-      an integer measure of how important the symbol seems to be as a match
-
-    - REST ::
-      Each of the remaining elements is a documentation string, or ‘nil’, for
-      SYMBOL as a function, variable, etc.
-
-    - =*apropos* buffer ::
-      It also displays the symbols in a buffer named ‘*Apropos*’, each with a
-      one-line description taken from the beginning of its documentation
-      string.
-  #+end_defun
-
-*** Info
-*** Apropos
-*** Describe
 
 * Directories---Files---Buffers
 ** File Directories
