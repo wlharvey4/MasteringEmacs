@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-21 22:19
-#+macro:version Version 0.0.94
+#+date:2020-02-21 23:17
+#+macro:version Version 0.0.95
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -336,6 +336,63 @@ See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
 
 ** Info
 ** Describe
+** Documentation
+*** documentation-property
+#+attr_texinfo: :options documentation-property symbol property &optional verbatim
+#+begin_defun
+This function returns the documentation string recorded in =SYMBOL= 's property
+list under property =PROPERTY=.  It is most often used to look up the
+documentation strings of variables.
+
+This differs from ~get~ in that it can refer to strings stored in the ‘etc/DOC’
+file; and that it evaluates documentation properties that aren’t strings.
+
+For function documentation, use the ~documentation~ function.
+#+end_defun
+
+*** documentation
+#+attr_texinfo: :options documentation function &optional verbatim
+#+begin_defun
+This function returns the documentation string of =FUNCTION=.  It handles
+macros, named keyboard macros, and special forms, as well as ordinary
+functions.
+
+If =FUNCTION= is a symbol, this function first looks for the
+=function-documentation= property of that symbol; if that has a non-nil value,
+the documentation comes from that value (if the value is not a string, it is
+evaluated).
+
+If =FUNCTION= is not a symbol, or if it has no =function-documentation=
+property, then documentation extracts the documentation string from the actual
+function definition, reading it from a file if called for.
+#+end_defun
+
+*** documentation example
+
+See [[info:elisp#Accessing Documentation][Access to Documentation Strings]] for an example of using these functions in
+ELisp code.
+
+** Doc and Data Directory
+
+#+cindex:DOC
+#+cindex:documentation, preloaded functions & variables
+To save memory, the documentation for preloaded functions and variables
+(including primitives) is kept in a file named =DOC=, in the directory
+specified by ~doc-directory~.  This is usually the same as ~data-directory~.
+This directory contains a lot of other useful information as well.
+
+~doc-directory~ ’s value on your system is:
+
+#+begin_src emacs-lisp :exports results
+(print doc-directory)
+#+end_src
+
+This directory contains the following files:
+
+#+begin_src emacs-lisp :exports results :results list
+(directory-files doc-directory)
+#+end_src
+
 * First Steps
 ** Installing
 *** What is Your Version
@@ -7616,6 +7673,7 @@ sync.
 #+macro: subheading @@texinfo:@subheading @@$1
 #+macro: dfn @@texinfo:@dfn{@@$1@@texinfo:}@@
 #+macro: noindent @@texinfo:@noindent @@
+#+macro: option @@texinfo:@option{@@$1@@texinfo:}@@
 
 * Export Setup                                                     :noexport:
 #+texinfo_filename:mastering_emacs.info
