@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-23 22:33
-#+macro:version Version 0.0.98
+#+date:2020-02-24 05:27
+#+macro:version Version 0.0.99
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -5820,7 +5820,8 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
 - ~comment-dwim~ (=M-;=) ::
 
   Insert or realign comment on current line.  If the region is active, comment
-  or uncomment the region instead.
+  or uncomment the region instead.  In this case, supplying a positive ARG adds
+  that many comment characters, or if negative, removes that many.
 
   #+attr_texinfo: :options comment-dwim arg
   #+begin_defun
@@ -5831,15 +5832,33 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
   [[uncomment-region][~uncomment-region~]]).
 
   Else, if the current line is empty, call [[comment-insert-comment-function][~comment-insert-comment-function~]] if
-  it is defined, otherwise insert a comment and indent it.
+  it is defined, otherwise insert a comment and indent it.  If the line is
+  blank, the comment is indented to the same position where <TAB> would indent
+  to; if the line is non-blank, the comment is placed after the last
+  non-whitespace character on the line, somewhere between [[comment-column][~comment-column~]] and
+  [[comment-fill-column][~comment-fill-column~]] if possible.  Point is placed after the comment
+  character.
 
   - ARG (=C-u M-;=) :: Else if a prefix ARG is specified, call [[comment-kill][~comment-kill~]].
+    The comment is saved to the kill ring, and you can reinsert it on another
+    line by moving the end of that line, doing =C-y=, and then =M-;= to realin
+    the comment.
 
-  Else, call [[comment-indent][~comment-indent~]].
+  Else, call [[comment-indent][~comment-indent~]].  If a line already contains the [[comment-start][~comment-start~]]
+  string, this command realigns it to the conventional alignment and moves
+  point after.  Comments starting in column 0 are not moved.
   #+end_defun
+
+
+If you are typing a comment and wish to continue it to another line, type =M-j=
+or =C-M-j= ([[comment-indent-new-line][~comment-indent-new-line~]]).  This breaks the current line, and
+inserts the necessary comment delimiters and indentation to continue the
+comment.
 
 - ~comment-line~ (=C-x C-;=) ::
   <<comment-line>>
+
+  Comments or uncomments complete lines.
 
   #+attr_texinfo: :options comment-line N
   #+begin_defun
@@ -5855,8 +5874,10 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
 - ~comment-region~ (=C-c C-c=)::
   <<comment-region>>
 
-  Add comment delimiters to all the lines in the region.  Use =C-c C-c= in
-  C-like languages.
+  Add comment delimiters to all the lines in the region, even if the region is
+  inactive.
+
+  Use =C-c C-c= in C-like languages.
 
   #+attr_texinfo: :options comment-region begin end &optional arg
   #+begin_defun
@@ -5868,10 +5889,13 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
     negative, delete that many comment characters instead.
 
 
-  The strings used as comment starts are built from ~comment-start~ and
+  The strings used as comment starts are built from [[comment-start][~comment-start~]] and
   ~comment-padding~; the strings used as comment ends are built from
   ~comment-end~ and ~comment-padding~.
   #+end_defun
+
+  For C-like modes, you can configure the exact effect of =M-;= by setting the
+  variables [[c-indent-comment-alist][~c-indent-comment-alist~]] and [[c-indent-comments-syntactically-p][~c-indent-comments-syntactically-p~]].
 
 - ~uncomment-region~ ::
   <<uncomment-region>>
@@ -5882,6 +5906,30 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
 
   - ARG :: The numeric prefix ARG can specify a number of chars to remove from
     the comment delimiters.
+  #+end_defun
+
+- ~comment-indent-new-line~ (=C-M-j=, =M-j=) ::
+  <<comment-indent-new-line>>
+
+  If you are typing a comment and wish to continue it to another line, type
+  ‘M-j’ or ‘C-M-j’ (‘comment-indent-new-line’).  This breaks the current line,
+  and inserts the necessary comment delimiters and indentation to continue the
+  comment.
+
+  Like ‘<RET>’ followed by inserting and aligning a comment.
+
+  This command is intended for styles where you write a comment per line,
+  starting a new comment (and terminating it if necessary) on each line.  If
+  you want to continue one comment across several lines, use M-x
+  newline-and-indent.
+
+  #+attr_texinfo: :options comment-indent-new-line &optional soft
+  #+begin_defun
+  Break line at point and indent, continuing comment if within one. This
+  indents the body of the continued comment under the previous comment line.
+
+  - SOFT :: The inserted newline is marked hard if variable ‘use-hard-newlines’
+    is true, unless optional argument SOFT is non-nil.
   #+end_defun
 
 - ~comment-insert-comment-function~ (a variable)::
@@ -5913,29 +5961,6 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
   - CONTINUE :: if non-nil, use the ‘comment-continue’ markers if any.
   #+end_defun
 
-- ~comment-indent-new-line~ (=C-M-j=, =M-j=) ::
-
-  If you are typing a comment and wish to continue it to another line, type
-  ‘M-j’ or ‘C-M-j’ (‘comment-indent-new-line’).  This breaks the current line,
-  and inserts the necessary comment delimiters and indentation to continue the
-  comment.
-
-  Like ‘<RET>’ followed by inserting and aligning a comment.
-
-  This command is intended for styles where you write a comment per line,
-  starting a new comment (and terminating it if necessary) on each line.  If
-  you want to continue one comment across several lines, use M-x
-  newline-and-indent.
-
-  #+attr_texinfo: :options comment-indent-new-line &optional soft
-  #+begin_defun
-  Break line at point and indent, continuing comment if within one. This
-  indents the body of the continued comment under the previous comment line.
-
-  - SOFT :: The inserted newline is marked hard if variable ‘use-hard-newlines’
-    is true, unless optional argument SOFT is non-nil.
-  #+end_defun
-
 - ~comment-set-column~ (=C-x ;=)::
 
   #+attr_texinfo: :options comment-set-column arg
@@ -5950,6 +5975,7 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
   #+end_defun
 
 - ~comment-column~ (a variable) ::
+  <<comment-column>>
 
   #+attr_texinfo: :options comment-column
   #+begin_defvar
@@ -5965,11 +5991,20 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
   Continuation string to insert for multiline comments.  This string will be
   added at the beginning of each line except the very first one when commenting
   a region with a commenting style that allows comments to span several lines.
-  It should generally have the same length as ‘comment-start’ in order to
+  It should generally have the same length as [[comment-start][~comment-start~]] in order to
   preserve indentation.
   #+end_defvar
 
+- ~comment-start~ (a variable) ::
+  <<comment-start>>
+
+  #+attr_texinfo: :options comment-start
+  #+begin_defvar
+  String to insert to start a new comment, or nil if no comment syntax.
+  #+end_defvar
+
 - ~comment-fill-column~ (a variable) ::
+  <<comment-fill-column>>
 
   #+attr_texinfo: :options comment-fill-column
   #+begin_defvar
@@ -6000,6 +6035,12 @@ checking on comments with Flyspell Prog mode (*note Spelling::).
   - =multi-line=
   - =box-multi=
   #+end_defvar
+
+- ~c-indent-comment-alist~ (a variable) ::
+  <<c-indent-comment-alist>>
+
+- ~c-indent-comments-syntactically-p~ (a variable) :: 
+  <<c-indent-comments-syntactically-p>>
 
 *** Multi-Line Comments
 
