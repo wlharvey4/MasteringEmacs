@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-23 10:37
-#+macro:version Version 0.0.97
+#+date:2020-02-23 22:33
+#+macro:version Version 0.0.98
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -5767,6 +5767,241 @@ behave the same way.
   See [[info:elisp#Input
    Functions][Input Functions]] for a description of ~read~, the basic function for reading
   objects.
+
+** Comments
+#+cindex:comment
+In Lisp, an unescaped semicolon (=;=) starts a comment if it is not within a
+string or character constant.  The Lisp reader discards comments; they do not
+become part of the Lisp objects which represent the program within the Lisp
+system.
+
+*** Comment Conventions
+- =;= ::
+
+  Comments that start with a single semicolon, =;=, should all be aligned to
+  the same column on the right of the source code.  Such comments usually
+  explain how the code on that line does its job.
+
+- =;;= ::
+
+  Comments that start with two semicolons, ==;;==, should be aligned to the
+  same level of indentation as the code.  Such comments usually describe the
+  purpose of the following lines or the state of the program at that point.
+
+  We also normally use two semicolons for comments outside functions.
+
+  If a function has no documentation string, it should instead have a
+  two-semicolon comment right before the function, explaining what the function
+  does and how to call it properly.  Explain precisely what each argument means
+  and how the function interprets its possible values.  It is much better to
+  convert such comments to documentation strings, though.
+
+- =;;;= ::
+
+  Comments that start with three semicolons, =;;;=, should start at the left
+  margin.  We use them for comments which should be considered a heading by
+  Outline minor mode.  By default, comments starting with at least three
+  semicolons (followed by a single space and a non-whitespace character) are
+  considered headings, while comments starting with two or fewer are not.
+  Historically, triple-semicolon comments have also been used for commenting
+  out lines within a function, but this use is discouraged.  When commenting
+  out entire functions, use two semicolons.
+
+- =;;;;= ::
+
+  Comments that start with four semicolons, =;;;;=, should be aligned to the
+  left margin and are used for headings of major sections of a program.
+
+*** Some Comment Functions
+Because comments are such an important part of programming, Emacs provides
+special commands for editing and inserting comments.  It can also do spell
+checking on comments with Flyspell Prog mode (*note Spelling::).
+
+- ~comment-dwim~ (=M-;=) ::
+
+  Insert or realign comment on current line.  If the region is active, comment
+  or uncomment the region instead.
+
+  #+attr_texinfo: :options comment-dwim arg
+  #+begin_defun
+  Call the comment command you want (“Do What I Mean”).
+
+  If the region is active and ‘transient-mark-mode’ is on, call
+  [[comment-region][~comment-region~]] (unless it only consists of comments, in which case it calls
+  [[uncomment-region][~uncomment-region~]]).
+
+  Else, if the current line is empty, call [[comment-insert-comment-function][~comment-insert-comment-function~]] if
+  it is defined, otherwise insert a comment and indent it.
+
+  - ARG (=C-u M-;=) :: Else if a prefix ARG is specified, call [[comment-kill][~comment-kill~]].
+
+  Else, call [[comment-indent][~comment-indent~]].
+  #+end_defun
+
+- ~comment-line~ (=C-x C-;=) ::
+  <<comment-line>>
+
+  #+attr_texinfo: :options comment-line N
+  #+begin_defun
+  Comment or uncomment current line and leave point after it.  If region is
+  active, comment lines in active region instead.  Unlike ‘comment-dwim’, this
+  always comments whole lines.
+
+  - N :: With positive prefix, apply to N lines including current one.  With
+    negative prefix, apply to -N lines above.  Also, further consecutive
+    invocations of this command will inherit the negative argument.
+  #+end_defun
+
+- ~comment-region~ (=C-c C-c=)::
+  <<comment-region>>
+
+  Add comment delimiters to all the lines in the region.  Use =C-c C-c= in
+  C-like languages.
+
+  #+attr_texinfo: :options comment-region begin end &optional arg
+  #+begin_defun
+  Comment or uncomment each line in the region.
+
+  With just =C-u prefix arg=, uncomment each line in region BEG .. END.
+
+  - ARG :: Numeric prefix ARG means use ARG comment characters.  If ARG is
+    negative, delete that many comment characters instead.
+
+
+  The strings used as comment starts are built from ~comment-start~ and
+  ~comment-padding~; the strings used as comment ends are built from
+  ~comment-end~ and ~comment-padding~.
+  #+end_defun
+
+- ~uncomment-region~ ::
+  <<uncomment-region>>
+
+  #+attr_texinfo: :options uncomment-region begin end &optional arg
+  #+begin_defun
+  Uncomment each line in the BEGIN .. END region.
+
+  - ARG :: The numeric prefix ARG can specify a number of chars to remove from
+    the comment delimiters.
+  #+end_defun
+
+- ~comment-insert-comment-function~ (a variable)::
+  <<comment-insert-comment-function>>
+
+  #+attr_texinfo: :options comment-insert-comment-function
+  #+begin_defvar
+  Function to insert a comment when a line doesn’t contain one.
+  #+end_defvar
+
+- ~comment-kill~ ::
+  <<comment-kill>>
+
+  #+attr_texinfo: :options comment-kill arg
+  #+begin_defun
+  Kill the first comment on this line, if any.
+
+  - ARG :: With prefix ARG, kill comments on that many lines starting with this
+    one.
+  #+end_defun
+
+- ~comment-indent~ ::
+  <<comment-indent>>
+
+  #+attr_texinfo: :options comment-indent &optional continue
+  #+begin_defun
+  Indent this line’s comment to ‘comment-column’, or insert an empty comment.
+
+  - CONTINUE :: if non-nil, use the ‘comment-continue’ markers if any.
+  #+end_defun
+
+- ~comment-indent-new-line~ (=C-M-j=, =M-j=) ::
+
+  If you are typing a comment and wish to continue it to another line, type
+  ‘M-j’ or ‘C-M-j’ (‘comment-indent-new-line’).  This breaks the current line,
+  and inserts the necessary comment delimiters and indentation to continue the
+  comment.
+
+  Like ‘<RET>’ followed by inserting and aligning a comment.
+
+  This command is intended for styles where you write a comment per line,
+  starting a new comment (and terminating it if necessary) on each line.  If
+  you want to continue one comment across several lines, use M-x
+  newline-and-indent.
+
+  #+attr_texinfo: :options comment-indent-new-line &optional soft
+  #+begin_defun
+  Break line at point and indent, continuing comment if within one. This
+  indents the body of the continued comment under the previous comment line.
+
+  - SOFT :: The inserted newline is marked hard if variable ‘use-hard-newlines’
+    is true, unless optional argument SOFT is non-nil.
+  #+end_defun
+
+- ~comment-set-column~ (=C-x ;=)::
+
+  #+attr_texinfo: :options comment-set-column arg
+  #+begin_defun
+  Set the comment column based on point.  With no ARG, set the comment column
+  to the current column.
+
+  - ARG :: With just minus as arg, kill any comment on this line.
+
+    With any other ARG, set comment column to indentation of the previous
+    comment and then align or create a comment on this line at that column.
+  #+end_defun
+
+- ~comment-column~ (a variable) ::
+
+  #+attr_texinfo: :options comment-column
+  #+begin_defvar
+  Column to indent right-margin comments to.  Each mode may establish a
+  different default value for this variable; you can set the value for a
+  particular mode using that mode’s hook.
+  #+end_defvar
+
+- ~comment-continue~ (a variable) ::
+
+  #+attr_texinfo: :options comment-continue
+  #+begin_defvar
+  Continuation string to insert for multiline comments.  This string will be
+  added at the beginning of each line except the very first one when commenting
+  a region with a commenting style that allows comments to span several lines.
+  It should generally have the same length as ‘comment-start’ in order to
+  preserve indentation.
+  #+end_defvar
+
+- ~comment-fill-column~ (a variable) ::
+
+  #+attr_texinfo: :options comment-fill-column
+  #+begin_defvar
+  Column to use for ‘comment-indent’.  If nil, use ‘fill-column’ instead.
+  #+end_defvar
+
+- ~comment-style~ (a variable) ::
+
+  Its value is =indent=.
+
+  #+attr_texinfo: :options comment-style
+  #+begin_defvar
+  Style to be used for ‘comment-region’.
+  #+end_defvar
+
+- ~comment-styles~ (a variable) ::
+
+  #+attr_texinfo: :options comment-styles
+  #+begin_defvar
+  Comment region style definitions.
+
+  - =plain=
+  - =indent-or-triple=
+  - =indent=
+  - =aligned=
+  - =box=
+  - =extra-line=
+  - =multi-line=
+  - =box-multi=
+  #+end_defvar
+
+*** Multi-Line Comments
 
 ** Sequences in Elisp
 :PROPERTIES:
