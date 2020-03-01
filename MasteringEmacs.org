@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-02-24 05:27
-#+macro:version Version 0.0.99
+#+date:2020-03-01 15:04
+#+macro:version Version 0.0.100
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -39,6 +39,16 @@ brighter; it simply makes everything else vanish.
    + Emacs began in 1976 https://www.gnu.org/software/emacs/manual/html_node/efaq/Origin-of-the-term-Emacs.html#Origin-of-the-term-Emacs
 
    + Came from an editor called Teco
+
+#+attr_texinfo: :author Andy Wingo, http://wingolog.org/archives/2009/01/07/a-brief-history-of-guile
+#+attr_texinfo: :tag From “A Brief History of Guile”
+#+begin_quote
+Emacs, when it was first created in its GNU form in 1984, was a new take on the
+problem of “how to make a program”.  The Emacs thesis is that it is delightful
+to create composite programs based on an orthogonal kernel written in a
+low-level language together with a powerful, high-level extension language.
+#+end_quote
+
 ** Some Implementations
 :CP:
 #+CINDEX: xemacs
@@ -5871,7 +5881,7 @@ comment.
     invocations of this command will inherit the negative argument.
   #+end_defun
 
-- ~comment-region~ (=C-c C-c=)::
+- ~comment-region~ (=C-c C-c=) ::
   <<comment-region>>
 
   Add comment delimiters to all the lines in the region, even if the region is
@@ -5932,7 +5942,7 @@ comment.
     is true, unless optional argument SOFT is non-nil.
   #+end_defun
 
-- ~comment-insert-comment-function~ (a variable)::
+- ~comment-insert-comment-function~ (a variable) ::
   <<comment-insert-comment-function>>
 
   #+attr_texinfo: :options comment-insert-comment-function
@@ -5961,7 +5971,7 @@ comment.
   - CONTINUE :: if non-nil, use the ‘comment-continue’ markers if any.
   #+end_defun
 
-- ~comment-set-column~ (=C-x ;=)::
+- ~comment-set-column~ (=C-x ;=) ::
 
   #+attr_texinfo: :options comment-set-column arg
   #+begin_defun
