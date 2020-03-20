@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-03-01 15:04
-#+macro:version Version 0.0.100
+#+date:2020-03-19 18:11
+#+macro:version Version 0.0.101
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -2834,8 +2834,9 @@ about that character.
 #+texinfo:@heading Buffer-Local Variables
 
 #+cindex:buffer-local variables
+#+cindex:local variables
 Buffer-specific information that is directly accessible is stored in
-/buffer-local variable/ bindings, which are variable values that are effective
+/buffer-local variable bindings/, which are variable values that are effective
 only in a particular buffer.  This feature allows each buffer to override the
 values of certain variables.  Most major modes override variables.
 
@@ -5694,6 +5695,138 @@ behave the same way.
 ** Effective emacs
 - https://a-nickels-worth.blogspot.com/2007/11/effective-emacs.html
 
+* Variables
+** Examining Variables
+
+- describe-variable (=C-h v=) :: Display the value and documentation of variable
+  VAR
+
+- set-variable :: Change the value of variable VAR to VALUE.  Limited to user
+  options (customizable variables)
+
+- setq :: Set the value of any variable
+
+- eval-expression (=M-:=, =C-j=) :: To execute such an expression, type ‘M-:’
+  (‘eval-expression’) and enter the expression in the minibuffer (*note Lisp
+  Eval::).  Alternatively, go to the ‘*scratch*’ buffer, type in the
+  expression, and then type ‘C-j’
+
+
+The only way to alter the variable in future sessions is to put something in
+your initialization file.
+
+** Directory Variables
+
+** Local Variables
+#+cindex:local variables
+#+cindex:buffer-local variables
+#+cindex:per-buffer variables
+Almost any variable can be made “local” to a specific Emacs buffer.  This means
+that its value in that buffer is independent of its value in other buffers.  A
+few variables are always local in every buffer.  Every other Emacs variable has
+a “global” value which is in effect in all buffers that have not made the
+variable local.  A few variables cannot be local to a buffer because they are
+always local to each display instead.
+
+#+findex:make-local-variable
+- make-local-variable :: reads the name of a variable and makes it local to the
+  current buffer.
+  #+findex:make-variable-buffer-local
+- make-variable-buffer-local :: marks a variable so it will become local
+  automatically whenever it is set.  once a variable has been marked in this
+  way, the usual ways of setting the variable automatically do
+  ‘make-local-variable’ first.  We call such variables “per-buffer” variables.
+  The per-buffer’s global value is the initial value of the variable for each
+  new buffer.
+  #+findex:kill-local-variable
+- kill-local-variable :: makes a specified variable cease to be local to the
+  current buffer.  The global value of the variable henceforth is in effect in
+  this buffer.
+  #+findex:setq-default
+- setq-default :: set the global value of a variable, regardless of whether the
+  variable has a local value in the current buffer.  This is is the only way to
+  set the global value of a variable that has been marked with
+  ‘make-variable-buffer-local’.
+  #+findex:default-value
+- default-value :: This function takes a symbol as argument and returns its
+  default value.  The argument is evaluated; usually you must quote it
+  explicitly.
+
+*** Local Variables in Files
+A file can specify local variable values to use when editing the file with
+Emacs.  Visiting the file or setting a major mode checks for local variable
+specifications; it automatically makes these variables local to the buffer, and
+sets them to the values specified in the file.
+
+There are two ways to specify file local variable values:
+
+1. in the first or second line
+
+   : -*- mode: MODENAME; VAR: VALUE; ... -*-
+
+   You can specify any number of variable/value pairs in this way, each pair
+   with a colon and semicolon.  The VALUEs are used literally, and not
+   evaluated.
+
+   You can use ‘M-x add-file-local-variable-prop-line’ instead of adding
+   entries by hand.  This command prompts for a variable and value, and adds
+   them to the first line in the appropriate way.
+
+   ‘M-x delete-file-local-variable-prop-line’ prompts for a variable, and
+   deletes its entry from the line.
+
+   The command ‘M-x copy-dir-locals-to-file-locals-prop-line’ copies the
+   current directory-local variables to the first line.
+
+   Keywords that have special meanings as file variables (including the local
+   variables list) are:
+
+   - mode :: enables the specified major mode
+   - coding :: specifies the coding system for character code conversion
+   - unibyte :: load or compile a file of Emacs Lisp in unibyte mode if value
+     is t
+   - eval :: evaluate the specified Lisp expression (the value returned is
+     ignored)
+
+2. with a local variables list.
+
+   : Local Variables:
+   : <variable>: <value>
+   : End:
+
+    Instead of typing in the local variables list directly, you can use the
+   command ‘M-x add-file-local-variable’.  The command ‘M-x
+   delete-file-local-variable’ deletes a variable from the list.  ‘M-x
+   copy-dir-locals-to-file-locals’ copies directory-local variables to the
+   list.
+
+
+#+texinfo:@heading Setting Minor Modes
+#+cindex:minor mode, setting
+To enable or disable a minor mode in a local variables list, use the ‘eval’
+keyword with a Lisp expression that runs the mode command.
+
+#+texinfo:@heading Processing Local Variables
+
+#+vindex:enable-local-variables
+The variable ‘enable-local-variables’ allows you to change the way Emacs
+processes local variables.  Its default value is ‘t’, which specifies the
+behavior described above.  If it is ‘nil’, Emacs simply ignores all file local
+variables.  ‘:safe’ means use only the safe values and ignore the rest.  Any
+other value says to query you about each file that has local variables, without
+trying to determine whether the values are known to be safe.
+
+#+vindex:enable-local-eval
+The variable ‘enable-local-eval’ controls whether Emacs processes ‘eval’
+variables.  The three possibilities for the variable’s value are ‘t’, ‘nil’,
+and anything else, just as for ‘enable-local-variables’.  The default is
+‘maybe’, which is neither ‘t’ nor ‘nil’, so normally Emacs does ask for
+confirmation about processing ‘eval’ variables.
+
+#+vindex:save-local-eval-forms
+As an exception, Emacs never asks for confirmation to evaluate any
+‘eval’ form if that form occurs within the variable
+‘safe-local-eval-forms’.
 * Lisp Data Types
 #+cindex:data types
 #+cindex:object
@@ -7709,7 +7842,7 @@ to be case-sensitive.
 :PROPERTIES:
 :appendix: t
 :dependency1: "make"
-:dependency2: "aws2; AWS Account with ~/.aws/credentials and ~/.aws/config"
+:dependency2: "aws; AWS Account with ~/.aws/credentials and ~/.aws/config"
 :dependency3: "S3 bucket set up for serving a static web pages"
 :dependency4: "GitHub Account with personal token"
 :dependency5: "texinfo @6.7.0"
@@ -7727,383 +7860,410 @@ to be case-sensitive.
 #+header: :shebang "#!/usr/bin/env bash"
 #+begin_src makefile
 
-    ###############################################################################
-    ### USER-DEPENDENT VARIABLES
-    ### USE ENVIRONMENT VARIABLES FOR SENSITIVE DATA
-    ### ALL OTHERS CAN BE HARD-CODED
-    ### YOU ALSO NEED ~/.aws/credentials
+      ###############################################################################
+      ### USER-DEPENDENT VARIABLES
+      ### USE ENVIRONMENT VARIABLES FOR SENSITIVE DATA
+      ### ALL OTHERS CAN BE HARD-CODED
+      ### YOU ALSO NEED ~/.aws/credentials
 
-    # Emacs binary and init file
+      # Emacs binary and init file
 
-    EMACS        := $(EMACS)
-    EMACS_INIT   := $(EMACS_INIT)
+      EMACS        := $(EMACS)
+      EMACS_INIT   := $(EMACS_INIT)
 
-    # The absolute path to this Template file
+      # The absolute path to this Template file
 
-    TEMPLATE := $(SYNC_ORG_TEMPLATE)
+      TEMPLATE := $(SYNC_ORG_TEMPLATE)
 
-    # User’s personal GitHub token for authentication
-    # DO NOT HARD-CODE THIS VALUE
+      # User’s personal GitHub token for authentication
+      # DO NOT HARD-CODE THIS VALUE
 
-    GH_TOKEN := $(GITHUB_TOKEN)
+      GH_TOKEN := $(GITHUB_TOKEN)
 
-    # The AWS S3 bucket to use to store the html source files
+      # The AWS S3 bucket to use to store the html source files
 
-    BUCKET := s3://$(AWS_S3_BUCKET)
+      BUCKET := s3://$(AWS_S3_BUCKET)
 
-    # The aws command to use (version 1 or version 2)
+      # The aws command to use (version 1 or version 2)
 
-    AWS := aws2
+      AWS := aws
 
-    # The AWS region of choice; this can also be in .aws/config
+      # The AWS region of choice; this can also be in .aws/config
 
-    REGION := --region us-west-2
+      REGION := --region us-west-2
 
-    ### END OF USER-DEPENDENT VARIABLES
-    ###############################################################################
+      ### END OF USER-DEPENDENT VARIABLES
+      ###############################################################################
 
-    ### PROJ AND ORG
-    # ORG is the name of this Org file with extension
-    # PROJ is the name of this Org file without extension.
+      ### PROJ AND ORG
+      # ORG is the name of this Org file with extension
+      # PROJ is the name of this Org file without extension.
 
-    ### NOTE: there can be only one Org file in the project directory;
-    # so far this has not been a problem, but it might be.
+      ### NOTE: there can be only one Org file in the project directory;
+      # so far this has not been a problem, but it might be.
 
-    ### NOTE: S is needed only for the Template file because of the way it is nested
-    # one level deep in the Templates GitHub repo, which uses the plural form
-    # of Templates, whereas this file uses the singular form, Template.  So when
-    # the homepage link is updated, the curl command must be told to use the plural
-    # form.  This is obviously a hack only for my own use and can be removed once
-    # I clean up this anomaly.
+      ### NOTE: S is needed only for the Template file because of the way it is nested
+      # one level deep in the Templates GitHub repo, which uses the plural form
+      # of Templates, whereas this file uses the singular form, Template.  So when
+      # the homepage link is updated, the curl command must be told to use the plural
+      # form.  This is obviously a hack only for my own use and can be removed once
+      # I clean up this anomaly.
 
-    ORG  := $(shell ls *.org)
-    PROJ := $(basename $(ORG))
+      ORG  := $(shell ls *.org)
+      PROJ := $(basename $(ORG))
 
-    ifeq ($(PROJ),$(basename $(notdir $(TEMPLATE))))
-    S := s
-    endif
+      ifeq ($(PROJ),$(basename $(notdir $(TEMPLATE))))
+      S := s
+      endif
 
-    ### DIR:
-    # This is not necessarily the same as PROJ; it is the exported .info
-    # name found at #+texinfo_filename:<DIR>.info without its extension,
-    # used as the directory name for the html export directory; use the
-    # lowercased PROJ name if there is no texinfo_filename in the Org file
+      ### DIR:
+      # This is not necessarily the same as PROJ; it is the exported .info
+      # name found at #+texinfo_filename:<DIR>.info without its extension,
+      # used as the directory name for the html export directory; use the
+      # lowercased PROJ name if there is no texinfo_filename in the Org file
 
-    # NOTE: 're-search-forward' will either return an error or 'nil',
-    # depending on the value of the third argument, if the search fails.
-    # If it returns an error, then that error shows up in the shell
-    # output.  It might be advantageous to let it so you are aware that
-    # there is no 'texinfo_filename', but for now it is set to return
-    # 'nil' on failure, and then assign the backup value.
+      # NOTE: 're-search-forward' will either return an error or 'nil',
+      # depending on the value of the third argument, if the search fails.
+      # If it returns an error, then that error shows up in the shell
+      # output.  It might be advantageous to let it so you are aware that
+      # there is no 'texinfo_filename', but for now it is set to return
+      # 'nil' on failure, and then assign the backup value.
 
-    DIR := $(shell $(EMACS) -Q --batch --eval '\
-      (with-temp-buffer (insert-file-contents "$(ORG)") \
-	(re-search-forward "^ *.\\+\\(?:texinfo_filename\\|TEXINFO_FILENAME\\):\\(.*\\).info$$" nil t) \
-	(princ (match-string 1)))')
-    ifeq ($(DIR),nil)
-    DIR := $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
-    endif
+      DIR := $(shell $(EMACS) -Q --batch --eval '\
+        (with-temp-buffer (insert-file-contents "$(ORG)") \
+          (re-search-forward "^ *.\\+\\(?:texinfo_filename\\|TEXINFO_FILENAME\\):\\(.*\\).info$$" nil t) \
+          (princ (match-string 1)))')
+      ifeq ($(DIR),nil)
+      DIR := $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
+      endif
 
-    ### VERS: v1.2.34/
-    # The version number of this Org document.
-    # If sync is run after the version number has been updated, then VERS
-    # picks up the newly-changed value.  VERS used to be staticly imbedded
-    # when the Makefile was tangled, but it needs to be dynamic for
-    # development.
+      ### VERS: v1.2.34/
+      # The version number of this Org document.
+      # If sync is run after the version number has been updated, then VERS
+      # picks up the newly-changed value.  VERS used to be staticly imbedded
+      # when the Makefile was tangled, but it needs to be dynamic for
+      # development.
 
-    # QUERY: should this number be formatted like this, or should it be just the numbers?
-    # The reason it includes them is the S3PROJ obtains the name from the S3 bucket, and
-    # it includes them.  But it only includes them because I have made it so.  Not a good
-    # reason just by itself.  The ending slash is not actually a part of the version, but
-    # comes from the way the 'aws2 ls' command returns its values.  So VERS should probably
-    # not include the trailing slash, although it doesn’t hurt anything.
+      # QUERY: should this number be formatted like this, or should it be just the numbers?
+      # The reason it includes them is the S3PROJ obtains the name from the S3 bucket, and
+      # it includes them.  But it only includes them because I have made it so.  Not a good
+      # reason just by itself.  The ending slash is not actually a part of the version, but
+      # comes from the way the 'aws2 ls' command returns its values.  So VERS should probably
+      # not include the trailing slash, although it doesn’t hurt anything.
 
-    VERS := v$(shell $(EMACS) -Q --batch --eval '\
-      (with-temp-buffer (insert-file-contents "$(ORG)") \
-	(re-search-forward "^ *.\\+\\(?:macro\\|MACRO\\):version Version \\(\\([[:digit:]]+[[:punct:]]?\\)\\{3\\}\\)") \
-	(princ (match-string 1)))')/
+      VERS := v$(shell $(EMACS) -Q --batch --eval '\
+        (with-temp-buffer (insert-file-contents "$(ORG)") \
+          (re-search-forward "^ *.\\+\\(?:macro\\|MACRO\\):version Version \\(\\([[:digit:]]+[[:punct:]]?\\)\\{3\\}\\)") \
+          (princ (match-string 1)))')/
 
-    ### AWS
-    # PROJ_LIST contains the list of projects currently uploaded to
-    # the S3 bucket; each item contains the name of the project and its
-    # current version.
+      ### AWS
+      # PROJ_LIST contains the list of projects currently uploaded to
+      # the S3 bucket; each item contains the name of the project and its
+      # current version.
 
-    PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(BUCKET))))
+      PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(BUCKET))))
 
-    ### S3PROJ
-    # The name of the current project as obtained from S3: 'proj-v1.2.34/'
-    # If there is no current project in the S3 bucket, then assign a value equal to
-    # the Org project and version instead.
-    ### S3VERS
-    # The version of this project currently installed in the S3 bucket: 'v1.2.34/'
-    # If there is no current version in the S3 bucket, then assign the version from
-    # this Org file instead.
+      ### S3PROJ
+      # The name of the current project as obtained from S3: 'proj-v1.2.34/'
+      # If there is no current project in the S3 bucket, then assign a value equal to
+      # the Org project and version instead.
+      ### S3VERS
+      # The version of this project currently installed in the S3 bucket: 'v1.2.34/'
+      # If there is no current version in the S3 bucket, then assign the version from
+      # this Org file instead.
 
-    S3PROJ := $(filter $(DIR)%,$(PROJ_LIST))
-    ifeq ($(S3PROJ),$(empty))
-    S3PROJ := $(DIR)-$(VERS)
-    endif
+      S3PROJ := $(filter $(DIR)%,$(PROJ_LIST))
+      ifeq ($(S3PROJ),$(empty))
+      S3PROJ := $(DIR)-$(VERS)
+      endif
 
-    S3VERS := $(subst $(DIR)-,,$(filter $(DIR)%, $(PROJ_LIST)))
-    ifeq ($(S3VERS), $(empty))
-    S3VERS := $(VERS)
-    endif
+      S3VERS := $(subst $(DIR)-,,$(filter $(DIR)%, $(PROJ_LIST)))
+      ifeq ($(S3VERS), $(empty))
+      S3VERS := $(VERS)
+      endif
 
-    ### GITHUB
-    # USER is the current user's GitHub login name.
+      ### GITHUB
+      # USER is the current user's GitHub login name.
 
-    # The user name used to be statically embedded into the Makefile
-    # during tangle, but in an effort to make the Makefile dynamically
-    # indepedent, dynamic code has replaced the static code.  The code
-    # that placed the static name in the Makefile was a 'node' script that
-    # ran in a separate Org process during tangle.  An unfortunate fact of
-    # 'make' is that 'make' strips the quote marks from the string
-    # obtained from the 'curl' command when the 'make shell' command
-    # returns the string.  This makes the string malformed JSON and
-    # unparsable by most JSON parsers, including 'node’.  However,
-    # 'perl'’s core module JSON::PP (but not JSON::XS) has facilities to
-    # parse very malformed JSON strings.  Therefore, this dynamic code
-    # uses 'perl' and the core module JSON::PP to parse the 'curl' string
-    # into a 'perl' JSON object which can return the login name.  This
-    # code should work with any version of 'perl' without having to
-    # install any modules.
+      # The user name used to be statically embedded into the Makefile
+      # during tangle, but in an effort to make the Makefile dynamically
+      # indepedent, dynamic code has replaced the static code.  The code
+      # that placed the static name in the Makefile was a 'node' script that
+      # ran in a separate Org process during tangle.  An unfortunate fact of
+      # 'make' is that 'make' strips the quote marks from the string
+      # obtained from the 'curl' command when the 'make shell' command
+      # returns the string.  This makes the string malformed JSON and
+      # unparsable by most JSON parsers, including 'node’.  However,
+      # 'perl'’s core module JSON::PP (but not JSON::XS) has facilities to
+      # parse very malformed JSON strings.  Therefore, this dynamic code
+      # uses 'perl' and the core module JSON::PP to parse the 'curl' string
+      # into a 'perl' JSON object which can return the login name.  This
+      # code should work with any version of 'perl' without having to
+      # install any modules.
 
-    USER := $(shell \
-		  curl -sH "Authorization: token $(GH_TOKEN)" https://api.github.com/user \
-		  | \
-		  perl -MJSON::PP -e \
-		      '$$/ = ""; \
-		       my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
-		       print $$json->{login};' \
-		  )
+      USER := $(shell \
+                    curl -sH "Authorization: token $(GH_TOKEN)" https://api.github.com/user \
+                    | \
+                    perl -MJSON::PP -e \
+                        '$$/ = ""; \
+                         my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
+                         print $$json->{login};' \
+                    )
 
-    ### TOOLS & RESOURCES
-    TOOLS  := tools
-    CMPRPL := $(TOOLS)/cmprpl
-    SAVE   := resources
+      ### TOOLS & RESOURCES
+      TOOLS  := tools
+      CMPRPL := $(TOOLS)/cmprpl
+      SAVE   := resources
 
-    ### TEXINFO
-    TEXI  := $(PROJ).texi
-    INFO  := $(DIR).info
-    PDF   := $(PROJ).pdf
-    INDEX := index.html
-    HTML  := $(DIR)/$(INDEX)
-    DIR_OLD := $(DIR)-old
+      ### TEXINFO
+      TEXI  := $(PROJ).texi
+      INFO  := $(DIR).info
+      PDF   := $(PROJ).pdf
+      INDEX := index.html
+      HTML  := $(DIR)/$(INDEX)
+      DIR_OLD := $(DIR)-old
 
-    ### AWS
-    S3     := $(AWS) s3
-    SRC    := $(DIR)/
+      ### AWS
+      S3     := $(AWS) s3
+      SRC    := $(DIR)/
 
-    DST_OLD := $(BUCKET)/$(S3PROJ)
-    DST_NEW := $(BUCKET)/$(DIR)-$(VERS)
-    EXCL_INCL := --exclude "*" --include "*.html"
-    GRANTS  := --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
-    S3SYNC  := $(S3) sync $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
-    S3MOVE  := $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
+      DST_OLD := $(BUCKET)/$(S3PROJ)
+      DST_NEW := $(BUCKET)/$(DIR)-$(VERS)
+      EXCL_INCL := --exclude "*" --include "*.html"
+      GRANTS  := --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+      S3SYNC  := $(S3) sync $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
+      S3MOVE  := $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
 
-    default: check texi info html pdf
+      default: check texi info html pdf
 
-    PHONY: check default all \
-	    texi info html pdf \
-	    open-org open-texi open-html open-pdf \
-	    clean dist-clean wiped-clean \
-	    help sync update values
+      PHONY: check default all \
+              texi info html pdf \
+              open-org open-texi open-html open-pdf \
+              clean dist-clean wiped-clean \
+              help sync update values
 
-    values: check
-	    @echo USER:   	$(USER)
-	    @echo ORG:    	$(ORG)
-	    @echo PROJ:   	$(PROJ) $S
-	    @echo VERS:   	$(VERS)
-	    @echo S3PROJ: 	$(S3PROJ)
-	    @echo S3VERS: 	$(S3VERS)
-	    @echo DIR:    	$(DIR)
-	    @echo DIR_OLD:	$(DIR_OLD)
-	    @echo SRC:    	$(SRC)
-	    @echo DST_OLD:	$(DST_OLD)
-	    @echo DST_NEW:	$(DST_NEW)
-	    @echo PROJ_LIST:$(PROJ_LIST)
+      values: check
+              @echo USER:   	$(USER)
+              @echo ORG:    	$(ORG)
+              @echo PROJ:   	$(PROJ) $S
+              @echo VERS:   	$(VERS)
+              @echo S3PROJ: 	$(S3PROJ)
+              @echo S3VERS: 	$(S3VERS)
+              @echo DIR:    	$(DIR)
+              @echo DIR_OLD:	$(DIR_OLD)
+              @echo SRC:    	$(SRC)
+              @echo DST_OLD:	$(DST_OLD)
+              @echo DST_NEW:	$(DST_NEW)
+              @echo PROJ_LIST:$(PROJ_LIST)
 
-    check:
-	    @[[ -z $${AWS_S3_BUCKET} ]] && \
-	       { printf "$${RED}\$$AWS_S3_BUCKET $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
-	       printf "$${GREEN}AWS_S3_BUCKET: $${CYAN}$${AWS_S3_BUCKET}$${CLEAR}\n";
-	    @[[ -z $${GITHUB_TOKEN} ]] && \
-	       { printf "$${RED}GITHUB_TOKEN $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
-	       printf "$${GREEN}GITHUB_TOKEN: set$${CLEAR}\n";
-	    @[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
-	       printf "$${GREEN}~/.aws credentials and config: set$${CLEAR}\n" || \
-	       { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
-	    @$(EMACS) --batch --load="$(EMACS_INIT)" --eval '\
-		    (progn \
-			    (require (quote org)) \
-			    (if \
-				    (member (quote texinfo) org-export-backends) \
-				    (princ "texinfo backend: INSTALLED in org-export-backends") \
-				    (princ "texinfo backend: NOT INSTALLED in org-export-backends")) \
-			    (terpri) \
-			    (if \
-				    org-confirm-babel-evaluate \
-				    (princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
-				    (princ "org-confirm-babel-evaluate: SET to nil")) \
-			    (terpri))'
+      check:
+              @[[ -z $${AWS_S3_BUCKET} ]] && \
+                 { printf "$${RED}\$$AWS_S3_BUCKET $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
+                 printf "$${GREEN}AWS_S3_BUCKET: $${CYAN}$${AWS_S3_BUCKET}$${CLEAR}\n";
+              @[[ -z $${GITHUB_TOKEN} ]] && \
+                 { printf "$${RED}GITHUB_TOKEN $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
+                 printf "$${GREEN}GITHUB_TOKEN: set$${CLEAR}\n";
+              @[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
+                 printf "$${GREEN}~/.aws credentials and config: set$${CLEAR}\n" || \
+                 { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
+              @$(EMACS) --batch --load="$(EMACS_INIT)" --eval '\
+                      (progn \
+                              (require (quote org)) \
+                              (if \
+                                      (member (quote texinfo) org-export-backends) \
+                                      (princ "texinfo backend: INSTALLED in org-export-backends") \
+                                      (princ "texinfo backend: NOT INSTALLED in org-export-backends")) \
+                              (terpri) \
+                              (if \
+                                      org-confirm-babel-evaluate \
+                                      (princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
+                                      (princ "org-confirm-babel-evaluate: SET to nil")) \
+                              (terpri))'
 
-    open-org: $(ORG)
-	    emacsclient $(ORG) &
-    $(ORG):
-	    @echo 'THERE IS NO $(ORG) FILE!!!'
-	    exit 1
+      open-org: $(ORG)
+              emacsclient $(ORG) &
+      $(ORG):
+              @echo 'THERE IS NO $(ORG) FILE!!!'
+              exit 1
 
-    texi: $(TEXI)
-    $(TEXI): $(ORG)
-	    $(EMACS) --batch --eval '\
-	    (progn \
-	      (require (quote org)) \
-	      (require (quote ob-shell)) \
-	      (setq org-confirm-babel-evaluate nil) \
-	      (find-file "$(ORG)") \
-	      (org-texinfo-export-to-texinfo))'
+      texi: $(TEXI)
+      $(TEXI): $(ORG)
+              $(EMACS) --batch --eval '\
+              (progn \
+                (require (quote org)) \
+                (require (quote ob-shell)) \
+                (setq org-confirm-babel-evaluate nil) \
+                (find-file "$(ORG)") \
+                (org-texinfo-export-to-texinfo))'
 
-    open-texi: texi
-	    emacsclient $(TEXI) &
+      open-texi: texi
+              emacsclient $(TEXI) &
 
-    info: $(INFO)
-    $(INFO): $(TEXI)
-	    makeinfo $(TEXI)
-    open-info: info
-	    emacsclient $(INFO)
+      info: $(INFO)
+      $(INFO): $(TEXI)
+              makeinfo $(TEXI)
+      open-info: info
+              emacsclient $(INFO)
 
-    html: $(HTML)
-    $(HTML): $(TEXI)
-	    makeinfo --html -o $(DIR) $(TEXI)
-	    $(CMPRPL) $(DIR) $(DIR_OLD)
-    open-html: html
-	    open $(HTML)
+      html: $(HTML)
+      $(HTML): $(TEXI)
+              makeinfo --html -o $(DIR) $(TEXI)
+              $(CMPRPL) $(DIR) $(DIR_OLD)
+      open-html: html
+              open $(HTML)
 
-    pdf: $(PDF)
-    $(PDF): $(TEXI)
-	    pdftexi2dvi --quiet --build=clean $(TEXI)
-    open-pdf: pdf
-	    open $(PDF)
+      pdf: $(PDF)
+      $(PDF): $(TEXI)
+              pdftexi2dvi --quiet --build=clean $(TEXI)
+      open-pdf: pdf
+              open $(PDF)
 
-    sync: $(HTML)
-	    $(S3SYNC)
-	    [[ $(VERS) != $(S3VERS) ]] && { $(S3MOVE); make homepage; } || :
+      sync: $(HTML)
+              $(S3SYNC)
+              [[ $(VERS) != $(S3VERS) ]] && { $(S3MOVE); make homepage; } || :
 
-  # This is a target-specific variable for updating the “description”
-  # key on the GitHub repo page with the current version number.  It
-  # first makes a curl call to the GitHub project repo, finds the
-  # “description” line, pulls out the description only (leaving the old
-  # version) and then prints the value with the current version number.
-  # This value is used by the “homepage:” target in the PATCH call.
-  # This method is arguably harder to code but faster to run than using
-  # Perl with the JSON::PP module.
-  homepage: description = $(shell curl -s \
-		 -H "Authorization: token $(GH_TOKEN)" \
-		 https://api.github.com/repos/$(USER)/$(PROJ)$S | \
-		 perl -ne 'if (/(?:^\s*\"description\":)\s*\"(.*)(?::\s*v(?:(?:\d+\.?)+\/)?\",)$$/) { \
-		      print "$$1: $(VERS)"; \
-		  }')
+    # This is a target-specific variable for updating the “description”
+    # key on the GitHub repo page with the current version number.  It
+    # first makes a curl call to the GitHub project repo, finds the
+    # “description” line, pulls out the description only (leaving the old
+    # version) and then prints the value with the current version number.
+    # This value is used by the “homepage:” target in the PATCH call.
+    # This method is arguably harder to code but faster to run than using
+    # Perl with the JSON::PP module.
+    homepage: description = $(shell curl -s \
+                   -H "Authorization: token $(GH_TOKEN)" \
+                   https://api.github.com/repos/$(USER)/$(PROJ)$S | \
+                   perl -ne 'if (/(?:^\s*\"description\":)\s*\"(.*)(?::\s*v(?:(?:\d+\.?)+\/)?\",)$$/) { \
+                        print "$$1: $(VERS)"; \
+                    }')
 
-  ### NOTE the use of the S variable at the end of PROJ; this is to handle
-  # the singular case of the GitHub repo using the plural form, Templates
-  # whereas the the Template.org file uses the singular form.
-  homepage: $(ORG)
-	  curl -i \
-	       -H "Authorization: token $(GH_TOKEN)" \
-	       -H "Content-Type: application/json" \
-	       -X PATCH \
-	       -d '{"homepage":"https://$(AWS_S3_BUCKET)/$(DIR)-$(VERS)", \
-		    "description":"$(description)"}' \
-	       https://api.github.com/repos/$(USER)/$(PROJ)$S
+    ### NOTE the use of the S variable at the end of PROJ; this is to handle
+    # the singular case of the GitHub repo using the plural form, Templates
+    # whereas the the Template.org file uses the singular form.
+    homepage: $(ORG)
+            curl -i \
+                 -H "Authorization: token $(GH_TOKEN)" \
+                 -H "Content-Type: application/json" \
+                 -X PATCH \
+                 -d '{"homepage":"https://$(AWS_S3_BUCKET)/$(DIR)-$(VERS)", \
+                      "description":"$(description)"}' \
+                 https://api.github.com/repos/$(USER)/$(PROJ)$S
 
-  update: $(ORG)
-	    $(EMACS) -Q --batch --eval \
-	    '(progn \
-	       (require (quote org)) \
-	       (require (quote ob)) \
-	       (require (quote ob-shell)) \
-	       (find-file "$(TEMPLATE)") \
-	       (goto-char (point-min)) \
-	       (search-forward "* Build Tools") \
-	       (org-beginning-of-line) \
-	       (org-copy-subtree) \
-	       (kill-buffer) \
-	       (find-file "$(ORG)") \
-	       (goto-char (point-min)) \
-	       (search-forward "* Build Tools") \
-	       (org-beginning-of-line) \
-	       (org-yank) \
-	       (org-cut-subtree) \
-	       (save-buffer) \
-	       (kill-buffer) \
-	       (setq org-confirm-babel-evaluate nil) \
-	       (org-babel-tangle-file "$(ORG)"))'
+    update: $(ORG)
+              $(EMACS) -Q --batch --eval \
+              '(progn \
+                 (require (quote org)) \
+                 (require (quote ob)) \
+                 (require (quote ob-shell)) \
+                 (find-file "$(TEMPLATE)") \
+                 (goto-char (point-min)) \
+                 (search-forward "* Build Tools") \
+                 (org-beginning-of-line) \
+                 (org-copy-subtree) \
+                 (kill-buffer) \
+                 (find-file "$(ORG)") \
+                 (goto-char (point-min)) \
+                 (search-forward "* Build Tools") \
+                 (org-beginning-of-line) \
+                 (org-yank) \
+                 (org-cut-subtree) \
+                 (save-buffer) \
+                 (kill-buffer) \
+                 (setq org-confirm-babel-evaluate nil) \
+                 (org-babel-tangle-file "$(ORG)"))'
 
-    ### INSTALL AWS2
-    # Run this 'make' command to install the 'aws2' command-line tools into
-    #   /usr/local/aws-cli;
-    # this will install the commands 'aws2' and 'aws2_completer' into
-    #   /usr/local/bin
-    # NOTE: the install script must be run as 'root' via 'sudo' on macos to install
-    #       into /usr/local
-    # USAGE: sudo make install-aws2
-    #        aws2 configure
-    # NOTE: This should probably go into a scripts file to be run upon configuration,
-    #       not in this Makefile, as it will only be needed once.  But maybe the Makefile
-    #       can do all of the configuration.  Wait and see.
-    install-aws2:
-	    curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-macos.zip" -o "awscliv2.zip"
-	    unzip awscliv2.zip
-	    sudo ./aws/install
-	    aws2 --version
+  # The AWS Command Line Interface (AWS CLI) Version 2
+  # ==================================================
+  ## https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
 
-    clean:
-	    -rm *~
+  # The AWS CLI Version 2 Bundled Installer
+  # ---------------------------------------
+  # The AWS CLI version 2 is available to install only as a bundled installer.
+  ## https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
+  # The AWS CLI version 2 has no dependencies on other software
+  # packages. It has a self-contained, embedded copy of all dependencies
+  # included in the installer. You no longer need to install and
+  # maintain Python to use the AWS CLI.
 
-    dist-clean: clean
-	    -rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
-	    -for dir in *; \
-	     do \
-		    [ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
-		    rm -vr $$dir; \
-	     done
+  # Install On Mac OS using the command-line
+  # ----------------------------------------
+  ## https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html
 
-    wipe-clean: dist-clean
-	    -rm -rf Makefile Readme.md $(DIR_OLD)
+  # To install for all users using the macOS command line, run the following
+  # commands, which install to the directory /usr/local/aws-cli and create
+  # a symlink to the binary 'aws' in /usr/local/bin.  Following the install,
+  # check that the install was successful by running 'which' and 'version'. 
+  #/////////////////////////////////////////////////////////////////////////
+  # $ curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+  # sudo installer -pkg AWSCLIV2.pkg -target /
+  # $ which aws
+  # $ aws --version
+  #/////////////////////////////////////////////////////////////////////////
 
-    help:
-	    @echo '"make default" makes the .texi file, the .info file, \
-	    the html files, and the .pdf file.'
-	    @echo
+  # Run this 'make' command to install the 'aws' command-line tools into
+  #   /usr/local/aws-cli;
+  # this will install the commands 'aws' and 'aws_completer' into
+  #   /usr/local/bin
+  # NOTE: the install script must be run as 'root' via 'sudo' on macos to install
+  #       into /usr/local
+  # USAGE: sudo make install-aws
+  #        aws configure
+  # NOTE: This should probably go into a scripts file to be run upon configuration,
+  #       not in this Makefile, as it will only be needed once.  But maybe the Makefile
+  #       can do all of the configuration.  Wait and see.
+install-aws:
+		curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+		sudo installer -pkg AWSCLIV2.pkg -target /
+		which aws
+		aws2 --version
 
-	    @echo '"make check" checks for prerequistes'
-	    @echo '"make values" runs check and prints variable values'
-	    @echo
+      clean:
+              -rm *~
 
-	    @echo '"make sync" syncs the html files in the AWS S3 bucket BUCKET; \
-	    you must have your AWS S3 bucket name in the env var AWS_S3_BUCKET; \
-	    You must have your AWS credentials installed in ~/.aws/credentials'
-	    @echo
+      dist-clean: clean
+              -rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
+              -for dir in *; \
+               do \
+                      [ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
+                      rm -vr $$dir; \
+               done
 
-	    @echo '"make texi" makes the .texi file'
-	    @echo '"make info" makes the .info file'
-	    @echo '"make html" makes the html distribution in a subdirectory'
-	    @echo '"make pdf" makes the .pdf file'
-	    @echo
+      wipe-clean: dist-clean
+              -rm -rf Makefile Readme.md $(DIR_OLD)
 
-	    @echo '"make open-org" opens the ORG program using emacsclient for editing'
-	    @echo '"make open-texi" opens the .texi file using emacsclient for review'
-	    @echo '"make open-html" opens the distribution index.html file \
-	    in the default web browser'
-	    @echo '"make open-pdf" opens the .pdf file'
-	    @echo
+      help:
+              @echo '"make default" makes the .texi file, the .info file, \
+              the html files, and the .pdf file.'
+              @echo
 
-	    @echo '"sudo make install-aws2" installs the "aws2" command-line tools'
-	    @echo 'You also need to run "aws2 configure" and supply your Access Key and Secret Access Key'
+              @echo '"make check" checks for prerequistes'
+              @echo '"make values" runs check and prints variable values'
+              @echo
 
-	    @echo '"make clean" removes the .texi, .info, and backup files ("*~")'
-	    @echo '"make dist-clean" cleans, removes the html distribution, \
-	    and removes the build directory'
+              @echo '"make sync" syncs the html files in the AWS S3 bucket BUCKET; \
+              you must have your AWS S3 bucket name in the env var AWS_S3_BUCKET; \
+              You must have your AWS credentials installed in ~/.aws/credentials'
+              @echo
+
+              @echo '"make texi" makes the .texi file'
+              @echo '"make info" makes the .info file'
+              @echo '"make html" makes the html distribution in a subdirectory'
+              @echo '"make pdf" makes the .pdf file'
+              @echo
+
+              @echo '"make open-org" opens the ORG program using emacsclient for editing'
+              @echo '"make open-texi" opens the .texi file using emacsclient for review'
+              @echo '"make open-html" opens the distribution index.html file \
+              in the default web browser'
+              @echo '"make open-pdf" opens the .pdf file'
+              @echo
+
+              @echo '"sudo make install-aws2" installs the "aws2" command-line tools'
+              @echo 'You also need to run "aws2 configure" and supply your Access Key and Secret Access Key'
+
+              @echo '"make clean" removes the .texi, .info, and backup files ("*~")'
+              @echo '"make dist-clean" cleans, removes the html distribution, \
+              and removes the build directory'
 
 #+end_src
 
