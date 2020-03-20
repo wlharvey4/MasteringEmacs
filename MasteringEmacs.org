@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-03-19 18:11
-#+macro:version Version 0.0.101
+#+date:2020-03-19 19:07
+#+macro:version Version 0.0.102
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -4824,6 +4824,183 @@ matching parts of the target buffer will be highlighted.
 
 ** Indenting
 
+#+cindex:indentation
+“Indentation” refers to inserting or adjusting “whitespace characters” (space
+and/or tab characters) at the beginning of a line of text.
+
+#+heading:Enter a =<TAB>= Character
+#+cindex:TAB character, enter
+If you just want to insert a tab character in the buffer, type =C-q <TAB>=.
+This always inserts a tab character, regardless of the value of
+‘indent-tabs-mode’.
+
+#+findex:indent-for-tab-command
+#+cindex:TAB key
+The simplest way to perform indentation is the =<TAB>= key.  In most major
+modes, this runs the command ~indent-for-tab-command~.  The exact behavior of
+=<TAB>= depends on the major mode.
+
+In Text mode and related major modes, <TAB> normally inserts some combination
+of space and tab characters to advance point to the next tab stop.  For this
+purpose, the position of the first non-whitespace character on the preceding
+line is treated as an additional tab stop, so you can use <TAB> to align point
+with the preceding line.
+
+If the region is active (*note Using Region::), =<TAB>= acts specially: it
+indents each line in the region so that its first non-whitespace character is
+aligned with the preceding line.
+
+*** Electric Indent Mode
+#+cindex:electric indent mode
+In Emacs 24.4 a new minor mode called /electric indent mode/ now handles
+intelligent indentation when you press RET.
+
+**** Indenting New Lines
+#+findex:electric-indent-mode
+When you press =RET= Emacs will insert a newline character and then invoke the
+major mode’s indentation engine.  For this to work, you have to enable the
+minor mode ~electric-indent-mode~.
+
+#+findex:newline-and-indent
+- newline-and-indent ::
+
+  Insert a NEWLINE, then indent according to major mode.  Indentation is done
+  using the value of ‘indent-line-function’.  In programming language modes,
+  this is the same as =TAB=.  In some text modes, where =TAB= inserts a tab,
+  this command indents to the column specified by the function
+  ‘current-left-margin’.
+
+
+With electric indent, Emacs now also checks if you type certain block
+characters --- like Python’s =:= or ={= and =}= in C --- and automatically
+re-indents the current line.
+
+**** Indenting the Current Line
+#+findex:indent-for-tab-command
+#+vindex:indent-line-function
+#+findex:indent-region
+When you press =TAB=, Emacs usually calls ~indent-for-tab-command~, a generic
+proxy command that either indents your code or attempts to =TAB=-complete the
+word at the point.
+
+- indent-for-tab-command &optional ARG ::
+
+  Indent the current line or region, or insert a tab, as appropriate.  This
+  function either inserts a tab, or indents the current line, or performs
+  symbol completion, depending on ‘tab-always-indent’.  The function called to
+  actually indent the line or insert a tab is given by the variable
+  ‘indent-line-function’.
+
+  If a prefix argument is given, after this function indents the current line
+  or inserts a tab, it also rigidly indents the entire balanced expression
+  which starts at the beginning of the current line, to reflect the current
+  line’s indentation.
+
+  If ‘transient-mark-mode’ is turned on and the region is active, this function
+  instead calls ‘indent-region’.  In this case, any prefix argument is ignored.
+
+
+Some major modes override the =TAB= key and instead call their own specialized
+indent command --- one example is the C major mode.
+
+However, pressing =TAB= (or ~M-x indent-for-tab-command~) will, if its 
+heuristic determines that it should indent, call the indentation function
+stored in the variable ~indent-line-function~.
+
+#+vindex:tab-always-indent
+The variable ~tab-always-indent~ governs Emacs’s behavior when you press =TAB=.
+Usually, it just indents but it also has a completion mechanism, though
+seldomly used.
+
+If ~tab-always-indent~ is ‘t’, hitting =TAB= always just indents the current
+line.  If nil, hitting TAB indents the current line if point is at the left
+margin or in the line’s indentation, otherwise it inserts a "real" TAB
+character.  If ‘complete’, TAB first tries to indent the current line, and if
+the line was already indented, then try to complete the thing at point.
+
+#+vindex:intent-tabs-mode
+If you dislike the use of tab characters and if you prefer whitespace,
+customize the variable ~indent-tabs-mode~.  Indentation can insert tabs if this
+is non-nil.
+
+#+vindex:tab-width
+The variable ~tab-width~ controls how many characters of spacing each tab uses.
+It also controls the amount of whitespace to use if you disabled
+~indent-tabs-mode~.
+
+Finally, when Emacs indents it calls the aforementioned function in
+~indent-line-function~.  The default function is ~indent-relative~, a command
+that inserts an actual tab character.  Modes such as =text-mode= and
+=fundamental-mode= (the default mode for a new, empty buffer) uses
+~indent-relative~.  Most programming modes do not.
+
+#+texinfo:@heading Tab Stops
+#+findex:edit-tab-stops
+#+findex:tabs-to-tab-stop
+There is also the concept of tab stops in Emacs and you can edit the tab stops
+by typing ~M-x edit-tab-stops~ and inserting =:= characters where you want
+Emacs to set the tab point.  Subsequent calls to =M-i= (which calls the command
+~M-x tabs-to-tab-stop~) then insert tab stops, by way of whitespace and tab
+characters.
+
+*** Indenting Regions
+Regions are even more difficult to indent. How do you safely indent a region
+Python code when block indentation determines program flow?  The answer is ---
+you don’t.
+
+There are two types of region indentation commands:
+
+- “intelligent” ones that ask your major mode’s indentation engine for advice –
+  something that works well with languages like HTML or C;
+
+- and plain, fixed-width indentation for the rest.
+
+
+- =TAB= :: Indents a line or region as per the major mode
+
+- =C-M-\= :: Indents using major mode’s region indent command
+
+- =C-x TAB= :: Rigidly indents
+
+*** Program Indent
+In programming modes, =<TAB indents the current line of code in a way that
+makes sense given the code in the preceding lines.  If the region is active,
+all the lines in the region are indented this way.  If point was initially
+within the current line’s indentation, it is repositioned to the first
+non-whitespace character on the line.
+
+*** Tabs versus Spaces
+#+vindex:indent-tabs-mode
+If you prefer, all indentation can be made from spaces only.  By using spaces
+only, you can make sure that your file always looks the same.
+
+- indent-tabs-mode :: set this buffer-local variable to nil
+
+
+#+vindex:tab-width
+If you only care about how it looks within Emacs, another way to tackle this
+problem is to set the ~tab-width~ variable in a file-local variable.
+
+**** Convert Tabs to Spaces and Vice Versa
+There are also commands to convert tabs to spaces or vice versa, always
+preserving the columns of all non-whitespace text.
+
+- tabify :: scans the region for sequences of spaces, and converts sequences of
+  at least two spaces to tabs if that can be done without changing indentation.
+
+- untabify :: changes all tabs in the region to appropriate numbers of spaces.
+
+**** Tab Always Indent
+#+vindex:tab-always-indent
+The variable ~tab-always-indent~ tweaks the behavior of the =<TAB>=
+(‘indent-for-tab-command’) command.  The default value, ‘t’, gives the behavior
+described in *note Indentation::.  If you change the value to the symbol
+=complete=, then =<TAB>= first tries to indent the current line, and if the
+line was already indented, it tries to complete the text at point.  If the
+value is ‘nil’, then =<TAB>= indents the current line only if point is at the
+left margin or in the line’s indentation; otherwise, it inserts a tab
+character.
+
 ** Sorting and Aligning
 
 ** Zapping
@@ -5150,7 +5327,6 @@ characters.  Each difference has one of these seven states:
    #+cindex:Section § symbol
    #+cindex:symbol §
 - Section § symbol :: =C-x 8 S=
-
 * Practicals
 ** Exploring Emacs
 
