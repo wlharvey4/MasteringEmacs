@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-03-19 19:07
-#+macro:version Version 0.0.102
+#+date:2020-03-21 19:49
+#+macro:version Version 0.0.103
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -5467,6 +5467,77 @@ message in a separate window.
 *** Terminal Emulator
 
 *** eshell---Emac's Shell
+
+* Loading
+All functions call the ~load~ function:
+
+** Load Function
+#+findex:load
+#+attr_texinfo: :options load filename &optional missing-ok nomessage nosuffix must-suffix
+#+begin_defun
+
+#+vindex:load-prefer-newer
+This function finds and opens a file of Lisp code, evaluates all the forms in
+it, and closes the file.  If the option ~load-prefer-newer~ is non-nil, then
+when searching suffixes, load selects whichever version of a file (‘.elc’,
+‘.el’, etc.) has been modified most recently.
+
+#+vindex:load-path
+If filename is a relative file name, ~load~ searches for the file using the
+variable ~load-path~.  The current default directory is tried only if it is
+specified in ~load-path~, where nil stands for the default directory.
+
+#+vindex:load-file-name
+When found, Emacs sets the value of the variable ~load-file-name~ to that
+file's name.
+
+- FILENAME ::
+
+  Execute a file of Lisp code named FILENAME.  Append =.elc=, =.el=,
+  system-dependent suffix of dynamic modules, unmodified.  See ~load-suffixes~.
+  Env vars are replaced with their values by calling ~substitute-in-file-name~.
+
+- MISSING-OK ::
+
+  If non-nil, don’t report error if FILE doesn’t exist.
+
+- NOMESSAGE ::
+
+  Print messages at start and end of loading unless this is non-nil.
+
+- NOSUFFIX ::
+
+  If non-nil, don’t add suffixes.
+
+- MUST-SUFFIX ::
+
+  If non-nil, insist on the suffix =.elc= or =.el= or the module suffix.
+
+- RETURN ::
+
+  Returns ’t’ if the file exists and loads successfully.
+#+end_defun
+
+** Load-File
+
+Use this command if you wish to specify precisely the file name to load.
+
+#+attr_texinfo: :options load-file filename
+#+begin_defun
+- FILENAME :: Load the file named FILENAME.  If FILENAME is a relative file
+  name, then the current default directory is assumed.  This command does not
+  use ~load-path~, and does not append suffixes.
+#+end_defun
+
+** Load-Library
+
+This command is equivalent to ~load~, except for the way it reads its argument
+interactively.  This is an interface to the function ~load~.
+
+#+attr_texinfo: :options load-library library
+#+begin_defun
+- LIBRARY :: This command loads the library named LIBRARY (a string).
+#+end_defun
 
 * Packages
 
