@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-03-21 19:49
-#+macro:version Version 0.0.103
+#+date:2020-03-21 21:43
+#+macro:version Version 0.0.104
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -297,6 +297,8 @@ See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
 
 - =C-h F= :: [[*Info-goto-emacs-command-node][~Info-goto-emacs-command-node~]]
 
+- =C-h i= :: ~info~
+
 ** Help Mode
 
 Help buffers provide the same commands as View mode.  A few special commands
@@ -442,6 +444,32 @@ strings.
   match the specified pattern
 
 ** Info
+
+- ~info~ =C-h i= ::
+
+  #+findex:info
+  #+attr_texinfo: :options info &optional file-or-node buffer
+  #+begin_defun
+  Enter =Info=, opening the top-level ~dir~ file or FILE-OR-NODE if given.
+
+  In interactive use, a non-numeric prefix argument directs this command to
+  read a file name from the minibuffer.  A numeric prefix argument N selects
+  ~*info<N>~.
+  #+end_defun
+
+  runs the command ~info~.  Enter =Info=, the documentation browser.  Optional
+  argument FILE-OR-NODE specifies the file to examine.  The default is the
+  top-level directory of Info.  When called from a program, this argument may
+  specify an Info node of the form:
+  : (FILENAME)NODENAME
+
+  #+vindex:Info-directory-list
+  #+attr_texinfo: :options Info-directory-list
+  #+begin_defvar
+  The search path for Info files.  The top-level Info directory is made by
+  combining all the files nmaed ~dir~ in all the directories in this path.
+  #+end_defvar
+
 ** Describe
 ** Documentation
 *** ElDoc Mode
