@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-03-21 21:43
-#+macro:version Version 0.0.104
+#+date:2020-03-22 20:18
+#+macro:version Version 0.0.105
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -5499,7 +5499,7 @@ message in a separate window.
 * Loading
 All functions call the ~load~ function:
 
-** Load Function
+** Load Functions
 #+findex:load
 #+attr_texinfo: :options load filename &optional missing-ok nomessage nosuffix must-suffix
 #+begin_defun
@@ -5546,7 +5546,7 @@ file's name.
   Returns ’t’ if the file exists and loads successfully.
 #+end_defun
 
-** Load-File
+*** Load-File
 
 Use this command if you wish to specify precisely the file name to load.
 
@@ -5557,7 +5557,7 @@ Use this command if you wish to specify precisely the file name to load.
   use ~load-path~, and does not append suffixes.
 #+end_defun
 
-** Load-Library
+*** Load-Library
 
 This command is equivalent to ~load~, except for the way it reads its argument
 interactively.  This is an interface to the function ~load~.
@@ -5567,6 +5567,70 @@ interactively.  This is an interface to the function ~load~.
 - LIBRARY :: This command loads the library named LIBRARY (a string).
 #+end_defun
 
+** Provide and Require
+#+cindex:feature
+These work in terms of named /features/.  A /feature/ is loaded the first time
+another program asks for it by name.  A /feature name/ is a symbol that stands
+for a collection of functions, variables, etc.  The file that defines the
+functions, variabes, etc. should /provide/ the feature.  Another program that
+uses them may ensure they are defined by /requiring/ the feature.  This loads
+the file of definitions if it has not been loaded yet.
+
+To /require/ the presence of a /feature/, call ~require~ with the feature name
+as argument.  ~require~ looks in the global variable ~features~ to see whether
+the desired feature has been provide already.  If not, it loads the feature
+from the appropriate file.  This file should call ~provide~ at the top level to
+add the feature to ~features~.
+
+Features are normally named after the files that provide them, so that
+~require~ need not be given the file name.
+
+#+attr_texinfo: :options provide feature &optional subfeatures
+#+begin_defun
+- FEATURE :: a symbol that accounces that FEATURE is a feature of the current
+  Emacs, e.g., it is loaded into the current Emacs session, and its facilities
+  are or will be available for other Lisp programs.  ~provide~ ensures that
+  FEATURE is added to the front of the variable ~features~ if it is not already
+  there.  If it has not already been added, the ~provide~ calls any
+  ~eval-after-load~ code waiting for it.
+
+- SUBFEATURES ::  a list of symbols listing particular subfeatures supported in
+  this version of FEATURE.
+
+- RETURN VALUE :: FEATURE is returned.
+#+end_defun
+
+#+attr_texinfo: :options require feature &optional filename noerror
+#+begin_defun
+- FEATURE :: a symbol representing a set of code and variables to load into the
+  current Emacs.  If FEATURE is not a member of the list held by the variable
+  ~features~, tested by ~featurep~, then load it from FILENAME.  If FILENAME is
+  omitted, the /printname/ of FEATURE is used as the file name, and ~load~ will
+  try to laod this name, with an added suffixe (require).  The directories in
+  ~load-path~ are searched.
+
+- FILENAME :: if given, then load the feature from the file identified by
+  FILENAME.
+
+- NOERROR :: if non-nil, return nil if the file is not found instead of
+  signalling an error.
+
+- RETURN VALUE :: the return value is FEATURE.
+#+end_defun
+
+#+attr_texinfo: :options featurep feature &optional subfeature
+#+begin_defun
+- FEATURE :: the symbol to check.  This function returns t if FEATURE has
+   already been provided in the current Emacs session.
+
+- RETURN VALUE :: Boolean t if FEATURE has alreayd been provided.
+#+end_defun
+
+#+attr_texinfo: :options features
+#+begin_defvar
+The value of this variable is  list of symbols that are the features loaded in
+the current Emacs session, put there by calls to ~provide~.
+#+end_defvar
 * Packages
 
 - https://www.gnu.org/software/emacs/manual/html_node/elisp/Packaging.html#Packaging
