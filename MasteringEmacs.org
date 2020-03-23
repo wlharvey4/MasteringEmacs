@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-03-22 21:13
-#+macro:version Version 0.0.106
+#+date:2020-03-23 09:17
+#+macro:version Version 0.0.107
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
@@ -8177,7 +8177,7 @@ to be case-sensitive.
 :PROPERTIES:
 :appendix: t
 :END:
-** Makefile                                     :dependencies:env_vars:perl:
+** Makefile					:dependencies:env_vars:perl:
 :PROPERTIES:
 :appendix: t
 :dependency1: "make"
@@ -8208,7 +8208,7 @@ to be case-sensitive.
 
 # Emacs binary and init file
 
-EMACS        := $(EMACS)
+EMACS	     := $(EMACS)
 EMACS_INIT   := $(EMACS_INIT)
 
 # The absolute path to this Template file
@@ -8248,7 +8248,7 @@ REGION := --region us-west-2
 # one level deep in the Templates GitHub repo, which uses the plural form
 # of Templates, whereas this file uses the singular form, Template.  So when
 # the homepage link is updated, the curl command must be told to use the plural
-# form.  This is obviously a hack only for my own use and can be removed once
+# form.	 This is obviously a hack only for my own use and can be removed once
 # I clean up this anomaly.
 
 ORG  := $(shell ls *.org)
@@ -8290,7 +8290,7 @@ endif
 # The reason it includes them is the S3PROJ obtains the name from the S3 bucket, and
 # it includes them.  But it only includes them because I have made it so.  Not a good
 # reason just by itself.  The ending slash is not actually a part of the version, but
-# comes from the way the 'aws2 ls' command returns its values.  So VERS should probably
+# comes from the way the 'aws2 ls' command returns its values.	So VERS should probably
 # not include the trailing slash, although it doesn’t hurt anything.
 
 VERS := v$(shell $(EMACS) -Q --batch --eval '\
@@ -8331,7 +8331,7 @@ endif
 # during tangle, but in an effort to make the Makefile dynamically
 # indepedent, dynamic code has replaced the static code.  The code
 # that placed the static name in the Makefile was a 'node' script that
-# ran in a separate Org process during tangle.  An unfortunate fact of
+# ran in a separate Org process during tangle.	An unfortunate fact of
 # 'make' is that 'make' strips the quote marks from the string
 # obtained from the 'curl' command when the 'make shell' command
 # returns the string.  This makes the string malformed JSON and
@@ -8347,9 +8347,9 @@ USER := $(shell \
       curl -sH "Authorization: token $(GH_TOKEN)" https://api.github.com/user \
       | \
       perl -MJSON::PP -e \
-          '$$/ = ""; \
-           my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
-           print $$json->{login};' \
+	  '$$/ = ""; \
+	   my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
+	   print $$json->{login};' \
       )
 
 ### TOOLS & RESOURCES
@@ -8372,9 +8372,9 @@ SRC    := $(DIR)/
 DST_OLD := $(BUCKET)/$(S3PROJ)
 DST_NEW := $(BUCKET)/$(DIR)-$(VERS)
 EXCL_INCL := --exclude "*" --include "*.html"
-GRANTS  := --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
-S3SYNC  := $(S3) sync $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
-S3MOVE  := $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
+GRANTS	:= --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+S3SYNC	:= $(S3) sync $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
+S3MOVE	:= $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
 
 default: check texi info html pdf
 
@@ -8386,15 +8386,15 @@ PHONY: check default all \
 	install-aws-cli
 
 values: check
-	@echo USER:   	$(USER)
-	@echo ORG:    	$(ORG)
-	@echo PROJ:   	$(PROJ) $S
-	@echo VERS:   	$(VERS)
-	@echo S3PROJ: 	$(S3PROJ)
-	@echo S3VERS: 	$(S3VERS)
-	@echo DIR:    	$(DIR)
+	@echo USER:	$(USER)
+	@echo ORG:	$(ORG)
+	@echo PROJ:	$(PROJ) $S
+	@echo VERS:	$(VERS)
+	@echo S3PROJ:	$(S3PROJ)
+	@echo S3VERS:	$(S3VERS)
+	@echo DIR:	$(DIR)
 	@echo DIR_OLD:	$(DIR_OLD)
-	@echo SRC:    	$(SRC)
+	@echo SRC:	$(SRC)
 	@echo DST_OLD:	$(DST_OLD)
 	@echo DST_NEW:	$(DST_NEW)
 	@echo PROJ_LIST:$(PROJ_LIST)
@@ -8410,18 +8410,18 @@ check:
 	   printf "$${GREEN}~/.aws credentials and config: set$${CLEAR}\n" || \
 	   { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
 	@$(EMACS) -Q --batch --load="$(EMACS_INIT)" --eval '\
-	        (progn \
-	                (require (quote org)) \
-	                (if \
-	                        (member (quote texinfo) org-export-backends) \
-	                        (princ "texinfo backend: INSTALLED in org-export-backends") \
-	                        (princ "texinfo backend: NOT INSTALLED in org-export-backends")) \
-	                (terpri) \
-	                (if \
-	                        org-confirm-babel-evaluate \
-	                        (princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
-	                        (princ "org-confirm-babel-evaluate: SET to nil")) \
-	                (terpri))'
+		(progn \
+			(require (quote org)) \
+			(if \
+				(member (quote texinfo) org-export-backends) \
+				(princ "texinfo backend: INSTALLED in org-export-backends") \
+				(princ "texinfo backend: NOT INSTALLED in org-export-backends")) \
+			(terpri) \
+			(if \
+				org-confirm-babel-evaluate \
+				(princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
+				(princ "org-confirm-babel-evaluate: SET to nil")) \
+			(terpri))'
 
 open-org: $(ORG)
 	emacsclient $(ORG) &
@@ -8466,7 +8466,7 @@ sync: $(HTML)
 	[[ $(VERS) != $(S3VERS) ]] && { $(S3MOVE); make homepage; } || :
 
 # This is a target-specific variable for updating the “description”
-# key on the GitHub repo page with the current version number.  It
+# key on the GitHub repo page with the current version number.	It
 # first makes a curl call to the GitHub project repo, finds the
 # “description” line, pulls out the description only (leaving the old
 # version) and then prints the value with the current version number.
@@ -8477,7 +8477,7 @@ homepage: description = $(shell curl -s \
 	     -H "Authorization: token $(GH_TOKEN)" \
 	     https://api.github.com/repos/$(USER)/$(PROJ)$S | \
 	     perl -ne 'if (/(?:^\s*\"description\":)\s*\"(.*)(?::\s*v(?:(?:\d+\.?)+\/)?\",)$$/) { \
-	          print "$$1: $(VERS)"; \
+		  print "$$1: $(VERS)"; \
 	      }')
 
 ### NOTE the use of the S variable at the end of PROJ; this is to handle
@@ -8489,7 +8489,7 @@ homepage: $(ORG)
 	   -H "Content-Type: application/json" \
 	   -X PATCH \
 	   -d '{"homepage":"https://$(AWS_S3_BUCKET)/$(DIR)-$(VERS)", \
-	        "description":"$(description)"}' \
+		"description":"$(description)"}' \
 	   https://api.github.com/repos/$(USER)/$(PROJ)$S
 
 update: $(ORG)
@@ -8523,14 +8523,19 @@ install-aws-cli:
 
 clean:
 	-rm *~
+	for file in *.??*; \
+	do \
+		ext=$${file#$(PROJ).}; \
+		[[ ! $${ext} =~ org|texi|info|pdf|html ]] && rm -v $${file}; \
+	done
 
 dist-clean: clean
 	-rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
 	-for dir in *; \
 	do \
-	        [ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
-	        rm -vr $$dir; \
-	 done
+		[ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
+		rm -vr $$dir; \
+	done
 
 wipe-clean: dist-clean
 	-rm -rf Makefile Readme.md $(DIR_OLD)
