@@ -3,8 +3,9 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-03-23 09:17
-#+macro:version Version 0.0.107
+#+date:2020-04-03 00:05
+#+macro:version Version 0.0.108
+#+bucket:pinecone-forest
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
 
