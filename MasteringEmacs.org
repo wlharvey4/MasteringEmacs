@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-04-04 19:01
-#+macro:version Version 0.0.109
+#+date:2020-04-04 19:49
+#+macro:version Version 0.0.110
 #+bucket:pinecone-forest
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
@@ -5851,6 +5851,20 @@ To install:
 - [[https://github.com/slime/slime/releases][Slime Latest Release Version 2.24]]
 
   Slime version 2.24 released on 2019-05-27
+
+
+#+texinfo: @heading SLIME Internals
+
+#+begin_quote
+SLIME is  constructed from two parts:  a user-interface written in  Emacs Lisp,
+and  a supporting  server program  written in  Common Lisp.  The two  sides are
+connected together with a socket and communicate using an RPC-like protocol.
+
+The Lisp  server is primarily  written in  portable Common Lisp.   The required
+implementation-specific functionality is specified  by a well-defined interface
+and  implemented separately  for each  Lisp implementation.   This makes  SLIME
+readily portable.
+#+end_quote
 
 
 #+texinfo:@heading About SLIME Mode
