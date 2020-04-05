@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-04-03 00:05
-#+macro:version Version 0.0.108
+#+date:2020-04-04 19:01
+#+macro:version Version 0.0.109
 #+bucket:pinecone-forest
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
@@ -5825,6 +5825,85 @@ packages/.
 To install:
 : M-x package-install RET use-package RET
 
+** Slime
+“The Superior Lisp Interaction Mode for Emacs”
+
+[[file:resources/images/slime-small.png]]
+
+- [[https://common-lisp.net/project/slime/][Slime Home]]
+
+  “SLIME is a[n] Emacs mode for  Common Lisp development.  Inspired by existing
+  systems  such  [as]  Emacs Lisp  and  ILISP,  we  are  working to  create  an
+  environment for hacking Common Lisp in.”
+
+- [[https://github.com/slime/slime][Slime on Github]]
+
+  “SLIME extends Emacs with support for interactive programming in Common Lisp.
+  The  features  are  centered  around slime-mode,  an  Emacs  minor-mode  that
+  complements the  standard lisp-mode.   While lisp-mode supports  editing Lisp
+  source files, slime-mode  adds support for interacting with  a running Common
+  Lisp process for compilation, debugging, documentation lookup, and so on.”
+
+- [[https://common-lisp.net/project/slime/doc/html/][Slime User Manual Version 2.22]]
+
+  - [[https://common-lisp.net/project/slime/doc/slime.pdf][PDF]]
+
+- [[https://github.com/slime/slime/releases][Slime Latest Release Version 2.24]]
+
+  Slime version 2.24 released on 2019-05-27
+
+
+#+texinfo:@heading About SLIME Mode
+
+#+attr_texinfo: :indic b
+- Slime Mode ::
+
+  An Emacs minor-mode to enhance lisp-mode with:
+
+  - Code evaluation, compilation, and macroexpansion.
+
+  - Online documentation (describe, apropos, hyperspec).
+
+  - Definition finding (aka Meta-Point aka M-.).
+
+  - Symbol and package name completion.
+
+  - Automatic macro indentation based on &body.
+
+  - Cross-reference interface (WHO-CALLS, etc).
+
+- SLDB ::
+
+  Common Lisp debugger with an Emacs-based user interface.
+
+- REPL :: 
+
+  The Read-Eval-Print Loop ("top-level") is written in Emacs Lisp for tighter
+  integration with Emacs.  The REPL also has builtin "shortcut" commands
+  similar those of the McCLIM listener.
+
+- Compilation notes :: 
+
+  SLIME is able to take compiler messages and annotate them directly into
+  source buffers.
+
+- Inspector :: 
+
+  Interactive object-inspector in an Emacs buffer.
+
+- Compatible Implementations :: 
+
+  - CMU Common Lisp (CMUCL)
+  - Steel Bank Common Lisp (SBCL)
+  - Clozure CL (a.k.a. OpenMCL)
+  - LispWorks
+  - Allegro CL
+  - CLISP
+  - Scieneer CL
+  - ECL
+  - Corman CL
+  - ABCL
+
 * Special Packages
 ** Polymode
 Multiple Major Modes and How to Use SQL and Python in one Buffer
@@ -8524,7 +8603,7 @@ install-aws-cli:
 
 clean:
 	-rm *~
-	for file in *.??*; \
+	-for file in *.??*; \
 	do \
 		ext=$${file#$(PROJ).}; \
 		[[ ! $${ext} =~ org|texi|info|pdf|html ]] && rm -v $${file}; \
