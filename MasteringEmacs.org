@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-04-04 19:49
-#+macro:version Version 0.0.110
+#+date:2020-04-07 00:28
+#+macro:version Version 0.0.111
 #+bucket:pinecone-forest
 
 /{{{title}}}/ {{{version}}} compiled {{{date}}}
@@ -6127,6 +6127,24 @@ behave the same way.
 - https://emacs.stackexchange.com
 ** Effective emacs
 - https://a-nickels-worth.blogspot.com/2007/11/effective-emacs.html
+
+* Equality
+Equality can be tested between objects, or between the contents of objects
+(using the data type of the object).
+** Equality Between Objects
+#+attr_texinfo: :options eq object1 object2
+#+begin_defun
+Tests for object equality, not content equality.  Two distinct objects that
+contain the same content are not ~eq~.
+
+- OBJECT1 :: an object; fixnums (small integers) with the same value are ~eq~.
+  Symbols with the same name are ~eq~.
+
+- OBJECT2 :: an object;
+
+- RETURN VALUE :: =t= if OBJECT1 and OBJECT2 are the same object; =nil=
+  otherwise.
+#+end_defun
 
 * Variables
 ** Examining Variables
