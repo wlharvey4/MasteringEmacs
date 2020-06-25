@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-06-23 21:51
-#+macro:version Version 0.0.115
+#+date:2020-06-24 23:15
+#+macro:version Version 0.0.116
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -8290,8 +8290,7 @@ to be case-sensitive.
 :PROPERTIES:
 :appendix: t
 :custom_id: build-tools
-:from-file: Template
-:org-template-version: 0.5.34
+:org-template-version: 0.5.37
 :END:
 ** Makefile					:dependencies:env_vars:perl:
 :PROPERTIES:
@@ -8376,7 +8375,7 @@ endif
 
 # The AWS S3 bucket to use to store the html source file; it is found at the
 # key #+bucket towards the beginning of the file and should include the appropriate
-# top-level domain suffix, e.g. .com, .net, .org, etc.
+# suffix (.com, .net, .org, etc)
 BUCKET       := $(shell $(EDITOR) --eval \
 	       '(with-current-buffer (find-file-noselect "$(ORG)") \
 		  (save-excursion \
@@ -8392,16 +8391,17 @@ HTTPS_BUCKET := https://$(BUCKET)
 # without its extension, used as the INFO filename and the name of the
 # HTML export directory; this code uses the lowercased PROJ name if
 # there is no '#+texinfo_filename'.
-# SRC is HTML directory based upon the DIR name, i.e., with a trailing directory
-# slash.
+# SRC is HTML directory based upon the DIR name
 
-DIR := $(shell $(EDITOR) --eval \
-	'(with-current-buffer (find-file-noselect "$(ORG)") \
-		(save-excursion \
-		(goto-char (point-min)) \
-		(re-search-forward "^\#[+]\\(?:texinfo_filename\\|TEXINFO_FILENAME\\):\\(.*\\).info$$" nil t) \
-		(match-string-no-properties 1)))')
-ifeq ($(DIR),nil)
+#DIR := $(shell $(EDITOR) --eval \
+#	'(with-current-buffer (find-file-noselect "$(ORG)") \
+#		(save-excursion \
+#		(goto-char (point-min)) \
+#		(re-search-forward "^\#[+]\\(?:texinfo_filename\\|TEXINFO_FILENAME\\):\\(.*\\).info$$" nil t) \
+#		(match-string-no-properties 1)))')
+
+DIR := $(shell sed -E -n "/^\#\+texinfo_filename/s/^.*:(.*)\.info$$/\1/p" $(ORG))
+ifeq ($(DIR),$(EMPTY))
 	DIR := $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
 endif
 
@@ -8429,20 +8429,20 @@ VERS := v$(shell $(EDITOR) --eval \
 		(match-string-no-properties 1)))')/
 
 ### AWS
-### PROJ_LIST
-# This contains the list of projects currently uploaded to
+# PROJ_LIST contains the list of projects currently uploaded to
 # the S3 bucket; each item contains the name of the project and its
 # current version.
-### S3PROJ
-# The name and version of the current project as obtained from S3: 'proj-v1.2.34/'
+
+PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(S3_BUCKET))))
+
+### PROJ_LIST
+# The name of the current project as obtained from S3: 'proj-v1.2.34/'
 # If there is no current project in the S3 bucket, then assign a value equal to
 # the Org project and version instead.
 ### S3VERS
 # The version of this project currently installed in the S3 bucket: 'v1.2.34/'
 # If there is no current version in the S3 bucket, then assign the version from
 # this Org file instead.
-
-PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(S3_BUCKET))))
 
 S3PROJ := $(filter $(DIR)%,$(PROJ_LIST))
 ifeq ($(S3PROJ),$(empty))
@@ -8459,7 +8459,7 @@ endif
 
 # The user name used to be statically embedded into the Makefile
 # during tangle, but in an effort to make the Makefile dynamically
-# independent, dynamic code has replaced the static code.  The code
+# indepedent, dynamic code has replaced the static code.  The code
 # that placed the static name in the Makefile was a 'node' script that
 # ran in a separate Org process during tangle.	An unfortunate fact of
 # 'make' is that 'make' strips the quote marks from the string
@@ -8474,11 +8474,13 @@ endif
 # install any modules.
 
 USER := $(shell \
-	  curl -sH "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/user | \
+	  curl -sH "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/user \
+	  | \
 	  perl -MJSON::PP -e \
 	      '$$/ = ""; \
 	       my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
-	       print $$json->{login};')
+	       print $$json->{login};' \
+	  )
 
 ### TOOLS & RESOURCES
 # tools is a directory holding tangled scripts, such as cmprpl
@@ -8985,7 +8987,7 @@ nil.
 #+header: :results value
 #+header: :var b=get-bucket-name()
 #+begin_src emacs-lisp
-(concat "https://" b ".com")
+(concat "https://" b)
 #+end_src
 
 *** S3 Bucket URL
@@ -8995,7 +8997,7 @@ This code calls ~get-bucket-name~ and returns the AWS S3 bucket url.
 #+header: :results value
 #+header: :var b=get-bucket-name()
 #+begin_src emacs-lisp
-(concat "s3://" b ".com")
+(concat "s3://" b)
 #+end_src
 
 *** Bucket Projects List
@@ -9170,8 +9172,7 @@ nil
 * Build Scripts
   :PROPERTIES:
   :custom_id: build-scripts
-  :from-file: Template
-  :org-template-version: 0.5.34
+  :org-template-version: 0.5.37
   :END:
 ** Create and Update Projects
 *** Create New Project
