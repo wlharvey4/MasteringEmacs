@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-23 04:07
-#+macro:version Version 0.0.118
+#+date:2020-07-23 04:20
+#+macro:version Version 0.0.119
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -5941,6 +5941,9 @@ readily portable.
   - ABCL
 
 * Special Packages
+  :PROPERTIES:
+  :ID:       4BACDC59-1256-480D-A680-FD3559A85C1A
+  :END:
 ** Polymode
 Multiple Major Modes and How to Use SQL and Python in one Buffer
 
@@ -6112,6 +6115,24 @@ the file you have just staged, expand it using =TAB=, move to one of the hunks
 using =n=, and unstage just that by typing =u=.  Note how the staging (=s=) and
 unstaging (=u=) commands operate on the change at point. Many other commands
 behave the same way.
+** CSV Mode
+- org-table-convert-region BEG END &optional SEPARATOR::
+
+  Convert region to a table, between point BEG and END, extended to the
+  beginning and ending of lines. SEPARATOR specifies the field separator in the
+  lines.
+
+  - 4 :: use the COMMA as a field separation
+
+  - 16 :: use the TAB
+
+  - 64 :: prompt for a regexp as a field separator
+
+  - integer :: that many spaces
+
+  - regexp :: use the regexp as a field separator
+
+  - nil :: be smart and figure it out
 
 * Additional Resources
 :PROPERTIES:
