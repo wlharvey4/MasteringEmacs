@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-06-26 11:54
-#+macro:version Version 0.0.117
+#+date:2020-07-23 04:07
+#+macro:version Version 0.0.118
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -258,6 +258,27 @@ the ``current buffer'' at any one time.
 The point  is one part of  a duo called /point  and mark/.  The point  and mark
 represent the boundaries of a /region/, which is a contiguous block of text.
 Emacs can show you the region.  This is called /transient mark mode/.
+
+The mark saves a location for the user’s convenience. Most editing commands
+should not alter the mark.
+
+To remember a location for internal use in the Lisp program, store it in a Lisp
+variable. Example:
+
+: (let ((beg (point))) (forward-line 1) (delete-region beg (point))).
+
+- set-mark POS ::
+
+  Set this buffer’s MARK to POS. The user will see that the MARK has moved, and
+  the previous MARK position will be lost. Normally, when a new mark is set,
+  the old one should go on the stack. This is why most applications should use
+  ‘push-mark’, not ‘set-mark’.
+
+- push-mark &optional LOCATION NOMSG ACTIVATE ::
+
+  Set mark at LOCATION (point, by default) and push old mark on mark ring.
+  Display ‘Mark set’ unless the optional second arg NOMSG is non-nil. In
+  Transient Mark mode, activate mark if optional third arg ACTIVATE non-nil.
 **** Killing Yanking and CUA
 /Killing/ is cutting, /yanking/ is pasting, and copying is known as /saving to
 the kill ring/.
