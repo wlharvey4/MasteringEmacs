@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-23 04:20
-#+macro:version Version 0.0.119
+#+date:2020-07-29 07:58
+#+macro:version Version 0.0.120
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -491,6 +491,23 @@ strings.
   #+begin_defvar
   The search path for Info files.  The top-level Info directory is made by
   combining all the files nmaed ~dir~ in all the directories in this path.
+  #+end_defvar
+
+  #+vindex:Info-default-directory-list
+  #+attr_texinfo: :options Info-default-directory-list
+  #+begin_defvar
+  Default list of directories to search for Info documentation files. They are
+  searched in the order they are given in the list. This variable
+  ‘Info-default-directory-list’ is used as the default for initializing
+  ‘Info-directory-list’ when Info is started, unless the environment variable
+  INFOPATH is set. Normally, you should either set INFOPATH or customize
+  ‘Info-additional-directory-list’, rather than changing this variable.
+  #+end_defvar
+
+  #+attr_texinfo: :options Info-additional-directory-list
+  #+begin_defvar
+  List of additional directories to search for Info documentation files. These
+  directories are searched after those in ‘Info-directory-list’.
   #+end_defvar
 
 ** Describe
@@ -6714,6 +6731,10 @@ the elements are accessible in constant time.  The four types of arrays are:
 *** Sequence Functions
 
 This section describes functions that accept any kind of sequence.
+
+#+texinfo: @heading Predicates and Basic Functions
+
+
 
 *** Lists in Elisp
 :PROPERTIES:
