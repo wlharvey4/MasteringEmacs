@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-29 08:45
-#+macro:version Version 0.0.121
+#+date:2020-07-29 09:09
+#+macro:version Version 0.0.122
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6734,6 +6734,67 @@ This section describes functions that accept any kind of sequence.
 
 #+texinfo: @heading Predicates and Basic Functions
 
+The following predicates test whether a Lisp object is an atom, whether it is a
+cons cell or is a list, or whether it is the distinguished object ‘nil’. (Many
+of these predicates can be defined in terms of the others, but they are used so
+often that it is worth having them.)
+
+#+findex:atom
+#+attr_texinfo: :options atom object
+#+begin_defun
+This function returns ‘t’ if OBJECT is an atom, ‘nil’ otherwise. All objects
+except cons cells are atoms.
+
+#+texinfo: @subheading NIL
+
+The symbol ‘nil’ is an atom and is also a list; it is the only Lisp object that
+is both.
+#+end_defun
+
+#+findex:consp
+#+attr_texinfo: :options consp object
+#+begin_defun
+This function returns ‘t’ if OBJECT is a cons cell, ‘nil’ otherwise.
+
+#+texinfo: @subheading NIL
+
+‘nil’ is not a cons cell, although it _is_ a list.
+#+end_defun
+
+#+findex:listp
+#+attr_texinfo: :options listp object
+#+begin_defun
+This function returns ‘t’ if OBJECT is a cons cell or ‘nil’. Otherwise, it
+returns ‘nil’.
+#+end_defun
+
+#+findex:nlistp
+#+attr_texinfo: :options nlistp object
+#+begin_defun
+This function is the opposite of ‘listp’: it returns ‘t’ if OBJECT is not a
+list. Otherwise, it returns ‘nil’.
+#+end_defun
+
+#+findex:proper-list-p
+#+attr_texinfo: :options proper-list-p object
+#+begin_defun
+This function returns the length of OBJECT if it is a proper list, ‘nil’
+otherwise. In addition to satisfying ‘listp’, a proper list is neither circular
+nor dotted.
+#+end_defun
+
+#+findex:null
+#+findex:not
+#+attr_texinfo: :options null object
+#+begin_defun
+This function returns ‘t’ if OBJECT is ‘nil’, and returns ‘nil’ otherwise.
+
+#+texinfo: @subheading NULL and NOT
+
+This function is identical to ‘not’, but as a matter of clarity we use ‘null’
+when OBJECT is considered a list and ‘not’ when it is considered a truth value
+#+end_defun
+
 #+findex: sequencep
 #+attr_texinfo: :options sequencep object
 #+begin_defun
@@ -6755,6 +6816,21 @@ This function returns the number of elements in SEQUENCE.
 *Note Definition of safe-length::, for the related function =safe-length=.
 
 See also =string-bytes=, in *note Text Representations.
+#+end_defun
+
+#+findex:elt
+#+attr_texinfo: :options elt sequence index
+#+begin_defun
+This function returns the element of SEQUENCE indexed by INDEX (starting from
+zero). Whereas the function ~nth~ applies only to lists and ~aref~ applies to
+arrays, this function applies to any kind of sequence. (Note that ~nth~ takes
+its arguments in opposite order).
+
+Legitimate values of INDEX are integers ranging from 0 up to one less than the
+length of SEQUENCE. If SEQUENCE is a list and the INDEX is out of range, NIL is
+returned.  Otherwise, an =args-out-of-range= error is returned.
+
+This function generalizes ‘aref’ and ‘nth’.
 #+end_defun
 
 #+findex:copy-sequence
@@ -6847,6 +6923,8 @@ a sorted copy without destroying the original, copy it first with
 *Note Sorting, for more functions that perform sorting. See ‘documentation’ in
 *note Accessing Documentation::, for a useful example of ‘sort’.
 #+end_defun
+
+#+texinfo: @heading 
 *** Lists in Elisp
 :PROPERTIES:
 :appendix: t
