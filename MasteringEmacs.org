@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-29 09:09
-#+macro:version Version 0.0.122
+#+date:2020-07-29 12:29
+#+macro:version Version 0.0.123
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6728,203 +6728,7 @@ the elements are accessible in constant time.  The four types of arrays are:
 - char-tables
 - bool-vectors
 
-*** Sequence Functions
 
-This section describes functions that accept any kind of sequence.
-
-#+texinfo: @heading Predicates and Basic Functions
-
-The following predicates test whether a Lisp object is an atom, whether it is a
-cons cell or is a list, or whether it is the distinguished object ‘nil’. (Many
-of these predicates can be defined in terms of the others, but they are used so
-often that it is worth having them.)
-
-#+findex:atom
-#+attr_texinfo: :options atom object
-#+begin_defun
-This function returns ‘t’ if OBJECT is an atom, ‘nil’ otherwise. All objects
-except cons cells are atoms.
-
-#+texinfo: @subheading NIL
-
-The symbol ‘nil’ is an atom and is also a list; it is the only Lisp object that
-is both.
-#+end_defun
-
-#+findex:consp
-#+attr_texinfo: :options consp object
-#+begin_defun
-This function returns ‘t’ if OBJECT is a cons cell, ‘nil’ otherwise.
-
-#+texinfo: @subheading NIL
-
-‘nil’ is not a cons cell, although it _is_ a list.
-#+end_defun
-
-#+findex:listp
-#+attr_texinfo: :options listp object
-#+begin_defun
-This function returns ‘t’ if OBJECT is a cons cell or ‘nil’. Otherwise, it
-returns ‘nil’.
-#+end_defun
-
-#+findex:nlistp
-#+attr_texinfo: :options nlistp object
-#+begin_defun
-This function is the opposite of ‘listp’: it returns ‘t’ if OBJECT is not a
-list. Otherwise, it returns ‘nil’.
-#+end_defun
-
-#+findex:proper-list-p
-#+attr_texinfo: :options proper-list-p object
-#+begin_defun
-This function returns the length of OBJECT if it is a proper list, ‘nil’
-otherwise. In addition to satisfying ‘listp’, a proper list is neither circular
-nor dotted.
-#+end_defun
-
-#+findex:null
-#+findex:not
-#+attr_texinfo: :options null object
-#+begin_defun
-This function returns ‘t’ if OBJECT is ‘nil’, and returns ‘nil’ otherwise.
-
-#+texinfo: @subheading NULL and NOT
-
-This function is identical to ‘not’, but as a matter of clarity we use ‘null’
-when OBJECT is considered a list and ‘not’ when it is considered a truth value
-#+end_defun
-
-#+findex: sequencep
-#+attr_texinfo: :options sequencep object
-#+begin_defun
-Predicate function to determine if OBJECT is a _sequence_ type:
-- list
-- vector
-- string
-- bool-vector
-- char-table
-
-See also =seqp=.
-#+end_defun
-
-#+findex:length
-#+attr_texinfo: :options length sequence
-#+begin_defun
-This function returns the number of elements in SEQUENCE.
-
-*Note Definition of safe-length::, for the related function =safe-length=.
-
-See also =string-bytes=, in *note Text Representations.
-#+end_defun
-
-#+findex:elt
-#+attr_texinfo: :options elt sequence index
-#+begin_defun
-This function returns the element of SEQUENCE indexed by INDEX (starting from
-zero). Whereas the function ~nth~ applies only to lists and ~aref~ applies to
-arrays, this function applies to any kind of sequence. (Note that ~nth~ takes
-its arguments in opposite order).
-
-Legitimate values of INDEX are integers ranging from 0 up to one less than the
-length of SEQUENCE. If SEQUENCE is a list and the INDEX is out of range, NIL is
-returned.  Otherwise, an =args-out-of-range= error is returned.
-
-This function generalizes ‘aref’ and ‘nth’.
-#+end_defun
-
-#+findex:copy-sequence
-#+attr_texinfo: :options copy-sequence seqr
-#+begin_defun
-This function returns a copy of SEQR, which should be either a sequence or a
-record. The copy is the same type of object as the original, and it has the
-same elements in the same order.
-
-The elements of the copy are not copies; they are identical (‘eq’) to the
-elements of the original. Changes made within these elements, as found via the
-copy, are also visible in the original.
-
-If the argument is a string with text properties, the property list in the copy
-is itself a copy, not shared with the original’s property list. However, the
-actual values of the properties are shared
-
-This function does not work for dotted lists.
-
-See also ‘append’ in *note Building Lists::, ‘concat’ in *note Creating
-Strings::, and ‘vconcat’ in *note Vector Functions::, for other ways to copy
-sequences.
-#+end_defun
-
-#+findex:reverse
-#+attr_texinfo: :options reverse sequence
-#+begin_defun
-This function creates a new sequence whose elements are the elements of
-SEQUENCE, but in reverse order. The original argument SEQUENCE is _not_
-altered.
-#+end_defun
-
-#+findex:nreverse
-#+attr_texinfo: :options nreverse sequence
-#+begin_defun
-This function reverses the order of the elements of SEQUENCE. Unlike ‘reverse’
-the original SEQUENCE may be modified. To avoid confusion, we usually store the
-result of ‘nreverse’ back in the same variable which held the original list:
-
-: (setq x (nreverse x))
-
-For the vector, it is even simpler because you don’t need setq:
-
-: (setq x (copy-sequence [1 2 3 4]))
-: (nreverse x)
-
-Note that unlike ‘reverse’, this function doesn’t work with strings. Although
-you can alter string data by using ‘aset’, it is strongly encouraged to treat
-strings as immutable even when they are mutable.
-#+end_defun
-
-#+findex:sort
-#+cindex:stable sort
-#+cindex:sort, stable
-#+cindex:antisymmetric sort
-#+cindex:transitive sort
-#+attr_texinfo: :options sort sequence predicate
-#+begin_defun
-This function sorts SEQUENCE stably; it may be used only for lists and vectors.
-If SEQUENCE is a list, it is modified destructively. It compares elements using
-PREDICATE. A stable sort is one in which elements with equal sort keys maintain
-their relative order before and after the sort. Stability is important when
-successive sorts are used to order elements according to different criteria.
-
-Save the result of ‘sort’ and use that. Most often we store the result back
-into the variable that held the original list:
-
-: (setq nums (sort nums #'<))
-
-#+texinfo: @subheading PREDICATE FUNCTION
-The argument PREDICATE must be a function that accepts two arguments. It is
-called with two elements of SEQUENCE. To get an increasing order sort, the
-PREDICATE should return non-‘nil’ if the first element is “less” than the
-second, or ‘nil’ if not.
-
-The comparison function PREDICATE must give reliable results for any given pair
-of arguments, at least within a single call to ‘sort’. It must be
-“antisymmetric”; that is, if A is less than B, B must not be less than A. It
-must be “transitive”—that is, if A is less than B, and B is less than C, then A
-must be less than C. If you use a comparison function which does not meet these
-requirements, the result of ‘sort’ is unpredictable.
-
-#+texinfo: @subheading DESTRUCTIVE SORT
-The destructive aspect of ‘sort’ for lists is that it rearranges the cons cells
-forming SEQUENCE by changing CDRs. A nondestructive sort function would create
-new cons cells to store the elements in their sorted order. If you wish to make
-a sorted copy without destroying the original, copy it first with
-‘copy-sequence’ and then sort.
-
-*Note Sorting, for more functions that perform sorting. See ‘documentation’ in
-*note Accessing Documentation::, for a useful example of ‘sort’.
-#+end_defun
-
-#+texinfo: @heading 
 *** Lists in Elisp
 :PROPERTIES:
 :appendix: t
@@ -7056,6 +6860,8 @@ first object is the key, and the second is the value.
 **** Association Lists
 **** Property Lists
 
+
+
 *** Arrays in Elisp
 
 An /array/ object has slots that hold a number of other Lisp objects, called
@@ -7120,6 +6926,208 @@ sequence), a vector may be necessary, because many keyboard input characters
 are outside the range that will fit in a string.
 
 **** Functions that Operate on Arrays
+
+
+** Sequence Functions
+
+This section describes functions that accept any kind of sequence.
+
+*** Sequence Predicate Functions
+
+The following predicates test whether a Lisp object is an atom, whether it is a
+cons cell or is a list, or whether it is the distinguished object ‘nil’. (Many
+of these predicates can be defined in terms of the others, but they are used so
+often that it is worth having them.)
+
+#+findex:null
+#+findex:not
+#+attr_texinfo: :options null object
+#+begin_defun
+This function returns ‘t’ if OBJECT is ‘nil’, and returns ‘nil’ otherwise.
+
+#+texinfo: @subheading NULL and NOT
+
+This function is identical to ‘not’, but as a matter of clarity we use ‘null’
+when OBJECT is considered a list and ‘not’ when it is considered a truth value
+#+end_defun
+
+#+findex:atom
+#+attr_texinfo: :options atom object
+#+begin_defun
+This function returns ‘t’ if OBJECT is an atom, ‘nil’ otherwise. All objects
+except cons cells are atoms.
+
+#+texinfo: @subheading NIL
+
+The symbol ‘nil’ is an atom and is also a list; it is the only Lisp object that
+is both.
+#+end_defun
+
+#+findex:consp
+#+attr_texinfo: :options consp object
+#+begin_defun
+This function returns ‘t’ if OBJECT is a cons cell, ‘nil’ otherwise.
+
+#+texinfo: @subheading NIL
+
+‘nil’ is not a cons cell, although it _is_ a list.
+#+end_defun
+
+#+findex:listp
+#+attr_texinfo: :options listp object
+#+begin_defun
+This function returns ‘t’ if OBJECT is a cons cell or ‘nil’. Otherwise, it
+returns ‘nil’.
+#+end_defun
+
+#+findex:nlistp
+#+attr_texinfo: :options nlistp object
+#+begin_defun
+This function is the opposite of ‘listp’: it returns ‘t’ if OBJECT is not a
+list. Otherwise, it returns ‘nil’.
+#+end_defun
+
+#+findex:proper-list-p
+#+attr_texinfo: :options proper-list-p object
+#+begin_defun
+This function returns the length of OBJECT if it is a proper list, ‘nil’
+otherwise. In addition to satisfying ‘listp’, a proper list is neither circular
+nor dotted.
+#+end_defun
+
+#+findex: sequencep
+#+attr_texinfo: :options sequencep object
+#+begin_defun
+Predicate function to determine if OBJECT is a _sequence_ type:
+- list
+- vector
+- string
+- bool-vector
+- char-table
+
+See also =seqp=.
+#+end_defun
+
+*** Basic Sequence Functions
+
+#+findex:length
+#+attr_texinfo: :options length sequence
+#+begin_defun
+This function returns the number of elements in SEQUENCE.
+
+*Note Definition of safe-length::, for the related function =safe-length=.
+
+See also =string-bytes=, in *note Text Representations.
+#+end_defun
+
+#+findex:copy-sequence
+#+attr_texinfo: :options copy-sequence seqr
+#+begin_defun
+This function returns a copy of SEQR, which should be either a sequence or a
+record. The copy is the same type of object as the original, and it has the
+same elements in the same order.
+
+The elements of the copy are not copies; they are identical (‘eq’) to the
+elements of the original. Changes made within these elements, as found via the
+copy, are also visible in the original.
+
+If the argument is a string with text properties, the property list in the copy
+is itself a copy, not shared with the original’s property list. However, the
+actual values of the properties are shared
+
+This function does not work for dotted lists.
+
+See also ‘append’ in *note Building Lists::, ‘concat’ in *note Creating
+Strings::, and ‘vconcat’ in *note Vector Functions::, for other ways to copy
+sequences.
+#+end_defun
+
+#+findex:reverse
+#+attr_texinfo: :options reverse sequence
+#+begin_defun
+This function creates a new sequence whose elements are the elements of
+SEQUENCE, but in reverse order. The original argument SEQUENCE is _not_
+altered.
+#+end_defun
+
+#+findex:nreverse
+#+attr_texinfo: :options nreverse sequence
+#+begin_defun
+This function reverses the order of the elements of SEQUENCE. Unlike ‘reverse’
+the original SEQUENCE may be modified. To avoid confusion, we usually store the
+result of ‘nreverse’ back in the same variable which held the original list:
+
+: (setq x (nreverse x))
+
+For the vector, it is even simpler because you don’t need setq:
+
+: (setq x (copy-sequence [1 2 3 4]))
+: (nreverse x)
+
+Note that unlike ‘reverse’, this function doesn’t work with strings. Although
+you can alter string data by using ‘aset’, it is strongly encouraged to treat
+strings as immutable even when they are mutable.
+#+end_defun
+
+#+findex:sort
+#+cindex:stable sort
+#+cindex:sort, stable
+#+cindex:antisymmetric sort
+#+cindex:transitive sort
+#+attr_texinfo: :options sort sequence predicate
+#+begin_defun
+This function sorts SEQUENCE stably; it may be used only for lists and vectors.
+If SEQUENCE is a list, it is modified destructively. It compares elements using
+PREDICATE. A stable sort is one in which elements with equal sort keys maintain
+their relative order before and after the sort. Stability is important when
+successive sorts are used to order elements according to different criteria.
+
+Save the result of ‘sort’ and use that. Most often we store the result back
+into the variable that held the original list:
+
+: (setq nums (sort nums #'<))
+
+#+texinfo: @subheading PREDICATE FUNCTION
+The argument PREDICATE must be a function that accepts two arguments. It is
+called with two elements of SEQUENCE. To get an increasing order sort, the
+PREDICATE should return non-‘nil’ if the first element is “less” than the
+second, or ‘nil’ if not.
+
+The comparison function PREDICATE must give reliable results for any given pair
+of arguments, at least within a single call to ‘sort’. It must be
+“antisymmetric”; that is, if A is less than B, B must not be less than A. It
+must be “transitive”—that is, if A is less than B, and B is less than C, then A
+must be less than C. If you use a comparison function which does not meet these
+requirements, the result of ‘sort’ is unpredictable.
+
+#+texinfo: @subheading DESTRUCTIVE SORT
+The destructive aspect of ‘sort’ for lists is that it rearranges the cons cells
+forming SEQUENCE by changing CDRs. A nondestructive sort function would create
+new cons cells to store the elements in their sorted order. If you wish to make
+a sorted copy without destroying the original, copy it first with
+‘copy-sequence’ and then sort.
+
+*Note Sorting, for more functions that perform sorting. See ‘documentation’ in
+*note Accessing Documentation::, for a useful example of ‘sort’.
+#+end_defun
+
+*** Accessing Sequence Elements
+
+#+findex:elt
+#+attr_texinfo: :options elt sequence index
+#+begin_defun
+This function returns the element of SEQUENCE indexed by INDEX (starting from
+zero). Whereas the function ~nth~ applies only to lists and ~aref~ applies to
+arrays, this function applies to any kind of sequence. (Note that ~nth~ takes
+its arguments in opposite order).
+
+Legitimate values of INDEX are integers ranging from 0 up to one less than the
+length of SEQUENCE. If SEQUENCE is a list and the INDEX is out of range, NIL is
+returned.  Otherwise, an =args-out-of-range= error is returned.
+
+This function generalizes ‘aref’ and ‘nth’.
+#+end_defun
+
 
 * Interacting with the System
 :PROPERTIES:
