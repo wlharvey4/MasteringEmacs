@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-29 07:58
-#+macro:version Version 0.0.120
+#+date:2020-07-29 08:45
+#+macro:version Version 0.0.121
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6734,8 +6734,119 @@ This section describes functions that accept any kind of sequence.
 
 #+texinfo: @heading Predicates and Basic Functions
 
+#+findex: sequencep
+#+attr_texinfo: :options sequencep object
+#+begin_defun
+Predicate function to determine if OBJECT is a _sequence_ type:
+- list
+- vector
+- string
+- bool-vector
+- char-table
 
+See also =seqp=.
+#+end_defun
 
+#+findex:length
+#+attr_texinfo: :options length sequence
+#+begin_defun
+This function returns the number of elements in SEQUENCE.
+
+*Note Definition of safe-length::, for the related function =safe-length=.
+
+See also =string-bytes=, in *note Text Representations.
+#+end_defun
+
+#+findex:copy-sequence
+#+attr_texinfo: :options copy-sequence seqr
+#+begin_defun
+This function returns a copy of SEQR, which should be either a sequence or a
+record. The copy is the same type of object as the original, and it has the
+same elements in the same order.
+
+The elements of the copy are not copies; they are identical (‘eq’) to the
+elements of the original. Changes made within these elements, as found via the
+copy, are also visible in the original.
+
+If the argument is a string with text properties, the property list in the copy
+is itself a copy, not shared with the original’s property list. However, the
+actual values of the properties are shared
+
+This function does not work for dotted lists.
+
+See also ‘append’ in *note Building Lists::, ‘concat’ in *note Creating
+Strings::, and ‘vconcat’ in *note Vector Functions::, for other ways to copy
+sequences.
+#+end_defun
+
+#+findex:reverse
+#+attr_texinfo: :options reverse sequence
+#+begin_defun
+This function creates a new sequence whose elements are the elements of
+SEQUENCE, but in reverse order. The original argument SEQUENCE is _not_
+altered.
+#+end_defun
+
+#+findex:nreverse
+#+attr_texinfo: :options nreverse sequence
+#+begin_defun
+This function reverses the order of the elements of SEQUENCE. Unlike ‘reverse’
+the original SEQUENCE may be modified. To avoid confusion, we usually store the
+result of ‘nreverse’ back in the same variable which held the original list:
+
+: (setq x (nreverse x))
+
+For the vector, it is even simpler because you don’t need setq:
+
+: (setq x (copy-sequence [1 2 3 4]))
+: (nreverse x)
+
+Note that unlike ‘reverse’, this function doesn’t work with strings. Although
+you can alter string data by using ‘aset’, it is strongly encouraged to treat
+strings as immutable even when they are mutable.
+#+end_defun
+
+#+findex:sort
+#+cindex:stable sort
+#+cindex:sort, stable
+#+cindex:antisymmetric sort
+#+cindex:transitive sort
+#+attr_texinfo: :options sort sequence predicate
+#+begin_defun
+This function sorts SEQUENCE stably; it may be used only for lists and vectors.
+If SEQUENCE is a list, it is modified destructively. It compares elements using
+PREDICATE. A stable sort is one in which elements with equal sort keys maintain
+their relative order before and after the sort. Stability is important when
+successive sorts are used to order elements according to different criteria.
+
+Save the result of ‘sort’ and use that. Most often we store the result back
+into the variable that held the original list:
+
+: (setq nums (sort nums #'<))
+
+#+texinfo: @subheading PREDICATE FUNCTION
+The argument PREDICATE must be a function that accepts two arguments. It is
+called with two elements of SEQUENCE. To get an increasing order sort, the
+PREDICATE should return non-‘nil’ if the first element is “less” than the
+second, or ‘nil’ if not.
+
+The comparison function PREDICATE must give reliable results for any given pair
+of arguments, at least within a single call to ‘sort’. It must be
+“antisymmetric”; that is, if A is less than B, B must not be less than A. It
+must be “transitive”—that is, if A is less than B, and B is less than C, then A
+must be less than C. If you use a comparison function which does not meet these
+requirements, the result of ‘sort’ is unpredictable.
+
+#+texinfo: @subheading DESTRUCTIVE SORT
+The destructive aspect of ‘sort’ for lists is that it rearranges the cons cells
+forming SEQUENCE by changing CDRs. A nondestructive sort function would create
+new cons cells to store the elements in their sorted order. If you wish to make
+a sorted copy without destroying the original, copy it first with
+‘copy-sequence’ and then sort.
+
+*Note Sorting, for more functions that perform sorting. See ‘documentation’ in
+*note Accessing Documentation::, for a useful example of ‘sort’.
+#+end_defun
 *** Lists in Elisp
 :PROPERTIES:
 :appendix: t
