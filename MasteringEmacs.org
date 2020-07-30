@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-30 08:12
-#+macro:version Version 0.0.126
+#+date:2020-07-30 08:54
+#+macro:version Version 0.0.127
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6926,6 +6926,51 @@ are outside the range that will fit in a string.
 **** Functions that Operate on Arrays
 
 
+
+* The Sequence Data Type
+
+** Cons Cells
+
+*** Cons Cells in General
+
+*** Cons Cell Functions
+
+**** Cons Cell Constructors
+
+**** Non-Destructive Cons Cell Functions
+
+**** Destructive Cons Cell Functions
+
+** Sequences
+
+*** In General
+
+*** Sequence Functions
+
+**** Sequence Constructors
+
+**** Non-Destructive Sequence Functions
+
+**** Destructive Sequence Functions
+
+*** Lists
+
+**** In General
+
+**** List Constructors
+
+**** Non-Destructive List Functions
+
+**** Destructive List Functions
+
+*** Arrays
+
+**** Arrays in General
+
+**** Vectors
+
+**** Strings
+
 ** Sequence Functions
 
 *** Building Cons Cells and Lists
@@ -7221,7 +7266,7 @@ a sorted copy without destroying the original, copy it first with
 
 *** Accessing Sequence Elements
 
-#+texinfo: @subheading Cons Elements
+#+texinfo: @subheading Cons Elements Using `car’ and `cdr’
 
 #+findex:car
 #+attr_texinfo: :options car cons-cell
@@ -7281,25 +7326,19 @@ This function returns the Nth element of LIST (using zero indexing), or ‘nil�
 if N is out of bounds.
 #+end_defun
 
+#+findex:aref
+#+attr_texinfo: :options aref arr index
+#+begin_defun
+This function returns the INDEXth element of the array or record ARR. The first
+element is at index zero.
+#+end_defun
+
 #+findex:nthcdr n list
 #+attr_texinfo: :options nthcdr n list
 #+begin_defun
 This function returns the Nth CDR of LIST. In other words, it skips past the
 first N links of LIST and returns what follows. If N is zero, ‘nthcdr’ returns
 all of LIST. If the length of LIST is N or less, ‘nthcdr’ returns ‘nil’.
-#+end_defun
-
-#+findex:pop
-#+cindex:generalized variable
-#+attr_texinfo: :options pop listname
-#+begin_defun
-This macro provides a convenient way to examine the CAR of a list, and take it
-off the list, all at once. It removes the first element from the list, saves
-the CDR into LISTNAME, then returns the removed element. LISTNAME can be a
-generalized variable. In that case, this macro saves into LISTNAME using
-‘setf’.
-
-See ~setf~, ~push~.
 #+end_defun
 
 #+findex:last
@@ -7357,14 +7396,6 @@ defined as ‘cXXXr’ and ‘cXXXXr’, where each ‘X’ is either ‘a’ or
 ‘caddr’, and ‘cadddr’ pick out the second, third or fourth elements of a list,
 respectively (‘cl-second’, ‘cl-third’, and ‘cl-fourth’).
 
-#+texinfo: @subheading Array Accesses
-
-#+attr_texinfo: :options aref arr index
-#+begin_defun
-This function returns the INDEXth element of the array or record ARR. The first
-element is at index zero.
-#+end_defun
-
 *** Modifying Existing List Structures
 You can modify the CAR and CDR contents of a cons cell with the primitives
 ‘setcar’ and ‘setcdr’. These are destructive operations because they change
@@ -7395,6 +7426,44 @@ cons cells in the list.
 It is equally easy to insert a new element by changing CDRs.
 #+end_defun
 
+#+texinfo: @subheading Modifying Lists
+
+#+findex:push
+#+cindex:generalized variable
+#+attr_texinfo: :options push element listname
+#+begin_defun
+This macro creates a new list whose CAR is ELEMENT and whose CDR is the list
+specified by LISTNAME, and saves that list in LISTNAME. In the simplest case,
+LISTNAME is an unquoted symbol naming a list, and this macro is equivalent to
+‘(setq LISTNAME (cons ELEMENT LISTNAME))’.
+
+‘listname’ can be a generalized variable. In that case, this macro does the
+equivalent of ‘(setf LISTNAME (cons ELEMENT LISTNAME))’.
+
+See ‘pop’, which removes the first element from a list.
+#+end_defun
+
+#+findex:pop
+#+cindex:generalized variable
+#+attr_texinfo: :options pop listname
+#+begin_defun
+This macro provides a convenient way to examine the CAR of a list, and take it
+off the list, all at once. It removes the first element from the list, saves
+the CDR into LISTNAME, then returns the removed element. LISTNAME can be a
+generalized variable. In that case, this macro saves into LISTNAME using
+‘setf’.
+
+See ~setf~, ~push~.
+#+end_defun
+
+#+texinfo: @subheading Modifying Array Elements
+
+#+attr_texinfo: :options aset array index object
+#+begin_defun
+This function sets the INDEXth element of ARRAY to be OBJECT. It returns
+OBJECT.  The ARRAY should be mutable.
+#+end_defun
+
 #+texinfo: @heading Rearranging Lists
 
 Here are some functions that rearrange lists destructively by modifying the
@@ -7412,37 +7481,15 @@ altered. All arguments but the last should be mutable lists (do _not_ use a
 constant list).
 #+end_defun
 
-#+texinfo: @subheading Modifying Array Elements
-
-#+attr_texinfo: :options aset array index object
-#+begin_defun
-This function sets the INDEXth element of ARRAY to be OBJECT. It returns
-OBJECT.  The ARRAY should be mutable.
-#+end_defun
-
 #+attr_texinfo: :options fillarray array object
 #+begin_defun
 This function fills the array ARRAY with OBJECT, so that each element of ARRAY
 is OBJECT. It returns ARRAY.
 #+end_defun
 
-*** Modify List Variables
+*** Modifying List Variables
 
 Here are convenient ways to modify a list stored in a variable.
-
-#+findex:push
-#+attr_texinfo: :options push element listname
-#+begin_defun
-This macro creates a new list whose CAR is ELEMENT and whose CDR is the list
-specified by LISTNAME, and saves that list in LISTNAME. In the simplest case,
-LISTNAME is an unquoted symbol naming a list, and this macro is equivalent to
-‘(setq LISTNAME (cons ELEMENT LISTNAME))’.
-
-‘listname’ can be a generalized variable. In that case, this macro does the
-equivalent of ‘(setf LISTNAME (cons ELEMENT LISTNAME))’.
-
-See ‘pop’, which removes the first element from a list.
-#+end_defun
 
 #+findex:add-to-list
 #+attr_texinfo: :options add-to-list symbol element &optional append compare-fn
