@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-29 12:29
-#+macro:version Version 0.0.123
+#+date:2020-07-29 22:46
+#+macro:version Version 0.0.124
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6852,8 +6852,6 @@ since it is easy to add or remove associations at the front of the list.
 
 Above, ~alist-of-colors~ is an alist of three elements.  In each element, the
 first object is the key, and the second is the value.
-**** List Predicates
-**** List Elements
 **** List Variables
 **** Modifying Lists
 **** Sets
@@ -6931,6 +6929,97 @@ are outside the range that will fit in a string.
 ** Sequence Functions
 
 This section describes functions that accept any kind of sequence.
+
+*** Building Cons Cells and Lists
+
+Lists reside at the very heart of Lisp. ‘cons’ is the fundamental list-building
+function.
+
+#+findex:cons
+#+attr_texinfo: :options cons object1 object2
+#+begin_defun
+This function is the most basic function for building new list structure. It
+creates a new cons cell, making OBJECT1 the CAR, and OBJECT2 the CDR. It then
+returns the new cons cell.
+
+The arguments OBJECT1 and OBJECT2 may be any Lisp objects, but most often
+OBJECT2 is a list.
+
+‘cons’ is often used to add a single element to the front of a list. This is
+called “consing the element onto the list”.
+#+end_defun
+
+#+findex:list
+#+attr_texinfo: :options list &rest objects
+#+begin_defun
+This function creates a list with OBJECTS as its elements (or ‘nil’ if no
+objects are given). The resulting list is always ‘nil’-terminated.
+#+end_defun
+
+#+findex:make-list
+#+attr_texinfo: :options make-list length object
+#+begin_defun
+This function creates a list of LENGTH elements, in which each element is
+OBJECT.
+#+end_defun
+
+#+findex:append
+#+attr_texinfo: :options append &rest sequences
+#+begin_defun
+This function returns a list containing all the elements of SEQUENCES. The
+SEQUENCES may be lists, vectors, bool-vectors, or strings, but the last one
+should usually be a list. All arguments except the last one are copied, so none
+of the arguments is altered.
+
+The final argument to ‘append’ may be any Lisp object. The final argument is
+not copied or converted; it becomes the CDR of the last cons cell in the new
+list.
+
+See ‘nconc’ in *note Rearrangement::, for a way to join lists with no copying.
+
+An empty sequence contributes nothing to the value returned by ‘append’. As a
+consequence of this, a final ‘nil’ argument forces a copy of the previous
+argument. This once was the usual way to copy a list, before the function
+‘copy-sequence’ was invented.
+
+With the help of ‘apply’, we can append all the lists in a list of lists:
+
+: (apply 'append '((a b c) nil (x y z) nil))
+: ⇒ (a b c x y z)
+#+end_defun
+
+#+findex:copy-tree
+#+attr_texinfo: :options copy-tree &optional vecp
+#+begin_defun
+This function returns a copy of the tree TREE. If TREE is a cons cell, this
+makes a new cons cell with the same CAR and CDR, then recursively copies the
+CAR and CDR in the same way.
+
+if VECP is non-‘nil’, it copies vectors too (and operates recursively on their
+elements.
+#+end_defun
+
+#+findex:flatten-tree
+#+attr_texinfo: :options flatten-tree tree
+#+begin_defun
+This function returns a “flattened” copy of TREE, that is, a list containing
+all the non-‘nil’ terminal nodes, or leaves, of the tree of cons cells rooted
+at TREE.
+#+end_defun
+
+#+findex:number-sequence
+#+attr_texinfo: :options number-sequence from &optional to separation
+#+begin_defun
+This function returns a list of numbers starting with FROM and incrementing by
+SEPARATION, and ending at or just before TO. SEPARATION can be positive or
+negative and defaults to 1.
+
+All arguments are numbers. Floating-point arguments can be tricky.
+
+The Nth element of the list is computed by the exact formula ‘(+ FROM (* N
+SEPARATION))’. Thus, if one wants to make sure that TO is included in the list,
+one can pass an expression of this exact type for TO.
+#+end_defun
 
 *** Sequence Predicate Functions
 
@@ -7018,6 +7107,13 @@ This function returns the number of elements in SEQUENCE.
 *Note Definition of safe-length::, for the related function =safe-length=.
 
 See also =string-bytes=, in *note Text Representations.
+#+end_defun
+
+#+findex:safe-length list
+#+attr_texinfo: :options safe-length list
+#+begin_defun
+This function returns the length of LIST, with no risk of either an error or an
+infinite loop. If LIST is not ‘nil’ or a cons cell, ‘safe-length’ returns 0.
 #+end_defun
 
 #+findex:copy-sequence
@@ -7113,6 +7209,40 @@ a sorted copy without destroying the original, copy it first with
 
 *** Accessing Sequence Elements
 
+#+findex:car
+#+attr_texinfo: :options car cons-cell
+#+begin_defun
+This function returns the value referred to by the first slot of the cons cell
+CONS-CELL, e.g., the CAR of the CONS-CELL. If the CONS-CELL is ‘nil’, it
+returns ‘nil’. An error is signaled if the argument is not a cons cell or
+‘nil’.
+#+end_defun
+
+#+findex:car-safe
+#+attr_texinfo: :options car-safe object
+#+begin_defun
+This function lets you take the CAR of a cons cell while avoiding errors for
+other data types. It returns the CAR of OBJECT if OBJECT is a cons cell, ‘nil’
+otherwise. It does not signal an error if OBJECT is not a list or ‘nil’.
+#+end_defun
+
+#+findex:cdr
+#+attr_texinfo: :options cdr cons-cell
+#+begin_defun
+This function returns the value referred to by the second slot of the cons cell
+CONS-CELL, e.g., the CDR of the CONS-CELL. If the CONS-CELL is ‘nil’, it
+returns ‘nil’. An error is signaled if the argument is not a cons cell or
+‘nil’.
+#+end_defun
+
+#+findex:cdr-safe
+#+attr_texinfo: :options cdr-safe object
+#+begin_defun
+This function lets you take the CDR of a cons cell while avoiding errors for
+other data types. It returns the CDR of OBJECT if OBJECT is a cons cell, ‘nil’
+otherwise. It does not signal an error if OBJECT is not a list or ‘nil’.
+#+end_defun
+
 #+findex:elt
 #+attr_texinfo: :options elt sequence index
 #+begin_defun
@@ -7128,7 +7258,177 @@ returned.  Otherwise, an =args-out-of-range= error is returned.
 This function generalizes ‘aref’ and ‘nth’.
 #+end_defun
 
+#+findex:nth
+#+attr_texinfo: :options nth n list
+#+begin_defun
+This function returns the Nth element of LIST (using zero indexing), or ‘nil’
+if N is out of bounds.
+#+end_defun
 
+#+findex:nthcdr n list
+#+attr_texinfo: :options nthcdr n list
+#+begin_defun
+This function returns the Nth CDR of LIST. In other words, it skips past the
+first N links of LIST and returns what follows. If N is zero, ‘nthcdr’ returns
+all of LIST. If the length of LIST is N or less, ‘nthcdr’ returns ‘nil’.
+#+end_defun
+
+#+findex:pop
+#+cindex:generalized variable
+#+attr_texinfo: :options pop listname
+#+begin_defun
+This macro provides a convenient way to examine the CAR of a list, and take it
+off the list, all at once. It removes the first element from the list, saves
+the CDR into LISTNAME, then returns the removed element. LISTNAME can be a
+generalized variable. In that case, this macro saves into LISTNAME using
+‘setf’.
+
+See ~setf~, ~push~.
+#+end_defun
+
+#+findex:last
+#+attr_texinfo: :options last list &optional n
+#+begin_defun
+This function returns the last link of LIST. The ‘car’ of this link is the
+list’s last element. If LIST is null, ‘nil’ is returned. If N is non-‘nil’, the
+Nth-to-last link is returned instead, or the whole of LIST if N is bigger than
+LIST’s length.
+#+end_defun
+
+#+findex:butlast
+#+attr_texinfo: :options butlast x &optional n
+#+begin_defun
+This function returns the list X with the last element, or the last N elements,
+removed. If N is greater than zero it makes a copy of the list so as not to
+damage the original list.
+#+end_defun
+
+#+findex:nbutlast
+#+attr_texinfo: :options nbutlast x &optional n
+#+begin_defun
+This is a version of ‘butlast’ that works by destructively modifying the ‘cdr’
+of the appropriate element, rather than making a copy of the list.
+#+end_defun
+
+#+findex:caar
+#+attr_texinfo: :options caar cons-cell
+#+begin_defun
+This is the same as ‘(car (car CONS-CELL))’.
+#+end_defun
+
+#+findex:cadr
+#+attr_texinfo: :options cdar cons-cell
+#+begin_defun
+This is the same as ‘(car (cdr CONS-CELL))’ or ‘(nth 1 CONS-CELL)’.
+#+end_defun
+
+#+findex:cdar
+#+attr_texinfo: :options cdar cons-cell
+#+begin_defun
+This is the same as ‘(cdr (car CONS-CELL))’.
+#+end_defun
+
+#+findex:cddr
+#+attr_texinfo: :options cddr cons-cell
+#+begin_defun
+This is the same as ‘(cdr (cdr CONS-CELL))’ or ‘(nthcdr 2 CONS-CELL)’.
+#+end_defun
+
+#+texinfo: @subheading cXXXr
+
+In addition to the above, 24 additional compositions of ‘car’ and ‘cdr’ are
+defined as ‘cXXXr’ and ‘cXXXXr’, where each ‘X’ is either ‘a’ or ‘d’. ‘cadr’,
+‘caddr’, and ‘cadddr’ pick out the second, third or fourth elements of a list,
+respectively (‘cl-second’, ‘cl-third’, and ‘cl-fourth’).
+*** Modifying Existing List Structures
+You can modify the CAR and CDR contents of a cons cell with the primitives
+‘setcar’ and ‘setcdr’. These are destructive operations because they change
+existing list structure. Destructive operations should be applied only to
+mutable lists, that is, lists constructed via ‘cons’, ‘list’ or similar
+operations.
+
+#+findex:setcar
+#+attr_texinfo: :options setcar cons object
+#+begin_defun
+This function stores OBJECT as the new CAR of CONS, replacing its previous CAR.
+In other words, it changes the CAR slot of CONS to refer to OBJECT. It returns
+the value OBJECT.
+#+end_defun
+
+#+findex:setcdr
+#+attr_texinfo: :options setcdr cons object
+#+begin_defun
+This function stores OBJECT as the new CDR of CONS, replacing its previous CDR.
+In other words, it changes the CDR slot of CONS to refer to OBJECT. It returns
+the value OBJECT.
+
+You can delete elements from the middle of a list by altering the CDRs of the
+cons cells in the list.
+
+It is equally easy to insert a new element by changing CDRs.
+#+end_defun
+
+#+texinfo: @heading Rearranging Lists
+
+Here are some functions that rearrange lists destructively by modifying the
+CDRs of their component cons cells. These functions are destructive because
+they chew up the original lists passed to them as arguments, relinking their
+cons cells to form a new list that is the returned value.
+
+#+findex:nconc
+#+attr_texinfo: :options nconc &rest lists
+#+begin_defun
+This function returns a list containing all the elements of LISTS. Unlike
+‘append’, the LISTS are _not_ copied. Instead, the last CDR of each of the
+LISTS is changed to refer to the following list. The last of the LISTS is not
+altered. All arguments but the last should be mutable lists (do _not_ use a
+constant list).
+#+end_defun
+
+*** Modify List Variables
+
+Here are convenient ways to modify a list stored in a variable.
+
+#+findex:push
+#+attr_texinfo: :options push element listname
+#+begin_defun
+This macro creates a new list whose CAR is ELEMENT and whose CDR is the list
+specified by LISTNAME, and saves that list in LISTNAME. In the simplest case,
+LISTNAME is an unquoted symbol naming a list, and this macro is equivalent to
+‘(setq LISTNAME (cons ELEMENT LISTNAME))’.
+
+‘listname’ can be a generalized variable. In that case, this macro does the
+equivalent of ‘(setf LISTNAME (cons ELEMENT LISTNAME))’.
+
+See ‘pop’, which removes the first element from a list.
+#+end_defun
+
+#+findex:add-to-list
+#+attr_texinfo: :options add-to-list symbol element &optional append compare-fn
+#+begin_defun
+This function sets the variable SYMBOL by consing ELEMENT onto the old value,
+if ELEMENT is not already a member of that value. It returns the resulting
+list, whether updated or not. The value of SYMBOL had better be a list already
+before the call. ‘add-to-list’ uses COMPARE-FN to compare ELEMENT against
+existing list members; if COMPARE-FN is ‘nil’, it uses ‘equal’.
+
+Normally, if ELEMENT is added, it is added to the front of SYMBOL, but if the
+optional argument APPEND is non-‘nil’, it is added at the end.
+
+The argument SYMBOL is not implicitly quoted; ‘add-to-list’ is an ordinary
+function, like ‘set’ and unlike ‘setq’. Quote the argument yourself if that is
+what you want.
+#+end_defun
+
+#+findex:add-to-ordered-list
+#+attr_texinfo: :options add-to-ordered-list symbol element &optional order
+#+begin_defun
+This function sets the variable SYMBOL by inserting ELEMENT into the old value,
+which must be a list, at the position specified by ORDER. If ELEMENT is already
+a member of the list, its position in the list is adjusted according to ORDER.
+Membership is tested using ‘eq’. This function returns the resulting list,
+whether updated or not.
+#+end_defun
 * Interacting with the System
 :PROPERTIES:
 :appendix: t
