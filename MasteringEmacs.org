@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-29 22:46
-#+macro:version Version 0.0.124
+#+date:2020-07-30 06:38
+#+macro:version Version 0.0.125
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7428,6 +7428,108 @@ which must be a list, at the position specified by ORDER. If ELEMENT is already
 a member of the list, its position in the list is adjusted according to ORDER.
 Membership is tested using ‘eq’. This function returns the resulting list,
 whether updated or not.
+#+end_defun
+*** Lists as Sets
+
+#+cindex:set, list
+#+cindex:list as set
+These functions treat a list as an unordered mathematical set---they consider a
+value an element of a set if it appears in the list without reference to order.
+
+- union :: To form the union of two sets, use ‘append’ and remove duplicates
+  using ‘delete-dups’.
+
+- add-to-list :: See the function ‘add-to-list’ for a way to add an element to
+  a list stored in a variable and used as a set.
+
+#+texinfo: @subheading Functions Using ‘eq’
+
+#+findex:memq
+#+attr_texinfo: :options memq object list
+#+begin_defun
+This function tests to see whether OBJECT is a member of LIST. If it is, ‘memq’
+returns a list starting with the first occurrence of OBJECT. Otherwise, it
+returns ‘nil’. The letter ‘q’ in ‘memq’ says that it uses ‘eq’ to compare
+OBJECT against the elements of the list.
+#+end_defun
+
+#+findex:delq
+#+attr_texinfo: :option delq object list
+#+begin_defun
+This function destructively removes all elements ‘eq’ to OBJECT from LIST, and
+returns the resulting list. The letter ‘q’ in ‘delq’ says that it uses ‘eq’ to
+compare OBJECT against the elements of the list, like ‘memq’ and ‘remq’.
+Typically, when you invoke ‘delq’, you should use the return value by assigning
+it to the variable which held the original list.
+
+: (setq flowers (delq 'rose flowers))
+
+If you want to delete elements that are ‘equal’ to a given value, use ‘delete’.
+#+end_defun
+
+#+findex:remq
+#+attr_texinfo: :options remq object list
+#+begin_defun
+This function returns a copy of LIST, with all elements removed which are ‘eq’
+to OBJECT. The letter ‘q’ in ‘remq’ says that it uses ‘eq’ to compare OBJECT
+against the elements of ‘list’.
+#+end_defun
+
+#+texinfo: @subheading Function Using ‘eql’
+
+#+findex:memql
+#+attr_texinfo: :options memql object list
+#+begin_defun
+The function ‘memql’ tests to see whether OBJECT is a member of LIST, comparing
+members with OBJECT using ‘eql’, so floating-point elements are compared by
+value. If OBJECT is a member, ‘memql’ returns a list starting with its first
+occurrence in LIST. Otherwise, it returns ‘nil’.
+#+end_defun
+
+#+texinfo: @subheading Functions Using ‘equal’
+
+#+findex:member
+#+attr_texinfo: :options member object list
+#+begin_defun
+The function ‘member’ tests to see whether OBJECT is a member of LIST,
+comparing members with OBJECT using ‘equal’. If OBJECT is a member, ‘member’
+returns a list starting with its first occurrence in LIST. Otherwise, it
+returns ‘nil’.
+#+end_defun
+
+#+findex:delete
+#+attr_texinfo: :options delete object sequence
+#+begin_defun
+This function removes all elements ‘equal’ to OBJECT from SEQUENCE, and returns
+the resulting sequence. As with ‘delq’, you should typically use the return
+value by assigning it to the variable which held the original list. If
+‘sequence’ is a vector or string, ‘delete’ returns a copy of ‘sequence’ with
+all elements ‘equal’ to ‘object’ removed.
+#+end_defun
+
+#+findex:remove
+#+attr_texinfo: :options remove object sequence
+#+begin_defun
+This function is the non-destructive counterpart of ‘delete’. It returns a copy
+of ‘sequence’, a list, vector, or string, with elements ‘equal’ to ‘object’
+removed.
+#+end_defun
+
+#+findex:member-ignore-case
+#+attr_texinfo: :options member-ignore-case object list
+#+begin_defun
+This function is like ‘member’, except that OBJECT should be a string and that
+it ignores differences in letter-case and text representation: upper-case and
+lower-case letters are treated as equal, and unibyte strings are converted to
+multibyte prior to comparison.
+#+end_defun
+
+#+findex:delete-dups
+#+attr_texinfo: :options delete-dups list
+#+begin_defun
+This function destructively removes all ‘equal’ duplicates from LIST, stores
+the result in LIST and returns it. Of several ‘equal’ occurrences of an element
+in LIST, ‘delete-dups’ keeps the first one.
 #+end_defun
 * Interacting with the System
 :PROPERTIES:
