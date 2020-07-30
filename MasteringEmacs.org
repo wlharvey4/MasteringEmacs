@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-30 06:38
-#+macro:version Version 0.0.125
+#+date:2020-07-30 08:12
+#+macro:version Version 0.0.126
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6928,8 +6928,6 @@ are outside the range that will fit in a string.
 
 ** Sequence Functions
 
-This section describes functions that accept any kind of sequence.
-
 *** Building Cons Cells and Lists
 
 Lists reside at the very heart of Lisp. ‘cons’ is the fundamental list-building
@@ -7028,6 +7026,8 @@ cons cell or is a list, or whether it is the distinguished object ‘nil’. (Ma
 of these predicates can be defined in terms of the others, but they are used so
 often that it is worth having them.)
 
+#+texinfo: @subheading Object Predicates
+
 #+findex:null
 #+findex:not
 #+attr_texinfo: :options null object
@@ -7062,6 +7062,8 @@ This function returns ‘t’ if OBJECT is a cons cell, ‘nil’ otherwise.
 ‘nil’ is not a cons cell, although it _is_ a list.
 #+end_defun
 
+#+texinfo: @subheading List Predicates
+
 #+findex:listp
 #+attr_texinfo: :options listp object
 #+begin_defun
@@ -7084,6 +7086,8 @@ otherwise. In addition to satisfying ‘listp’, a proper list is neither circu
 nor dotted.
 #+end_defun
 
+#+texinfo: @subheading Sequence Predicates
+
 #+findex: sequencep
 #+attr_texinfo: :options sequencep object
 #+begin_defun
@@ -7095,6 +7099,14 @@ Predicate function to determine if OBJECT is a _sequence_ type:
 - char-table
 
 See also =seqp=.
+#+end_defun
+
+#+texinfo: @subheading Array Predicates
+
+#+attr_texinfo: :options arrayp object
+#+begin_defun
+This function returns ‘t’ if OBJECT is an array (i.e., a vector, a
+string, a bool-vector or a char-table).
 #+end_defun
 
 *** Basic Sequence Functions
@@ -7209,6 +7221,8 @@ a sorted copy without destroying the original, copy it first with
 
 *** Accessing Sequence Elements
 
+#+texinfo: @subheading Cons Elements
+
 #+findex:car
 #+attr_texinfo: :options car cons-cell
 #+begin_defun
@@ -7242,6 +7256,8 @@ This function lets you take the CDR of a cons cell while avoiding errors for
 other data types. It returns the CDR of OBJECT if OBJECT is a cons cell, ‘nil’
 otherwise. It does not signal an error if OBJECT is not a list or ‘nil’.
 #+end_defun
+
+#+texinfo: @subheading Sequence Elements
 
 #+findex:elt
 #+attr_texinfo: :options elt sequence index
@@ -7340,12 +7356,23 @@ In addition to the above, 24 additional compositions of ‘car’ and ‘cdr’ 
 defined as ‘cXXXr’ and ‘cXXXXr’, where each ‘X’ is either ‘a’ or ‘d’. ‘cadr’,
 ‘caddr’, and ‘cadddr’ pick out the second, third or fourth elements of a list,
 respectively (‘cl-second’, ‘cl-third’, and ‘cl-fourth’).
+
+#+texinfo: @subheading Array Accesses
+
+#+attr_texinfo: :options aref arr index
+#+begin_defun
+This function returns the INDEXth element of the array or record ARR. The first
+element is at index zero.
+#+end_defun
+
 *** Modifying Existing List Structures
 You can modify the CAR and CDR contents of a cons cell with the primitives
 ‘setcar’ and ‘setcdr’. These are destructive operations because they change
 existing list structure. Destructive operations should be applied only to
 mutable lists, that is, lists constructed via ‘cons’, ‘list’ or similar
 operations.
+
+#+texinfo: @subheading Modifying Cons Cells
 
 #+findex:setcar
 #+attr_texinfo: :options setcar cons object
@@ -7383,6 +7410,20 @@ This function returns a list containing all the elements of LISTS. Unlike
 LISTS is changed to refer to the following list. The last of the LISTS is not
 altered. All arguments but the last should be mutable lists (do _not_ use a
 constant list).
+#+end_defun
+
+#+texinfo: @subheading Modifying Array Elements
+
+#+attr_texinfo: :options aset array index object
+#+begin_defun
+This function sets the INDEXth element of ARRAY to be OBJECT. It returns
+OBJECT.  The ARRAY should be mutable.
+#+end_defun
+
+#+attr_texinfo: :options fillarray array object
+#+begin_defun
+This function fills the array ARRAY with OBJECT, so that each element of ARRAY
+is OBJECT. It returns ARRAY.
 #+end_defun
 
 *** Modify List Variables
@@ -7433,6 +7474,9 @@ whether updated or not.
 
 #+cindex:set, list
 #+cindex:list as set
+A sequence is normally considered an ordered collection.  It can be
+considered as a set though.
+
 These functions treat a list as an unordered mathematical set---they consider a
 value an element of a set if it appears in the list without reference to order.
 
@@ -7480,7 +7524,7 @@ against the elements of ‘list’.
 #+findex:memql
 #+attr_texinfo: :options memql object list
 #+begin_defun
-The function ‘memql’ tests to see whether OBJECT is a member of LIST, comparing
+oThe function ‘memql’ tests to see whether OBJECT is a member of LIST, comparing
 members with OBJECT using ‘eql’, so floating-point elements are compared by
 value. If OBJECT is a member, ‘memql’ returns a list starting with its first
 occurrence in LIST. Otherwise, it returns ‘nil’.
