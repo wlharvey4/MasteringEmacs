@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-30 08:54
-#+macro:version Version 0.0.127
+#+date:2020-07-30 14:01
+#+macro:version Version 0.0.128
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6338,15 +6338,30 @@ confirmation about processing ‘eval’ variables.
 As an exception, Emacs never asks for confirmation to evaluate any
 ‘eval’ form if that form occurs within the variable
 ‘safe-local-eval-forms’.
-* Lisp Data Types
+* Lisp Data Types and Structures
 #+cindex:data types
+#+cindex:atom
 #+cindex:object
 #+cindex:primitives
+
 - object :: piece of data in a Lisp program.  Every object belongs to at least
   one /data type/.  Every object belongs to one and only one /primitive type/.
   Lisp objects are “self-typing”, that is, the primitive type of each object is
   implicit in the object itself.  Lisp “knows” what kind of object an object is
   and will not let the programmer treat it as something else.
+
+- atom :: an atom is any object not a cons cell.
+
+- cons cell :: a cons cell is an object that consists of two slots, called the
+  CAR slot and the CDR slot. Each slot can “hold” any Lisp object. We also say
+  that the CAR of this cons cell is whatever object its CAR slot currently
+  holds, and likewise for the CDR.
+
+- list :: a list is a series of cons cells, linked together so that the CDR
+  slot of each cons cell holds either the next cons cell or the empty list. The
+  empty list is actually the symbol ‘nil’. Because most cons cells are used as
+  part of lists, we refer to any structure made out of cons cells as a “list
+  structure”. A Lisp list thus works as a “linked list” built up of cons cells
 
 - data type :: a set of possible objects.  Types can overlap, and objects can
   belong to two or more types.  Thus, one cannot ask for /the/ type of an
@@ -6859,7 +6874,6 @@ first object is the key, and the second is the value.
 **** Property Lists
 
 
-
 *** Arrays in Elisp
 
 An /array/ object has slots that hold a number of other Lisp objects, called
@@ -6925,8 +6939,6 @@ are outside the range that will fit in a string.
 
 **** Functions that Operate on Arrays
 
-
-
 * The Sequence Data Type
 
 ** Cons Cells
@@ -6942,20 +6954,35 @@ are outside the range that will fit in a string.
 **** Destructive Cons Cell Functions
 
 ** Sequences
-
 *** In General
 
+A “sequence” is a Lisp object that represents an ordered set of elements. There
+are two kinds of sequence in Emacs Lisp: “lists” and “arrays”.
+
+Sequence types share important similarities.
+
+- all have a length L, and
+- all have elements which can be indexed from zero to L minus one
+
 *** Sequence Functions
-
 **** Sequence Constructors
-
 **** Non-Destructive Sequence Functions
-
 **** Destructive Sequence Functions
-
 *** Lists
-
 **** In General
+
+A list can hold elements of any type, and its length can be easily changed by
+adding or removing elements.
+**** Association Lists---alist
+
+#+cindex:association list
+#+cindex:alist
+#+cindex:stack
+An association list is a list in which the CAR of a cons cell is considered to
+be a "key" and the CDR is considered to be an "associated value." In some
+cases, the associated value is stored in the CAR of the CDR. Association lists
+are often used as stacks, since it is easy to add or remove associations at the
+front of the list.
 
 **** List Constructors
 
@@ -6964,13 +6991,16 @@ are outside the range that will fit in a string.
 **** Destructive List Functions
 
 *** Arrays
-
 **** Arrays in General
 
+Arrays are fixed-length sequences. They are further subdivided into strings,
+vectors, char-tables and bool-vectors.
 **** Vectors
 
+Vectors can hold elements of any type.
 **** Strings
 
+String elements must be characters.
 ** Sequence Functions
 
 *** Building Cons Cells and Lists
