@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-30 14:01
-#+macro:version Version 0.0.128
+#+date:2020-07-31 15:12
+#+macro:version Version 0.0.129
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6339,39 +6339,13 @@ As an exception, Emacs never asks for confirmation to evaluate any
 ‘eval’ form if that form occurs within the variable
 ‘safe-local-eval-forms’.
 * Lisp Data Types and Structures
-#+cindex:data types
+#+cindex:data type
 #+cindex:atom
 #+cindex:object
-#+cindex:primitives
+#+cindex:primitive data type
 
-- object :: piece of data in a Lisp program.  Every object belongs to at least
-  one /data type/.  Every object belongs to one and only one /primitive type/.
-  Lisp objects are “self-typing”, that is, the primitive type of each object is
-  implicit in the object itself.  Lisp “knows” what kind of object an object is
-  and will not let the programmer treat it as something else.
-
-- atom :: an atom is any object not a cons cell.
-
-- cons cell :: a cons cell is an object that consists of two slots, called the
-  CAR slot and the CDR slot. Each slot can “hold” any Lisp object. We also say
-  that the CAR of this cons cell is whatever object its CAR slot currently
-  holds, and likewise for the CDR.
-
-- list :: a list is a series of cons cells, linked together so that the CDR
-  slot of each cons cell holds either the next cons cell or the empty list. The
-  empty list is actually the symbol ‘nil’. Because most cons cells are used as
-  part of lists, we refer to any structure made out of cons cells as a “list
-  structure”. A Lisp list thus works as a “linked list” built up of cons cells
-
-- data type :: a set of possible objects.  Types can overlap, and objects can
-  belong to two or more types.  Thus, one cannot ask for /the/ type of an
-  object, but rather whether an object belongs to /a/ type or not.  Type
-  declarations do not exist in Emacs Lisp.  A Lisp variable can have any type
-  of value, and it remembers whatever value you store in it, type and all.  But
-  see [[info:elisp#Variables with Restricted Values][Restricted Values]].
-
-- primitive or built-in data types :: a few fundamental object types are built
-  into Emacs.  From these primitives every other type is constructed.
+- primitive built-in data types :: a few fundamental object types are built
+  into Emacs. From these primitives every other type is constructed.
 
   - integer
 
@@ -6394,6 +6368,36 @@ As an exception, Emacs never asks for confirmation to evaluate any
   - record
 
   - special types---see [[info:elisp#Editing Types][Editing Types]]
+
+- data type :: a set of possible objects.  Types can overlap, and objects can
+  belong to two or more types.  Thus, one cannot ask for /the/ type of an
+  object, but rather whether an object belongs to /a/ type or not.  Type
+  declarations do not exist in Emacs Lisp.  A Lisp variable can have any type
+  of value, and it remembers whatever value you store in it, type and all.  But
+  see [[info:elisp#Variables with Restricted Values][Restricted Values]].
+
+    #+cindex:object
+- object :: piece of data in a Lisp program. Every object belongs to one
+  /primitive type/. Lisp objects are “self-typing”, that is, the primitive type
+  of each object is implicit in the object itself. Lisp “knows” what kind of
+  object an object is and will not let the programmer treat it as something
+  else.
+
+  #+cindex:attom
+- atom :: an atom is any object except a cons cell.
+
+  #+cindex:cons cell
+- cons cell :: a cons cell is an object that consists of two slots, called the
+  CAR slot and the CDR slot. Each slot can “hold” any Lisp object. We also say
+  that the CAR of this cons cell is whatever object its CAR slot currently
+  holds, and likewise for the CDR.
+
+  #+cindex:list
+- list :: a list is a series of cons cells, linked together so that the CDR
+  slot of each cons cell holds either the next cons cell or the empty list. The
+  empty list is actually the symbol ‘nil’. Because most cons cells are used as
+  part of lists, we refer to any structure made out of cons cells as a “list
+  structure”. A Lisp list thus works as a “linked list” built up of cons cells
 
 - predicate data-type functions :: Each primitive type has a corresponding Lisp
   function that checks whether an object is a member of that type.
@@ -6713,77 +6717,16 @@ comment.
 
 *** Multi-Line Comments
 
-** Sequences in Elisp
-:PROPERTIES:
-:appendix: t
-:END:
-
-#+cindex:sequence type
-The /sequence/ type is the union of two other Lisp types: lists and arrays.  In
-other words, any list is a sequence, and any array is a sequence.  The common
-property that all sequences have is that each is an ordered collection of
-elements.
-
-#+texinfo: @heading The List
-
-#+cindex:list
-A list is a sequence of elements, but it is not a single primitive object; it
-is made of /cons cells/, one cell per element.  Finding the Nth element
-requires looking through N cons cells, so elements farther from the beginning
-of the list take longer to access.  But it is possible to add elements to the
-list, or remove elements.
-
-#+texinfo:@heading The Array
-
-#+cindex:array
-An /array/ is a fixed-length object with a slot for each of its elements.  All
-the elements are accessible in constant time.  The four types of arrays are:
-- strings
-- vectors
-- char-tables
-- bool-vectors
-
 
 *** Lists in Elisp
 :PROPERTIES:
 :appendix: t
 :END:
 
-- [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lists.html#Lists][Lists in the Elisp Manual]]
-
-
-#+cindex:list
-A /list/ represents a sequence of zero or more elements (which may be any Lisp
-objects).
-
-Two important differences between lists and vectors is that:
-- two or more lists can share part of their structure;
-- you can insert or delete elements in a list without copying the whole list.
-
-
-#+cindex:list
-A /list/ represents a sequence of zero or more elements (which may be any Lisp
-objects).
-
-**** Cons Cells
-
-A /cons cell/ is a primitive data object that represents an ordered pair.  That
-is, it has two slots, and each slot “holds”, or “refers to”, some Lisp object.
-One slot is known as the CAR, and the other is known as the CDR.
 **** Lists and Cons Cells
 
 #+cindex:cons cell
 #+cindex:CAR, CDR
-Lists are built up from /cons cells/.  A “list” is a series of cons cells,
-linked together so that the CDR slot of each cons cell holds either the next
-cons cell or the empty list.  The empty list is actually the symbol ‘nil’.
-There is one cons cell for each element of the list.
-
-By convention, the CARs of the cons cells hold the elements of the list, and
-the CDRs are used to chain the list (this asymmetry between CAR and CDR is
-entirely a matter of convention; at the level of cons cells, the CAR and CDR
-slots have similar properties).  Hence, the CDR slot of each cons cell in a
-list refers to the following cons cell.
 
 #+texinfo:@heading Proper Lists---CDR is a List
 
@@ -6942,9 +6885,11 @@ are outside the range that will fit in a string.
 * The Sequence Data Type
 
 ** Cons Cells
-
 *** Cons Cells in General
 
+A /cons cell/ is a primitive data object that represents an ordered pair. That
+is, it has two slots, and each slot “holds”, or “refers to”, some Lisp object.
+One slot is known as the CAR, and the other is known as the CDR.
 *** Cons Cell Functions
 
 **** Cons Cell Constructors
@@ -6956,10 +6901,19 @@ are outside the range that will fit in a string.
 ** Sequences
 *** In General
 
-A “sequence” is a Lisp object that represents an ordered set of elements. There
-are two kinds of sequence in Emacs Lisp: “lists” and “arrays”.
+#+cindex:sequence data type
+#+texinfo: @subheading A Sequence is an Ordered Set of Elements
 
-Sequence types share important similarities.
+A “sequence” is a Lisp object that represents an ordered set of elements and is
+the union of two other Lisp types:
+
+- lists and
+- arrays
+
+The common property that all sequences have is that each is /an ordered
+collection of elements/.
+
+Sequence types share important similarities:
 
 - all have a length L, and
 - all have elements which can be indexed from zero to L minus one
@@ -6971,8 +6925,39 @@ Sequence types share important similarities.
 *** Lists
 **** In General
 
-A list can hold elements of any type, and its length can be easily changed by
-adding or removing elements.
+#+texinfo: @subheading A List is a Sequence of Cons Cells
+
+#+cindex:list data type
+A /list/ is a combination or sequence of zero or more elements called cons
+cells (a primitive object). A list can hold elements of any type, and its
+length can be easily changed by adding or removing elements.
+
+Finding the Nth element requires looking through N cons cells, so elements
+farther from the beginning of the list take longer to access. But it is easy to
+add elements to the list, and remove elements.
+
+Two important differences between lists and vectors is that:
+
+- two or more lists can share part of their structure;
+- you can insert or delete elements in a list without copying the whole list.
+
+
+#+texinfo: @subheading Lists are Constructed from Cons Cells
+
+#+cindex:cons cells
+#+cindex:CAR slot
+#+cindex:CDR slot
+Lists are built up from /cons cells/. A “list” is a series of cons cells,
+linked together so that the CDR slot of each cons cell holds either the next
+cons cell or the empty list. The empty list is actually the symbol ‘nil’. There
+is one cons cell for each element of the list.
+
+By convention, the CARs of the cons cells hold the elements of the list, and
+the CDRs are used to chain the list (this asymmetry between CAR and CDR is
+entirely a matter of convention; at the level of cons cells, the CAR and CDR
+slots have similar properties). Hence, the CDR slot of each cons cell in a list
+refers to the following cons cell.
+
 **** Association Lists---alist
 
 #+cindex:association list
@@ -6993,8 +6978,16 @@ front of the list.
 *** Arrays
 **** Arrays in General
 
-Arrays are fixed-length sequences. They are further subdivided into strings,
-vectors, char-tables and bool-vectors.
+#+cindex:array data type
+An /array/ is a fixed-length sequence of objects with one slot for each
+element. All elements are accessible in constant time. They are further
+subdivided into
+
+- strings,
+- vectors,
+- char-tables and
+- bool-vectors.
+
 **** Vectors
 
 Vectors can hold elements of any type.
@@ -7002,7 +6995,6 @@ Vectors can hold elements of any type.
 
 String elements must be characters.
 ** Sequence Functions
-
 *** Building Cons Cells and Lists
 
 Lists reside at the very heart of Lisp. ‘cons’ is the fundamental list-building
