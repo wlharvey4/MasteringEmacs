@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-07-31 15:12
-#+macro:version Version 0.0.129
+#+date:2020-08-28 08:40
+#+macro:version Version 0.0.130
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -8954,6 +8954,53 @@ And to deactivate this, call:
       (ad-update 'message)
 #+end_src
 
+** Emacs Lisp Regression Testing---ERT
+
+#+cindex:ERT
+#+cindex:testing, ERT
+*** Defining Tests
+ERT allows you  to define _tests_ in addition to  functions, macros, variables,
+and the  other usual Lisp  constructs.  Tests are  simply Lisp code:  code that
+invokes other code and checks whether it behaves as expected.
+**** ert-deftest
+#+attr_texinfo: :options ert-defest test-name () docstring body
+#+begin_defun
+Define a  test named TEST-NAME.   Test names are  in a namespace  separate from
+functions and variables  but by convention should have a  prefix that indicates
+which package they belong to.  The  parentheses are not used (no parameters are
+allowed).
+
+DOCSTRING is a string that explains the  test.  This string is displayed when a
+test fails.
+
+Place tests  in BODY, usually using  the macro ~should~, which  is basically an
+assert with good error reporting.
+#+end_defun
+*** Running Tests
+**** Running Tests Interactively
+- =M-x ert :SELECTOR=  :: ERT will pup  up a new buffer, called the ERT results
+  buffer, showing the results of the tests run.
+***** ERT Selectors
+- =nil= :: select no tests
+- =t= :: run all tests
+- =:new= :: select all tests not yet run
+- =:failed= =:passed= :: select tests according to their most recent result
+- =:expected=  =:unexpected= ::  select tests  according to  their most  recent
+  result
+- "regexp" :: a string reg exp that selects all tests with matching names
+- a test (an object of ~ert=test~ data type) :: selects that test
+- a symbol :: selects the test that the symbol names
+- ~(member TESTS...)~  :: selects  the elements  of tests, a  list of  tests or
+  symbols naming tests
+- ~(eql TEST)~ :: selects TEST, a test or a symbol naming a test
+- ~(and SELECTORS...)~ :: selects the tests that match all SELECTORS
+- ~(or SELECTORS...)~ :: selects the tests that match any of the SELECTORS
+- ~(not SELECTOR)~ :: selects all tests that do not match SELECTOR
+- ~(tag TAG)~ :: selects all tests that have TAG on their tags list
+- ~(satisfies  PREDICATE)~  :: selects  all  tests  that satisfy  PREDICATE,  a
+  function that takes a test as argument and returns non-nill if it is selected
+
+**** Running Tests in Batch Mode
 ** Elisp Tracing
 
 - https://www.emacswiki.org/emacs/EmacsLispTracing
@@ -9625,7 +9672,6 @@ sync.
   done
 #+end_src
 
-
 ** Update Utility Commands
 *** Get Parsed Org Tree
 This function looks for an Org file in the present working directory, and if it
