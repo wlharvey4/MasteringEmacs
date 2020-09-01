@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-08-28 08:40
-#+macro:version Version 0.0.130
+#+date:2020-09-01 07:52
+#+macro:version Version 0.0.131
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7644,6 +7644,37 @@ This function destructively removes all ‘equal’ duplicates from LIST, stores
 the result in LIST and returns it. Of several ‘equal’ occurrences of an element
 in LIST, ‘delete-dups’ keeps the first one.
 #+end_defun
+* Elisp
+** Evaluate Elisp
+*** Eval Buffer
+- =(eval-buffer)= ::
+
+  Execute the accessible portion of current buffer as Lisp code.  You can use
+  =C-x n n= to limit the part of buffer to be evaluated.
+
+  When called from a Lisp program (i.e., not interactively), this function
+  accepts up to five optional arguments:
+
+  - BUFFER :: the buffer to evaluate (buffer or srtring) (current buffer if
+    'nil')
+
+  - PRINTFLAG :: controls printing of output by output functions;
+    - 'nil' means discard
+    - 't’ means print
+
+  - FILENAME :: the file name to use for 'load-history'
+
+  - UNIBYTE :: if non-'nil', specifies 'load-convert-to-unibyte'
+
+  - DO-ALLOW-PRINT :: if non-'nil', output functions should work normally;
+    output is displayed in echo area.
+
+
+  It will heed =-*- lexical-binding: t -*-= setting in heading; otherwise, the
+  buffer will be evaluated without lexical binding.
+
+*** Eval Region
+
 * Interacting with the System
 :PROPERTIES:
 :appendix: t
