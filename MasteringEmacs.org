@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-01 08:13
-#+macro:version Version 0.0.132
+#+date:2020-09-01 15:12
+#+macro:version Version 0.0.133
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7714,6 +7714,25 @@ in LIST, ‘delete-dups’ keeps the first one.
   declared with =defvar= or =defcustom=, and it goes with saying that having to
   move point to the end of the expression every time you want to eval the sexp
   is annoying as well.
+
+*** Eval Defun
+
+(require 'paredit-menu)
+** Editing Lisp Code
+- [[https://www.cliki.net/Editing+Lisp+Code+with+Emacs][Editing Lisp Code with Emacs]]
+*** Structured Editing
+Structured editing is a way of editing source code which attempts, as much as
+is possible, to keep the source code consistently valid.  This means, among
+other things, that the inserting of an open parenthesis should insert the
+closing one as well (similarly for ").
+
+- paredit mode
+
+  - [[http://mumble.net/~campbell/emacs/paredit.html][paredit cheat sheet]]
+
+- parinfer mode
+
+
 * Interacting with the System
 :PROPERTIES:
 :appendix: t
