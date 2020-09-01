@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-01 07:52
-#+macro:version Version 0.0.131
+#+date:2020-09-01 08:13
+#+macro:version Version 0.0.132
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7669,12 +7669,51 @@ in LIST, ‘delete-dups’ keeps the first one.
   - DO-ALLOW-PRINT :: if non-'nil', output functions should work normally;
     output is displayed in echo area.
 
-
   It will heed =-*- lexical-binding: t -*-= setting in heading; otherwise, the
   buffer will be evaluated without lexical binding.
 
 *** Eval Region
+- =(eval-region)= ::
 
+  Execute the region as Lisp code.
+
+  When called from programs, expects two arguments, giving starting and ending
+  indices in the current buffer of the text to be executed.
+
+  - START :: start point of region
+
+  - END :: end point of region
+
+  - PRINTFLAG :: 'nil' means to discard printed output
+
+  - READ-FUNCTION :: if non-'nil', use an alternate function to read each
+    expression.  It’s one argument is the input stream for reading characters.
+
+*** Eval S-Expression
+- =(eval-last-sexp)= :: =C-x C-e=
+
+  Evaluate sexp before point; print value in the echo area. Interactively, with
+  a non ‘-’ prefix argument, print output into current buffer.
+
+  It is one of few commands that are globally available to most modes, and it
+  only works if you have the point at the end of an s-expression.
+
+  Normally, this function truncates long output according to the value of the
+  variables:
+
+  - eval-expression-print-length
+  - eval-expression-print-level
+
+  With a prefix argument of '0', do not truncate.
+
+  If ‘eval-expression-debug-on-error’ is non-nil, which is the default, this
+  command arranges for all errors to enter the debugger.
+
+  There are a couple of limitations that make this command a poor tool to use
+  if you are writing and testing elisp code, because it cannot update variables
+  declared with =defvar= or =defcustom=, and it goes with saying that having to
+  move point to the end of the expression every time you want to eval the sexp
+  is annoying as well.
 * Interacting with the System
 :PROPERTIES:
 :appendix: t
