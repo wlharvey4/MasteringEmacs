@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-01 15:12
-#+macro:version Version 0.0.133
+#+date:2020-09-01 23:48
+#+macro:version Version 0.0.134
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7716,23 +7716,61 @@ in LIST, ‘delete-dups’ keeps the first one.
   is annoying as well.
 
 *** Eval Defun
+    - =eval-defun= :: =C-M-x=
 
-(require 'paredit-menu)
+      Evaluate  the top-level  form containing  point, or  after point.  If the
+      current defun is  actually a call to ‘defvar’  or ‘defcustom’, evaluating
+      it this way resets the variable using its initial value expression.
+
+      If  ‘eval-expression-debug-on-error’ is  non-nil, which  is the  default,
+      this command arranges for all errors to enter the debugger.
+
+      With a prefix argument, instrument the code for Edebug.
+
+
+This command is designed for a  typical hacker’s write-eval-test cycle. You can
+type =C-M-x=  anywhere in  a form,  and it will  evaluate the  outer-most form,
+ensuring that you won’t accidentally evaluate only a part of a larger form.
+
+It has  built-in support for Edebug.  Using the universal argument  =C-u= Emacs
+will evaluate  the form as normal,  but enable debug instrumentation.  The next
+time it is  run it kicks off the  debugger and lets you step  through the code,
+with every evaluation showing its value (if any) in the echo area.
+
+*** Eval Expression
+- =eval-expression= :: =M-:=
+
+  Evaluate EXP and print value in the echo area.
+
+  When called interactively, read an Emacs  Lisp expression and evaluate it. If
+  invoked with  the universal argument =C=u=,  the output of the  expression is
+  inserted into the buffer.
+
+  It evaluates code in the context of the buffer it is invoked from.
+
+- =repeat-complex-command= :: =C-x M-:=
+
+  Edit and  re-evaluate last  complex command,  or ARGth  from last.  A complex
+  command  is one  that  used the  minibuffer.  The command  is  placed in  the
+  minibuffer as a Lisp form for  editing. The result is executed, repeating the
+  command as changed.
+
+  You can  use the  minibuffer history  commands M-n and  M-p to  get different
+  commands to edit and resubmit.
+
 ** Editing Lisp Code
 - [[https://www.cliki.net/Editing+Lisp+Code+with+Emacs][Editing Lisp Code with Emacs]]
 *** Structured Editing
 Structured editing is a way of editing source code which attempts, as much as
 is possible, to keep the source code consistently valid.  This means, among
 other things, that the inserting of an open parenthesis should insert the
-closing one as well (similarly for ").
+closing one as well.
 
 - paredit mode
 
   - [[http://mumble.net/~campbell/emacs/paredit.html][paredit cheat sheet]]
 
 - parinfer mode
-
-
 * Interacting with the System
 :PROPERTIES:
 :appendix: t
