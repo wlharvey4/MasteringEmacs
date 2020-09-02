@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-01 23:48
-#+macro:version Version 0.0.134
+#+date:2020-09-02 00:37
+#+macro:version Version 0.0.135
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7758,7 +7758,87 @@ with every evaluation showing its value (if any) in the echo area.
   You can  use the  minibuffer history  commands M-n and  M-p to  get different
   commands to edit and resubmit.
 
-** Editing Lisp Code
+*** Interactive Evaluation
+**** Lisp Interaction Mode
+When Emacs starts up, it contains a buffer named =*scratch*=, which is provided
+for evaluating Emacs Lisp expressions  interactively using the major mode *Lisp
+Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode is
+*Lisp Data Mode*.  It’s parent mode is *Prog Mode*.
+
+- =M-x lisp-interaction-mode= ::
+
+  Major mode for typing and evaluating Lisp forms.
+
+  This mode  is like Lisp  mode except that =M-x  eval-print-last-sexp= (=C-j=)
+  evals the Lisp expression before point, and prints its value into the buffer,
+  advancing point.
+
+- =completion-at-point= :: =C-M-i=
+
+- =indent-pp-sexp= :: =C-M-q=
+
+- =eval-defun= :: =C-M-x=
+
+***** The Scratch Buffer---*scratch*
+
+**** Lisp Mode
+Major mode for editing Lisp code for Lisps other than GNU Emacs Lisp.
+
+**** Lisp Data Mode
+Major mode for buffers holding data written in Lisp syntax.
+
+**** Prog Mode
+Major mode for editing programming language source code.
+
+ This buffer is useful for throw-away  scripts and quick code evaluation. If you
+ put  point at  the  end of  an  sexp and  type =C-j=  Emacs  will evaluate  the
+ expression and print the result straight into the buffer.
+
+ - =eval-print-last-sexp= :: =C-j=
+
+   Evaluate sexp before point; print value into current buffer, truncating. With
+   a prefix argument of zero, there is no truncation.
+
+   If ‘eval-expression-debug-on-error’  is non-nil,  which is the  default, this
+   command arranges for all errors to enter the debugger.
+
+**** The Interactive Emacs Lisp Mode---ielm
+- =M-x ielm= ::
+
+  Run the elisp REPL. The mode inherits from =comint= (command history, limited
+  TAB completion).
+
+  =*=, =**=, =***= to get the last three outputs from the shell.
+
+  Working buffer---a  buffer through which  your changes are  evaluated. Typing
+  =C-c C-b= allows  you to choose ielm’s  working buffer, so that  all the code
+  you evaluate thereafter will be treated as  if you executed it in the context
+  of that  buffer. This functionality  comes in handy  if you are  dealing with
+  buffer-local variables or changes that’re specific to one buffer only.
+
+  - Auto-Complete ::
+
+    By default ielm is not supported in auto complete.  To make it so, add this
+    code to you =.emacs=:
+
+
+#+begin_src elisp
+  (defun ielm-auto-complete ()
+    "Enables `auto-complete' support in \\[ielm]."
+    (setq ac-sources '(ac-source-functions
+		       ac-source-variables
+		       ac-source-features
+		       ac-source-symbols
+		       ac-source-words-in-same-mode-buffers))
+    (add-to-list 'ac-modes 'inferior-emacs-lisp-mode)
+    (auto-complete-mode 1))
+  (add-hook 'ielm-mode-hook 'ielm-auto-complete)
+#+end_src
+
+**** Eshell
+You can evaluate elisp in Eshell directly from the prompt.
+
+** Edit Lisp Code
 - [[https://www.cliki.net/Editing+Lisp+Code+with+Emacs][Editing Lisp Code with Emacs]]
 *** Structured Editing
 Structured editing is a way of editing source code which attempts, as much as
