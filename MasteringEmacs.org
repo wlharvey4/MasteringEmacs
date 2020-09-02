@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-02 00:37
-#+macro:version Version 0.0.135
+#+date:2020-09-02 01:03
+#+macro:version Version 0.0.136
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7781,14 +7781,8 @@ Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode
 
 ***** The Scratch Buffer---*scratch*
 
-**** Lisp Mode
-Major mode for editing Lisp code for Lisps other than GNU Emacs Lisp.
-
-**** Lisp Data Mode
-Major mode for buffers holding data written in Lisp syntax.
-
-**** Prog Mode
-Major mode for editing programming language source code.
+ This buffer is  provided for evaluating Emacs  Lisp expressions interactively.
+ Its major mode is Lisp Interaction mode.
 
  This buffer is useful for throw-away  scripts and quick code evaluation. If you
  put  point at  the  end of  an  sexp and  type =C-j=  Emacs  will evaluate  the
@@ -7801,6 +7795,32 @@ Major mode for editing programming language source code.
 
    If ‘eval-expression-debug-on-error’  is non-nil,  which is the  default, this
    command arranges for all errors to enter the debugger.
+
+- =initial-scratch-message= ::
+
+  Variable to  control the initial  message in the buffer.  Set it to  either a
+  documentation string or ’nil’ to suppress it.
+
+**** Lisp Mode
+Parent mode is *Lisp Data Mode*.
+
+Major mode for editing Lisp code for Lisps other than GNU Emacs Lisp.
+
+**** Lisp Data Mode
+Major mode for buffers holding data written in Lisp syntax.
+
+**** Prog Mode
+Major mode for editing programming language source code.
+
+**** Inferior Lisp Mode
+Parent mode is *Comint Mode*.
+
+Major  mode  for  interacting  with  an inferior  Lisp  process.  Runs  a  Lisp
+interpreter as a subprocess of Emacs, with Lisp I/O through an Emacs buffer.
+
+- =inferior-lisp-program= ::
+
+  controls which Lisp interpreter is run.
 
 **** The Interactive Emacs Lisp Mode---ielm
 - =M-x ielm= ::
@@ -7837,6 +7857,43 @@ Major mode for editing programming language source code.
 
 **** Eshell
 You can evaluate elisp in Eshell directly from the prompt.
+
+** Run an External Lisp or Scheme Session
+You can  run an external  Lisp session as a  subprocess or inferior  process of
+Emacs, and pass expressions to it to be evaluated.
+
+- =run-lisp= ::
+
+  To begin an external Lisp session, type =M-x run-lisp=. This runs the program
+  named =lisp=,  and sets it  up so  that both input  and output go  through an
+  Emacs buffer named  =*inferior-lisp*=. This command also switches  back to an
+  existing inferior lisp job.
+
+  The major mode for the *lisp*  buffer is *Inferior Lisp mode*, which combines
+  the characteristics of Lisp mode and Shell mode.
+
+  To send  input to the Lisp  session, go to the  end of the *lisp*  buffer and
+  type the input,  followed by <RET>. Terminal output from  the Lisp session is
+  automatically inserted in the buffer.
+
+
+When  you   edit  a  Lisp   program  in  Lisp   mode,  you  can   type  =C-M-x=
+(=lisp-eval-defun=) to send  an expression from the Lisp mode  buffer to a Lisp
+session that  you had started with  =M-x run-lisp=. The expression  sent is the
+top-level Lisp  expression at or following  point. The resulting value  goes as
+usual into the =*inferior-lisp*= buffer.
+
+- =inferior-lisp-program= ::
+
+  Variable holding the namne of the lisp program to run with =run-lisp=.
+
+*** External Scheme
+- =scheme-mode= ::
+
+  Parent mode is *Prog Mode*.
+
+  Major mode for editing Scheme code.  Editing commands are similar to those of
+  ‘lisp-mode’.
 
 ** Edit Lisp Code
 - [[https://www.cliki.net/Editing+Lisp+Code+with+Emacs][Editing Lisp Code with Emacs]]
