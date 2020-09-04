@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-02 01:03
-#+macro:version Version 0.0.136
+#+date:2020-09-02 22:57
+#+macro:version Version 0.0.137
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7645,7 +7645,11 @@ the result in LIST and returns it. Of several ‘equal’ occurrences of an elem
 in LIST, ‘delete-dups’ keeps the first one.
 #+end_defun
 * Elisp
-** Evaluate Elisp
+** Evaluate Emacs Lisp Expressions
+*Emacs Lisp mode* is the major mode for editing Emacs Lisp.
+
+- =emacs-lisp-mode=
+
 *** Eval Buffer
 - =(eval-buffer)= ::
 
@@ -7758,7 +7762,128 @@ with every evaluation showing its value (if any) in the echo area.
   You can  use the  minibuffer history  commands M-n and  M-p to  get different
   commands to edit and resubmit.
 
-*** Interactive Evaluation
+*** Interactive Evaluation and Executing Lisp Expressions
+Emacs has major modes for variants of Lisp, including Emacs Lisp and
+Scheme.  They provide special commands for executing Lisp expressions.
+
+**** Prog Mode
+Major mode for editing programming language source code.
+
+- =prog-indent-sexp= :: =C-M-q=
+
+  Indent the expression after point.
+
+  When interactively called with prefix, indent the enclosing defun instead.
+
+- =prog-mode-hook= ::
+
+**** Lisp Data Mode
+Major mode for buffers holding data written in Lisp syntax. The base major mode
+for editing Lisp code (used also for Emacs Lisp).
+
+- =prog-indent-sexp= ::
+
+  Indent the expression after point.
+
+  When interactively called with prefix, indent the enclosing defun instead.
+
+Parent mode is *Prog Mode*.
+
+- =lisp-data-mode-hook=
+
+**** Lisp Mode
+Major mode for editing Lisp code for Lisps other than GNU Emacs Lisp.
+
+Lisp mode is the major mode for editing programs written in
+general-purpose Lisp dialects, such as Common Lisp. Emacs uses Lisp
+mode automatically for files whose names end in ‘.l’, ‘.lsp’, or
+‘.lisp’.
+
+- =M-x lisp-mode=
+
+- =lisp-eval-last-sexp= :: =C-x C-e=
+
+  Send the previous sexp to an inferior (external) Lisp process.
+  Prefix argument means switch to the Lisp buffer afterwards.
+
+Parent mode is *Lisp Data Mode*.
+
+**** Inferior Lisp Mode
+Parent mode is *Comint Mode*.
+
+Major  mode  for  interacting  with  an inferior  Lisp  process.  Runs  a  Lisp
+interpreter as a subprocess of Emacs, with Lisp I/O through an Emacs buffer.
+
+- =inferior-lisp-program= ::
+
+  controls which Lisp interpreter is run.
+
+**** Scheme Mode
+Parent mode is *Prog Mode*.
+
+Major mode for editing Scheme code. Editing commands are similar to
+those of ‘lisp-mode’.
+
+In addition, if an inferior Scheme process is running, some additional
+commands will be defined, for evaluating expressions and controlling
+the interpreter, and the state of the process will be displayed in the
+mode line of all Scheme buffers.
+
+Use =M-x run-scheme= to start an inferior Scheme using the more
+general ‘cmuscheme’ package.
+
+- =scheme-send-last-sexp= :: =C-x C-e=
+
+  Send the previous sexp to the inferior Scheme process.
+
+- =scheme-mode-hook= ::
+
+**** Inferior Scheme Mode
+Major mode for interacting with an inferior Scheme process. Like
+Inferior Lisp mode, but for Scheme.
+
+Parent mode is *Comint Mode*.
+
+A Scheme process can be fired up with =M-x run-scheme=.
+
+- =scheme-send-last-sexp= :: =C-x C-e=
+
+- =inferior-scheme-mode-hook= ::
+
+**** Emacs Lisp Mode
+Major mode for editing Lisp code and Lisp source files to run in
+Emacs.
+
+- =emacs-lisp-mode= ::  mode command
+
+- =eval-defun= :: =C-M-x=
+
+  Evaluate the top-level form containing point,  or after point. If the current
+  defun is actually  a call to ‘defvar’ or ‘defcustom’,  evaluating it this way
+  resets the variable using its  initial value expression This command arranges
+  for all errors to enter the debugger.
+
+  With a prefix argument, instrument the code for Edebug.
+
+- =eval-expression= :: =M-:=
+
+  Evaluate EXP and print value in the echo area. When called
+  interactively, read an Emacs Lisp expression and evaluate it.
+
+- =eval-last-sexp= :: =C-x C-e=
+
+  Evaluate  sexp  before point  print  value  in the  echo  area.
+  Interactively,  with a  non ‘-’  prefix argument,  print output
+  into current buffer.
+
+- =eval-region= and =eval-buffer= ::
+
+  The command ‘M-x eval-region’ parses  the text of the region as
+  one or more Lisp expressions,  evaluating them one by one. ‘M-x
+  eval-buffer’ is similar but evaluates the entire buffer.
+
+Parent mode is *Lisp Data Mode*.
+
 **** Lisp Interaction Mode
 When Emacs starts up, it contains a buffer named =*scratch*=, which is provided
 for evaluating Emacs Lisp expressions  interactively using the major mode *Lisp
@@ -7767,15 +7892,23 @@ Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode
 
 - =M-x lisp-interaction-mode= ::
 
-  Major mode for typing and evaluating Lisp forms.
+  Major mode for typing and evaluating Lisp forms in an interactive
+  Emacs Lisp session.
+
+  Parent mode is *Emacs Lisp Mode*.
 
   This mode  is like Lisp  mode except that =M-x  eval-print-last-sexp= (=C-j=)
   evals the Lisp expression before point, and prints its value into the buffer,
   advancing point.
 
+- =eval-print-last-sexp= :: =C-j=
+
+  Evaluate sexp before point; print value into current buffer.
+
 - =completion-at-point= :: =C-M-i=
 
-- =indent-pp-sexp= :: =C-M-q=
+- =inden
+t-pp-sexp= :: =C-M-q=
 
 - =eval-defun= :: =C-M-x=
 
@@ -7800,27 +7933,6 @@ Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode
 
   Variable to  control the initial  message in the buffer.  Set it to  either a
   documentation string or ’nil’ to suppress it.
-
-**** Lisp Mode
-Parent mode is *Lisp Data Mode*.
-
-Major mode for editing Lisp code for Lisps other than GNU Emacs Lisp.
-
-**** Lisp Data Mode
-Major mode for buffers holding data written in Lisp syntax.
-
-**** Prog Mode
-Major mode for editing programming language source code.
-
-**** Inferior Lisp Mode
-Parent mode is *Comint Mode*.
-
-Major  mode  for  interacting  with  an inferior  Lisp  process.  Runs  a  Lisp
-interpreter as a subprocess of Emacs, with Lisp I/O through an Emacs buffer.
-
-- =inferior-lisp-program= ::
-
-  controls which Lisp interpreter is run.
 
 **** The Interactive Emacs Lisp Mode---ielm
 - =M-x ielm= ::
@@ -7859,15 +7971,21 @@ interpreter as a subprocess of Emacs, with Lisp I/O through an Emacs buffer.
 You can evaluate elisp in Eshell directly from the prompt.
 
 ** Run an External Lisp or Scheme Session
-You can  run an external  Lisp session as a  subprocess or inferior  process of
-Emacs, and pass expressions to it to be evaluated.
+You can  run an  external Lisp  or Scheme session  as a  subprocess or
+inferior process of Emacs, and pass expressions to it to be evaluated.
 
-- =run-lisp= ::
+*** Inferior Lisp Session
 
-  To begin an external Lisp session, type =M-x run-lisp=. This runs the program
-  named =lisp=,  and sets it  up so  that both input  and output go  through an
-  Emacs buffer named  =*inferior-lisp*=. This command also switches  back to an
-  existing inferior lisp job.
+- =M-x run-lisp= ::
+
+  To begin an external Lisp session, type =M-x run-lisp=. This runs
+  the program named =lisp=, and sets it up so that both input and
+  output go through an Emacs buffer named =*inferior-lisp*=. This
+  command also switches back to an existing inferior lisp job. To
+  change the name of the Lisp program run by ‘M-x run-lisp’, change
+  the variable ‘inferior-lisp-program’.
+
+- =inferior-lisp-mode= ::
 
   The major mode for the *lisp*  buffer is *Inferior Lisp mode*, which combines
   the characteristics of Lisp mode and Shell mode.
@@ -7876,16 +7994,51 @@ Emacs, and pass expressions to it to be evaluated.
   type the input,  followed by <RET>. Terminal output from  the Lisp session is
   automatically inserted in the buffer.
 
+- =lisp-mode=
 
-When  you   edit  a  Lisp   program  in  Lisp   mode,  you  can   type  =C-M-x=
-(=lisp-eval-defun=) to send  an expression from the Lisp mode  buffer to a Lisp
-session that  you had started with  =M-x run-lisp=. The expression  sent is the
-top-level Lisp  expression at or following  point. The resulting value  goes as
-usual into the =*inferior-lisp*= buffer.
+  When you edit a Lisp program in Lisp mode, you can type =C-M-x=
+  (=lisp-eval-defun=) to send an expression from the Lisp mode buffer
+  to a Lisp session that you had started with =M-x run-lisp=. The
+  expression sent is the top-level Lisp expression at or following
+  point. The resulting value goes as usual into the =*inferior-lisp*=
+  buffer.
 
 - =inferior-lisp-program= ::
 
   Variable holding the namne of the lisp program to run with =run-lisp=.
+
+*** Inferior Scheme Session
+
+The facilities for editing Scheme code, and for sending expressions to
+a Scheme subprocess, are very similar. If an inferior Scheme process
+is running, some additional commands will be defined, for evaluating
+expressions and controlling the interpreter, and the state of the
+process will be displayed in the mode line of all Scheme buffers.
+
+- =M-x scheme-mode= ::
+
+  Scheme source files are edited in Scheme mode.
+
+- =M-x run-scheme= ::
+
+  Initiate a  Scheme session, or  run an inferior Scheme  process. The
+  buffer for  interacting with  Scheme is  named ‘*scheme*’  using the
+  =cmuscheme' package.
+
+- =scheme-send-definition= :: =C-M-x=, =C-c C-e=
+
+  Send the current definition to the inferior Scheme process.
+
+- =scheme-program-name= ::
+
+  Program invoked by the ‘run-scheme’ command. It's current value is
+  "scheme".
+
+  If the file ‘~/.emacs_SCHEMENAME’ or
+  ‘~/.emacs.d/init_SCHEMENAME.scm’ exists, it is given as initial
+  input.
+
+- =scheme-mode-hook= ::
 
 *** External Scheme
 - =scheme-mode= ::
