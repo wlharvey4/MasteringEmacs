@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-02 22:57
-#+macro:version Version 0.0.137
+#+date:2020-09-05 11:50
+#+macro:version Version 0.0.138
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -7976,14 +7976,23 @@ inferior process of Emacs, and pass expressions to it to be evaluated.
 
 *** Inferior Lisp Session
 
-- =M-x run-lisp= ::
+- =M-x run-lisp= :: =(run-lisp CMD)= Alias of =inferior-lisp=.
 
-  To begin an external Lisp session, type =M-x run-lisp=. This runs
-  the program named =lisp=, and sets it up so that both input and
-  output go through an Emacs buffer named =*inferior-lisp*=. This
-  command also switches back to an existing inferior lisp job. To
-  change the name of the Lisp program run by ‘M-x run-lisp’, change
-  the variable ‘inferior-lisp-program’.
+  To begin an external Lisp session, type =M-x run-lisp=. This runs the program
+  named =lisp=,  and sets it  up so  that both input  and output go  through an
+  Emacs buffer named  =*inferior-lisp*=. This command also switches  back to an
+  existing inferior  lisp job. To  change the name of  the Lisp program  run by
+  ‘M-x run-lisp’, change the variable ‘inferior-lisp-program’.
+
+- =inferior-lisp= :: =(inferior-lisp CMD)=
+
+  Run an inferior Lisp process, input and output via buffer ‘*inferior-lisp*’.
+
+  If there  is a process already  running in ‘*inferior-lisp*’, just  switch to
+  that buffer.
+
+  With  argument, allows  you to  edit the  command line  (default is  value of
+  ‘inferior-lisp-program’).
 
 - =inferior-lisp-mode= ::
 
@@ -7994,6 +8003,10 @@ inferior process of Emacs, and pass expressions to it to be evaluated.
   type the input,  followed by <RET>. Terminal output from  the Lisp session is
   automatically inserted in the buffer.
 
+- =inferior-lisp-program= ::
+
+  Variable holding the namne of the lisp program to run with =run-lisp=.
+
 - =lisp-mode=
 
   When you edit a Lisp program in Lisp mode, you can type =C-M-x=
@@ -8002,10 +8015,6 @@ inferior process of Emacs, and pass expressions to it to be evaluated.
   expression sent is the top-level Lisp expression at or following
   point. The resulting value goes as usual into the =*inferior-lisp*=
   buffer.
-
-- =inferior-lisp-program= ::
-
-  Variable holding the namne of the lisp program to run with =run-lisp=.
 
 *** Inferior Scheme Session
 
