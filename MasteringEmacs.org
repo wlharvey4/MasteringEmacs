@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-05 11:50
-#+macro:version Version 0.0.138
+#+date:2020-09-09 22:28
+#+macro:version Version 0.0.139
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -8057,12 +8057,58 @@ process will be displayed in the mode line of all Scheme buffers.
   Major mode for editing Scheme code.  Editing commands are similar to those of
   ‘lisp-mode’.
 
+*** SLIME Mode
+- [[https://github.com/slime/slime][SLIME on GitHub]]
+- [[https://common-lisp.net/project/slime/doc/html/index.html#SEC_Contents][SLIME User Manual, version 2.24]]
+
+
+SLIME extends  Emacs with support  for interactive programming in  Common Lisp.
+The  features  are  centered  around =slime-mode=,  an  Emacs  minor-mode  that
+complements the  standard =lisp-mode=. While =lisp-mode=  supports editing Lisp
+source files, =slime-mode=  adds support for interacting with  a running Common
+Lisp process for compilation, debugging, documentation lookup, and so on.
+
+SLIME is  constructed from two parts:  a user-interface written in  Emacs Lisp,
+and  a supporting  server program  written in  Common Lisp.  The two  sides are
+connected together with a socket and communicate using an RPC-like protocol.
+
+- CMU Common Lisp (CMUCL),
+- Steel Bank Common Lisp (SBCL)
+- Clozure Common Lisp (CCL)
+- LispWorks
+- Allegro Common Lisp (ACL),
+- CLISP
+- Armed Bear Common Lisp (ABCL)
+- Corman Common Lisp
+- Scieneer Common Lisp (SCL)
+- Embedded Common Lisp (ECL)
+
+**** SLIME Installation
+Install SLIME using Emacs’ package manager.
+
+Define a default Lisp program using the variable =inferior-lisp-program=.
+
+: (setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
+
+SLIME can be run using the command =slime=.
+
+: [C-u] M-x slime
+
+This    command    runs    the   command    =inferior-lisp=,    which    starts
+=inferior-lisp-mode= and starts  an inferior lisp process; and  then starts the
+lisp  server "Swank";  and establishes  a socket  connection between  Emacs and
+Lisp;  and starts  a  REPL buffer  where  you can  enter  Lisp expressions  for
+evaluation.
+
+With a prefix argument, Emacs will prompt for the program.
+
 ** Edit Lisp Code
 - [[https://www.cliki.net/Editing+Lisp+Code+with+Emacs][Editing Lisp Code with Emacs]]
+
 *** Structured Editing
-Structured editing is a way of editing source code which attempts, as much as
-is possible, to keep the source code consistently valid.  This means, among
-other things, that the inserting of an open parenthesis should insert the
+Structured editing is a  way of editing source code which  attempts, as much as
+is possible,  to keep  the source  code consistently  valid. This  means, among
+other  things, that  the inserting  of an  open parenthesis  should insert  the
 closing one as well.
 
 - paredit mode
@@ -9538,7 +9584,7 @@ to be case-sensitive.
 :PROPERTIES:
 :appendix: t
 :custom_id: build-tools
-:org-template-version: 0.5.40
+:org-template-version: 0.6.6
 :END:
 ** Makefile					:dependencies:env_vars:perl:
 :PROPERTIES:
@@ -9578,6 +9624,7 @@ TEMPLATE := $(SYNC_ORG_TEMPLATE)
 
 # Use emacsclient as $EDITOR; make sure it is set in a shell startup file and
 # the server has been started.
+EMACS	  := $(EMACS)
 EDITOR	  := $(EDITOR)
 
 # User’s personal GitHub token for authentication to GitHub
@@ -9672,18 +9719,29 @@ SRC := $(DIR)/
 VERS := v$(shell $(EDITOR) --eval \
 	'(with-current-buffer (find-file-noselect "$(ORG)") \
 		(save-excursion \
-		(goto-char (point-min)) \
-		(re-search-forward "^\#[+]\\(?:macro\\|MACRO\\):version Version \\(\\(?:[[:digit:]]+[.]?\\)\\{3\\}\\)") \
-		(match-string-no-properties 1)))')/
+		  (goto-char (point-min)) \
+		  (re-search-forward "^\#[+]\\(?:macro\\|MACRO\\):version Version \\(\\(?:[[:digit:]]+[.]?\\)\\{3\\}\\)") \
+		  (match-string-no-properties 1)))')/
 
 ### AWS
 # PROJ_LIST contains the list of projects currently uploaded to
 # the S3 bucket; each item contains the name of the project and its
 # current version.
 
-PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(S3_BUCKET))))
+# Created function using elisp instead of the shell.
+# This variable contains an elisp list of strings of the form '("proj1-v1.2.3/" "proj2-v4.5.6/" ...)'
+# However, when it prints to the shell, the quotes are lost.
+# Need to make sure elisp's variable 'exec-path contains the proper $PATH instead of adding to 'exec-path.
 
-### PROJ_LIST
+#PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(S3_BUCKET))))
+PROJ_LIST := $(shell $(EDITOR) --eval \
+	"(progn \
+		(require (quote seq)) (add-to-list (quote exec-path) (quote \"/usr/local/bin\")) \
+		(seq-map (lambda (s) (replace-regexp-in-string \"^\s+PRE \" \"\" s)) \
+			(seq-filter (lambda (s) (string-match-p (regexp-quote \" PRE \") s)) \
+			(process-lines \"$(AWS)\" \"s3\" \"ls\" \"$(S3_BUCKET)\"))))")
+
+### S3PROJ
 # The name of the current project as obtained from S3: 'proj-v1.2.34/'
 # If there is no current project in the S3 bucket, then assign a value equal to
 # the Org project and version instead.
@@ -9761,7 +9819,7 @@ PHONY: default all check values boot \
 	  texi info html pdf \
 	  open-org open-texi open-html open-pdf \
 	  clean dist-clean wiped-clean \
-	  help sync update \
+	  help sync update delete-proj \
 	  install-aws-cli \
 	  index-html upload-index-html
 
@@ -9783,7 +9841,7 @@ values: check
 	  @echo SRC:		$(SRC)
 	  @echo DST_OLD:	$(DST_OLD)
 	  @echo DST_NEW:	$(DST_NEW)
-	  @echo PROJ_LIST:	$(PROJ_LIST)
+	  @echo PROJ_LIST:	"$(PROJ_LIST)"
 
 check:
 	  @printf "$${BLUE}Checking dependencies...$${CLEAR}\n"
@@ -9891,6 +9949,18 @@ homepage: $(ORG) upload-index-html
 		https://api.github.com/repos/$(USER)/$(PROJ)$S
 	  @echo Done updating homepage.
 
+delete-proj:
+	@echo Deleting project $(PROJ)...
+	@curl -i \
+		-H "Authorization: token $(GITHUB_TOKEN)" \
+		-H "Accept: application/vnd.github.v3+json" \
+		-X DELETE \
+		https://api.github.com/repos/$(USER)/$(PROJ)$S
+	-@make wipe-clean
+	@$(EDITOR) -u --eval "(kill-buffer \"$(ORG)\")"
+	@cd .. && rm -rf $(PROJ)
+	@echo Done deleting project.
+
 index-html: $(INDEX)
 $(INDEX): $(ORG)
 	@echo making index.html...
@@ -9910,23 +9980,23 @@ update: $(ORG)
 	@echo Updating $(ORG)...
 	$(EDITOR) -u --eval '\
 	(progn \
-	(with-current-buffer (find-file-noselect "$(TEMPLATE)") \
-	     (save-excursion \
-	     (goto-char (point-min)) \
-	     (search-forward "* Build Tools") \
-	     (org-beginning-of-line) \
-	     (org-copy-subtree))) \
-	(with-current-buffer (find-file-noselect "$(ORG)") \
-	     (save-excursion \
-	     (goto-char (point-min)) \
-	     (search-forward "* Build Tools") \
-	     (org-beginning-of-line) \
-	     (org-yank) \
-	     (org-cut-subtree) \
-	     (save-buffer) \
-	     (kill-buffer) \
-	     (setq org-confirm-babel-evaluate nil) \
-	     (org-babel-tangle-file "$(ORG)"))))'
+	  (with-current-buffer (find-file-noselect "$(TEMPLATE)") \
+	       (save-excursion \
+	       	 (goto-char (point-min)) \
+	       	 (search-forward "* Build Tools") \
+	       	 (org-beginning-of-line) \
+	       	 (org-copy-subtree))) \
+	  (with-current-buffer (find-file-noselect "$(ORG)") \
+	       (save-excursion \
+	       	 (goto-char (point-min)) \
+	       	 (search-forward "* Build Tools") \
+	       	 (org-beginning-of-line) \
+	       	 (org-yank) \
+	       	 (org-cut-subtree) \
+	       	 (save-buffer) \
+	       	 (kill-buffer) \
+	       	 (setq org-confirm-babel-evaluate nil) \
+	       	 (org-babel-tangle-file "$(ORG)"))))'
 	 @echo Done updating $(ORG).
 
 install-aws-cli:
@@ -9936,24 +10006,27 @@ install-aws-cli:
 	  rm -rf AWSCLIV2.pkg
 
 clean:
-	  -rm *~
-	  -for file in *.??*; \
+	@echo Cleaning...
+	  -@rm *~
+	  -@for file in *.??*; \
 	  do \
 		  ext=$${file#$(PROJ).}; \
 		  [[ ! $${ext} =~ org|texi|info|pdf|html ]] && rm -rv $${file}; \
 	  done
 
 dist-clean: clean
-	  -rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
-	  -for dir in *; \
+	@echo Dist Cleaning...
+	  -@rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
+	  -@for dir in *; \
 	  do \
 		  [ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
 		  rm -vr $$dir; \
 	  done
 
 wipe-clean: dist-clean
-	  -rm -rf Makefile Readme.md $(DIR_OLD)
-	  git checkout Makefile README.md
+	@echo Wipe Clean...
+	  -@rm -rf Makefile Readme.md $(DIR_OLD)
+	  @git checkout Makefile README.md
 
 git-ready: dist-clean
 	  git checkout Makefile
@@ -9961,17 +10034,13 @@ git-ready: dist-clean
 	  git status
 
 help:
+	  @echo '"make boot" tangles all of the files in Template'
 	  @echo '"make default" makes the .texi file, the .info file, \
 	  the html files, and the .pdf file.'
 	  @echo
 
 	  @echo '"make check" checks for prerequistes'
 	  @echo '"make values" runs check and prints variable values'
-	  @echo
-
-	  @echo '"make sync" syncs the html files in the AWS S3 bucket BUCKET; \
-	  you must have your AWS S3 bucket name in the env var AWS_S3_BUCKET; \
-	  You must have your AWS credentials installed in ~/.aws/credentials'
 	  @echo
 
 	  @echo '"make texi" makes the .texi file'
@@ -9987,14 +10056,22 @@ help:
 	  @echo '"make open-pdf" opens the .pdf file'
 	  @echo
 
+	  @echo '"make sync" syncs the html files in the AWS S3 bucket BUCKET; \
+	  you must have your AWS S3 bucket name in the env var AWS_S3_BUCKET; \
+	  You must have your AWS credentials installed in ~/.aws/credentials'
+	  @echo
+
 	  @echo '"make install-aws-cli" installs the "aws cli v2" command-line tools'
 	  @echo 'You also need to run "aws configure" and supply your Access Key and Secret Access Key'
+	  @echo
 
 	  @echo '"make clean" removes the .texi, .info, and backup files ("*~")'
 	  @echo '"make dist-clean" cleans, removes the html distribution, \
 	  and removes the build directory'
 	  @echo '"make wipe-clean" wipes clean the directory, including old directories'
-	  @echo '"make boot" tangles all of the files in Template'
+	  @echo
+
+	  @echo '"make delete-proj" deletes the project from the file system, GitHub and AWS'
 
 #+end_src
 
@@ -10098,6 +10175,7 @@ sync.
   done
 #+end_src
 
+
 ** Update Utility Commands
 *** Get Parsed Org Tree
 This function looks for an Org file in the present working directory, and if it
@@ -10381,7 +10459,7 @@ nil
 * Build Scripts
   :PROPERTIES:
   :custom_id: build-scripts
-  :org-template-version: 0.5.40
+  :org-template-version: 0.6.6
   :END:
 ** Create and Update Projects
 *** Create New Project
@@ -10400,24 +10478,36 @@ nil
      (let ((projfile (concat project "/" project ".org")))
        (copy-file (getenv "SYNC_ORG_TEMPLATE") projfile)
        (with-current-buffer (find-file-noselect projfile)
-         (goto-char (point-min))
-	     (re-search-forward "^#[+]title:\s*\\(TITLE\\)$")
-	     (replace-match title t nil nil 1)
-	     (re-search-forward "^#[+]author:\s*\\(AUTHOR\\)$")
-	     (replace-match author t nil nil 1)
-	     (re-search-forward "^#[+]macro:\s*version Version \\(.*\\)$")
-	     (replace-match "0.0.0" t nil nil 1)
-	     (when bucket
-	         (re-search-forward "^#[+]bucket:\s*\\(.*\\)$")
-	       (replace-match bucket t nil nil 1))
-	     (re-search-forward "^#[+]texinfo_printed_title:\\(PRINTED TITLE\\)$")
-	     (replace-match (concat project "---" title) t nil nil 1)
-	     (save-buffer)
-	     (org-babel-goto-named-src-block "project-readme")
-	     (org-babel-tangle (quote (4)))
-	     (org-babel-goto-named-src-block "boot-template")
-	     (org-babel-tangle (quote (4)))
-         (kill-buffer))))
+	 ;; remove the README section of the TEMPLATE from the new project;
+	 ;; the README must have a custom_id of "README"
+	 (message "Deleting the README.")
+	 (let* ((cbuf (current-buffer))
+		(ptree (project-tree cbuf))
+		(readme-beg-end (find-hl ptree "README")))
+	   (message "readme-beg-end: %s" readme-beg-end)
+	   (delete-region (car readme-beg-end) (cdr readme-beg-end))
+	   (message "Done deleting README."))
+	 (goto-char (point-min))
+	 ;; update title, author, version, bucket
+	 ;; with values provided by the user
+	 (re-search-forward "^#[+]title:\s*\\(TITLE\\)$")
+	 (replace-match title t nil nil 1)
+	 (re-search-forward "^#[+]author:\s*\\(AUTHOR\\)$")
+	 (replace-match author t nil nil 1)
+	 (re-search-forward "^#[+]macro:\s*version Version \\(.*\\)$")
+	 (replace-match "0.0.0" t nil nil 1)
+	 (when bucket
+	   (re-search-forward "^#[+]bucket:\s*\\(.*\\)$")
+	   (replace-match bucket t nil nil 1))
+	 (re-search-forward "^#[+]texinfo_printed_title:\\(PRINTED TITLE\\)$")
+	 (replace-match (concat project "---" title) t nil nil 1)
+	 (save-buffer)
+	 ;; tangle the project readme and boot makefile
+	 (org-babel-goto-named-src-block "project-readme")
+	 (org-babel-tangle (quote (4)))
+	 (org-babel-goto-named-src-block "boot-template")
+	 (org-babel-tangle (quote (4)))
+	 (kill-buffer))))
  #+end_src
 
 *** Update Old Project
@@ -10598,9 +10688,13 @@ corresponding section from the root template file.
    # $1 := project
    # $2 := title
    # $3 := author
-   # [$4 := bucket] (default := pinecone-forest)
+   # [$4 := bucket] (default := ${AWS_S3_BUCKET})
 
    USAGE="$0 <project> <title> <author> [<bucket>]\n"
+   [[ -z $AWS_S3_BUCKET ]] && {
+       printf "${RED}ERROR: ${YELLOW}The environment variable ${GREEN}\$AWS_S3_BUCKET${YELLOW} needs to be set.${CLEAR}\n"
+       exit 1
+   }
 
    if [[ $1 =~ ^-(h|-?help)$ || ( $# < 3 || $# > 4 ) ]]; then
        printf "USAGE:\n$USAGE"
@@ -10608,7 +10702,7 @@ corresponding section from the root template file.
    fi
 
    # verify command-line args contain only letters, digits, underscores, dashes and spaces
-   RE="^[_a-zA-Z][_a-zA-Z0-9 -]+$"
+   RE="^[_a-zA-Z][_a-zA-Z0-9 -.]+$"
    for arg in "$@"; do
        printf "$arg..."
        [[ $arg =~ $RE ]] || { printf ": ERROR\n"; exit 1; }
@@ -10616,16 +10710,11 @@ corresponding section from the root template file.
    done
 
    # bucket is optional
-   if [[ -z $4 ]]; then
-       bucket='pinecone-forest'
-   else
-       bucket=$4
-   fi
+   bucket=${4:-${AWS_S3_BUCKET}}
 
-   # the main code is in an elisp file
    ${EDITOR} --eval "(progn
-                         (load-file \"/usr/local/dev/bin/org-template.el\")
-                         (create-new-project \"$1\" \"$2\" \"$3\" \"$bucket\"))"
+			 (load-file \"/usr/local/dev/bin/org-template.el\")
+			 (create-new-project \"$1\" \"$2\" \"$3\" \"$bucket\"))"
 
    # create a new Git repo and GitHub repo
    cd "$1"
@@ -11179,11 +11268,11 @@ variable is set to use ~emacsclient~.
 boot:
 	$(EDITOR) -u --eval \
 		"(with-current-buffer (car (find-file-noselect \"./*.org\" nil nil t)) \
-                        (save-excursion \
 			(goto-char (point-min)) \
 			(re-search-forward \"^#[+]name:preprocess.el$$\") \
 			(org-babel-tangle (quote (4))) \
-                        (save-buffer)))"
+                        (save-buffer) \
+			(kill-buffer))"
 	./tools/preprocess.el
 #+end_src
 
