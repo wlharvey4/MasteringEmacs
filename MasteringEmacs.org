@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-09 22:28
-#+macro:version Version 0.0.139
+#+date:2020-09-10 09:20
+#+macro:version Version 0.0.140
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6150,6 +6150,266 @@ behave the same way.
   - regexp :: use the regexp as a field separator
 
   - nil :: be smart and figure it out
+** Working with JSON
+See [[http://wikemacs.org/wiki/Json][WikEmacs]]
+*** Built-in JSON Printers
+Starting from Emacs 24.4 we have the built-in commands:
+
+- ~json-pretty-print~
+- ~json-pretty-print-buffer~
+
+
+These came from the ~json-reformat~ package:
+- [[https://github.com/gongo/json-reformat][json-reformat on GitHub]]
+
+*** json Mode
+- [[https://github.com/joshwnj/json-mode][json-mode on GitHub]] ::
+
+  Major mode  for editing =JSON=  files. Extends  the builtin ~js-mode~  to add
+  better syntax highlighting for =JSON= and some nice editing keybindings.
+
+  : M-x package-install json-mode
+
+*** flymake-json
+- [[https://github.com/purcell/flymake-json][flymake-json on GitHub]]
+
+An Emacs ~flymake~ handler for syntax-checking =JSON= using ~jsonlint~ from ~npm~.
+
+*** json
+- [[https://github.com/ryancrum/json.el][json.el on GitHub]]
+
+This is a library for parsing and generating JSON (JavaScript Object Notation).
+
+*** request
+- [[https://tkf.github.io/emacs-request/][request.el on GitHub]]
+- [[http://tkf.github.io/emacs-request/manual.html][request.el manual]]
+
+
+Easy HTTP request for Emacs Lisp
+
+~Request.el~ is  a =HTTP= request  library with multiple backends.  It supports
+~url.el~ which is shipped with Emacs  and ~curl~ command line program. User can
+use ~curl~ when s/he has it, as  ~curl~ is more reliable than ~url.el~. Library
+author can  use ~request.el~  to avoid imposing  external dependencies  such as
+~curl~ to users while giving richer experience for users who have ~curl~.
+
+**** Installation
+
+The latest release is =v0.3.2= 2019-11-19
+
+: M-x package-install RET request RET
+
+**** Examples
+
+#+name: GET Example
+#+caption: GET Example
+#+begin_src elisp
+  (request
+   "http://httpbin.org/get"
+   :params '(("key" . "value") ("key2" . "value2"))
+   :parser 'json-read
+   :success (cl-function
+   (lambda (&key data &allow-other-keys)
+	       (message "I sent: %S" (assoc-default 'args data)))))
+#+end_src
+
+#+name:GET Block Example
+#+caption:Block until completion
+#+begin_src elisp
+  (request
+   "http://httpbin.org/get"
+   :sync t
+   :complete (cl-function
+	     (lambda (&key response &allow-other-keys)
+	       (message "Done: %s" (request-response-status-code response)))))
+#+end_src
+
+#+name:Curl Authentication
+#+caption:Curl Authentication
+#+begin_src elisp
+  (request
+   "http://httpbin.org/get"
+   :auth "digest" ;; or "basic", "anyauth", etc., which see curl(1)
+   :complete (cl-function
+	      (lambda (&key response &allow-other-keys)
+		(message "Done: %s" (request-response-status-code response)))))
+#+end_src
+
+#+name:Request Binary Data
+#+caption:Request Binary Data
+#+begin_src elisp
+  (request
+   "http://httpbin.org/get"
+   :encoding 'binary
+   :complete (cl-function
+	      (lambda (&key response &allow-other-keys)
+		(message "Done: %s" (request-response-status-code response)))))
+#+end_src
+
+#+name: POST Example
+#+caption: POST Example
+#+begin_src elisp
+  (request
+   "http://httpbin.org/post"
+   :type "POST"
+   :data '(("key" . "value") ("key2" . "value2"))
+   ;; :data "key=value&key2=value2"  ; this is equivalent
+   :parser 'json-read
+   :success (cl-function
+   (lambda (&key data &allow-other-keys)
+	       (message "I sent: %S" (assoc-default 'form data)))))
+#+end_src
+
+#+name: POST File Example
+#+caption: POST FILE Example
+#+begin_src elisp
+  (request
+   "http://httpbin.org/post"
+   :type "POST"
+   :files `(("current buffer" . ,(current-buffer))
+	    ("data" . ("data.csv" :data "1,2,3\n4,5,6\n")))
+   :parser 'json-read
+   :success (cl-function
+   (lambda (&key data &allow-other-keys)
+	       (message "I sent: %S" (assoc-default 'files data)))))
+#+end_src
+
+#+name:Rich callback dispatch
+#caption:Rich callback dispatch
+#+begin_src elisp
+  (request
+   "http://httpbin.org/status/418"     ; try other codes, for example:
+   ;; "http://httpbin.org/status/200"  ; success callback will be called.
+   ;; "http://httpbin.org/status/400"  ; you will see "Got 400."
+   :parser 'buffer-string
+   :success
+   (cl-function (lambda (&key data &allow-other-keys)
+   (when data
+		  (with-current-buffer (get-buffer-create "*request demo*")
+		    (erase-buffer)
+		    (insert data)
+		    (pop-to-buffer (current-buffer))))))
+   :error
+   (cl-function (lambda (&key error-thrown &allow-other-keys&rest _)
+   (message "Got error: %S" error-thrown)))
+   :complete (lambda (&rest _) (message "Finished!"))
+   :status-code '((400 . (lambda (&rest _) (message "Got 400.")))
+		  (418 . (lambda (&rest _) (message "Got 418.")))))
+#+end_src
+
+#+name:Flexible PARSER option:
+#+caption:Flexible PARSER option:
+#+begin_src elisp
+  (request
+   "https://github.com/tkf/emacs-request/commits/master.atom"
+   ;; Parse XML in response body:
+   :parser (lambda () (libxml-parse-xml-region (point) (point-max)))
+   :success (cl-function
+   (lambda (&key data &allow-other-keys)
+	       ;; Just don't look at this function....
+	       (let ((get (lambda (node &rest names)
+			    (if names
+				(apply get
+				       (first (xml-get-children
+					       node (car names)))
+				       (cdr names))
+			      (first (xml-node-children node))))))
+		 (message "Latest commit: %s (by %s)"
+			  (funcall get data 'entry 'title)
+			  (funcall get data 'entry 'author 'name))))))
+#+end_src
+
+#+name:PUT JSON data
+#+caption:PUT JSON data
+#+begin_src elisp
+  (request
+   "http://httpbin.org/put"
+   :type "PUT"
+   :data (json-encode '(("key" . "value") ("key2" . "value2")))
+   :headers '(("Content-Type" . "application/json"))
+   :parser 'json-read
+   :success (cl-function
+   (lambda (&key data &allow-other-keys)
+	       (message "I sent: %S" (assoc-default 'json data)))))
+#+end_src
+
+#+name:PUT With Non-Ascii
+#+caption:PUT JSON data including non-ascii strings
+#+begin_src elisp
+  (request
+   "http://httpbin.org/put"
+   :type "PUT"
+   :data (json-encode '(("key" . "値1") ("key2" . "値2")))
+   :headers '(("Content-Type" . "application/json"))
+   :parser 'json-read
+   :encoding 'utf-8
+   :success (cl-function
+	     (lambda (&key data &allow-other-keys)
+	       (message "I sent: %S" (assoc-default 'json data)))))
+#+end_src
+
+#+name:Another PUT JSON example
+#+caption:Another PUT JSON example (nested JSON using alist structure, how to represent a boolean & how to selectively evaluate lisp)
+#+begin_src elisp
+  ;; (1) Prepend alist structure with a backtick (`) rather than single quote (')
+  ;;     to allow elisp evaluation of selected elements prefixed with a comma (,)
+  ;; (2) This value is expected as a boolean so use the nil / t elisp alist denotation
+  ;; (3) The function will be evaluated as it has been prefixed with a comma (,)
+  (request
+   "http://httpbin.org/put"
+   :type "PUT"
+   :data (json-encode `(("jsonArray" . (("item1" . "value 1") ;; (1)
+					("item2" . t)         ;; (2)
+					("item3" . ,(your-custom-elisp-function)))))) ;; (3)
+   :headers '(("Content-Type" . "application/json"))
+   :parser 'json-read
+   :success (cl-function
+	     (lambda (&key data &allow-other-keys)
+	       (message "I sent: %S" (assoc-default 'json data)))))
+#+end_src
+
+#+name:GET with Unix domain socket data
+#+caption:GET with Unix domain socket data
+#+begin_src elisp
+  (request
+   "http:/hello.txt"
+   :unix-socket "/tmp/app.sock"
+   :parser (lambda () (buffer-string))
+   :success (cl-function
+	     (lambda (&key data &allow-other-keys)
+	       (message "Got: %s" data))))
+#+end_src
+
+**** Configuration for ~request-el~
+
+- *Variables*
+
+  - request-storage-directory :: Directory to store data related to request.el.
+
+    : request-storage-directory "~/.emacs.d/request"
+
+  - request-curl :: Executable for curl command.
+
+    : request-curl "curl"
+
+  - request-backend :: Backend to be used for HTTP request. Automatically set
+    to curl if curl command is found.
+
+    : request-backend 'curl
+
+  - request-timeout :: Default request timeout in second. nil means no timeout.
+
+    : request-timeout nil
+
+  - request-log-level :: Logging level for request. One of
+    =error/warn/info/verbose/debug=.  -1 means no logging.
+
+    : request-log-level '-1
+
+  - request-message-level :: Logging level for request. See
+    ~request-log-level~
+
+    : request-message-level 'warn
 
 * Additional Resources
 :PROPERTIES:
