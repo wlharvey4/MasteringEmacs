@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-10 09:20
-#+macro:version Version 0.0.140
+#+date:2020-09-16 22:24
+#+macro:version Version 0.0.141
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -5961,6 +5961,199 @@ readily portable.
   :PROPERTIES:
   :ID:       4BACDC59-1256-480D-A680-FD3559A85C1A
   :END:
+** aweseom-emacs
+- https://github.com/emacs-tw/awesome-emacs
+
+a community driven list of useful Emacs packages, utilities and libraries
+*** Interface Enhancement
+- https://github.com/emacs-tw/awesome-emacs#interface-enhancement
+*** Key-bindings
+- https://github.com/emacs-tw/awesome-emacs#key-bindings
+*** File Manager
+- https://github.com/emacs-tw/awesome-emacs#file-manager
+*** Navigation
+- https://github.com/emacs-tw/awesome-emacs#navigation
+*** Visual
+- https://github.com/emacs-tw/awesome-emacs#visual
+*** Editing
+- https://github.com/emacs-tw/awesome-emacs#editing
+*** Kill-ring
+- https://github.com/emacs-tw/awesome-emacs#kill-ring
+*** Project management
+- https://github.com/emacs-tw/awesome-emacs#project-management
+*** Programming
+- https://github.com/emacs-tw/awesome-emacs#programming
+*** Completion
+- https://github.com/emacs-tw/awesome-emacs#completion
+*** Debugging
+- https://github.com/emacs-tw/awesome-emacs#debugging
+*** Document
+- https://github.com/emacs-tw/awesome-emacs#document
+*** Code Folding
+- https://github.com/emacs-tw/awesome-emacs#code-folding
+*** Error Checking
+- https://github.com/emacs-tw/awesome-emacs#error-checking
+*** Jump to Definition
+- https://github.com/emacs-tw/awesome-emacs#jump-to-definition
+*** Programming Language
+- https://github.com/emacs-tw/awesome-emacs#programming-language
+*** C/C++
+- https://github.com/emacs-tw/awesome-emacs#cc
+*** Python
+- https://github.com/emacs-tw/awesome-emacs#python
+*** Ruby
+- https://github.com/emacs-tw/awesome-emacs#ruby
+*** Lisp Family
+- https://github.com/emacs-tw/awesome-emacs#lisp-family
+*** Common Lisp
+- https://github.com/emacs-tw/awesome-emacs#common-lisp
+*** Scheme
+- https://github.com/emacs-tw/awesome-emacs#scheme
+*** Racket
+- https://github.com/emacs-tw/awesome-emacs#racket
+*** Clojure
+- https://github.com/emacs-tw/awesome-emacs#clojure
+*** Emacs Lisp
+- https://github.com/emacs-tw/awesome-emacs#emacs-lisp
+*** Web Development
+- https://github.com/emacs-tw/awesome-emacs#web-development
+*** JavaScrip
+- https://github.com/emacs-tw/awesome-emacs#javascript
+*** CoffeeScript
+- https://github.com/emacs-tw/awesome-emacs#coffeescript
+*** TypeScrip
+- https://github.com/emacs-tw/awesome-emacs#typescript
+*** PureScript
+- https://github.com/emacs-tw/awesome-emacs#purescript
+*** PHP
+- https://github.com/emacs-tw/awesome-emacs#php
+*** Java
+- https://github.com/emacs-tw/awesome-emacs#java
+*** Go
+- https://github.com/emacs-tw/awesome-emacs#go
+*** C#
+- https://github.com/emacs-tw/awesome-emacs#c
+*** Rust
+- https://github.com/emacs-tw/awesome-emacs#rust
+*** Erlang
+- https://github.com/emacs-tw/awesome-emacs#erlang
+*** Elixir
+- https://github.com/emacs-tw/awesome-emacs#elixir
+*** Haskell
+- https://github.com/emacs-tw/awesome-emacs#haskell
+*** Swift
+- https://github.com/emacs-tw/awesome-emacs#swift
+*** Scala
+- https://github.com/emacs-tw/awesome-emacs#scala
+*** Lua
+- https://github.com/emacs-tw/awesome-emacs#lua
+*** Makefile
+- https://github.com/emacs-tw/awesome-emacs#makefile
+*** SML
+- https://github.com/emacs-tw/awesome-emacs#sml
+*** Groovy
+- https://github.com/emacs-tw/awesome-emacs#groovy
+*** Kotlin
+- https://github.com/emacs-tw/awesome-emacs#kotlin
+*** R
+- https://github.com/emacs-tw/awesome-emacs#r
+*** Julia
+- https://github.com/emacs-tw/awesome-emacs#julia
+*** OCaml
+- https://github.com/emacs-tw/awesome-emacs#ocaml
+*** ReasonML
+- https://github.com/emacs-tw/awesome-emacs#reasonml
+*** Nim
+- https://github.com/emacs-tw/awesome-emacs#nim
+*** D
+- https://github.com/emacs-tw/awesome-emacs#d
+*** Elm
+- https://github.com/emacs-tw/awesome-emacs#elm
+*** Stan
+- https://github.com/emacs-tw/awesome-emacs#stan
+*** MIPS Assembly
+- https://github.com/emacs-tw/awesome-emacs#mips-assembly
+*** RISCV Assembl
+- https://github.com/emacs-tw/awesome-emacs#riscv-assembly
+*** Verilog
+- https://github.com/emacs-tw/awesome-emacs#verilog
+*** LAMMPS
+- https://github.com/emacs-tw/awesome-emacs#lammps
+*** Keys Cheat Sheet
+- https://github.com/emacs-tw/awesome-emacs#keys-cheat-sheet
+*** Note
+- https://github.com/emacs-tw/awesome-emacs#note
+*** Org-mode
+- https://github.com/emacs-tw/awesome-emacs#org-mode
+*** Version control
+- https://github.com/emacs-tw/awesome-emacs#version-control
+*** Integration
+- https://github.com/emacs-tw/awesome-emacs#integration
+*** Console
+- https://github.com/emacs-tw/awesome-emacs#console
+*** Operating System
+- https://github.com/emacs-tw/awesome-emacs#operating-system
+*** Search
+- https://github.com/emacs-tw/awesome-emacs#search
+*** Pastebin
+- https://github.com/emacs-tw/awesome-emacs#pastebin
+*** Google
+- https://github.com/emacs-tw/awesome-emacs#google
+*** Blog System
+- https://github.com/emacs-tw/awesome-emacs#blog-system
+*** Markdown
+- https://github.com/emacs-tw/awesome-emacs#markdown
+*** LaTeX
+- https://github.com/emacs-tw/awesome-emacs#latex
+*** PDF
+- https://github.com/emacs-tw/awesome-emacs#pdf
+*** Internet
+- https://github.com/emacs-tw/awesome-emacs#internet
+*** Browser
+- https://github.com/emacs-tw/awesome-emacs#browser
+*** Mail
+- https://github.com/emacs-tw/awesome-emacs#mail
+*** IRC
+- https://github.com/emacs-tw/awesome-emacs#irc
+*** Chat
+- https://github.com/emacs-tw/awesome-emacs#chat
+*** Social Network
+- https://github.com/emacs-tw/awesome-emacs#social-network
+*** Web Feed
+- https://github.com/emacs-tw/awesome-emacs#web-feed
+*** DevOps
+- https://github.com/emacs-tw/awesome-emacs#devops
+*** Package Management
+- https://github.com/emacs-tw/awesome-emacs#package-management
+*** Package Manager
+- https://github.com/emacs-tw/awesome-emacs#package-manager
+*** Package Configuration
+- https://github.com/emacs-tw/awesome-emacs#package-configuration
+*** Package Updates
+- https://github.com/emacs-tw/awesome-emacs#package-updates
+*** Library
+- https://github.com/emacs-tw/awesome-emacs#library
+*** Appearance
+- https://github.com/emacs-tw/awesome-emacs#appearance
+*** Theme
+- https://github.com/emacs-tw/awesome-emacs#theme
+*** Multimedia
+- https://github.com/emacs-tw/awesome-emacs#multimedia
+*** Finance
+- https://github.com/emacs-tw/awesome-emacs#finance
+*** Fun
+- https://github.com/emacs-tw/awesome-emacs#fun
+*** Music
+- https://github.com/emacs-tw/awesome-emacs#music
+*** Starter Kit
+- https://github.com/emacs-tw/awesome-emacs#starter-kit
+*** Tutorials
+- https://github.com/emacs-tw/awesome-emacs#tutorials
+*** Links and resources
+- https://github.com/emacs-tw/awesome-emacs#links-and-resources
+** awesome
+- https://github.com/sindresorhus/awesome#readme
+
 ** Polymode
 Multiple Major Modes and How to Use SQL and Python in one Buffer
 
