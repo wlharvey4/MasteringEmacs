@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-16 22:24
-#+macro:version Version 0.0.141
+#+date:2020-09-19 10:47
+#+macro:version Version 0.0.142
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -303,7 +303,7 @@ From the blog /Mastering Emacs/.  Check out the [[https://www.masteringemacs.org
 See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
 
 * Help
-- =C-h ...= ::
+- =C-h ...= :: Prefix for all things helpish.
 
 - =C-h a= :: [[*apropos-command][~apropos-command~]] search for commands (interactive functions);
   with a prefix argument, search for non-interactive functions also.
@@ -311,6 +311,22 @@ See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
 - =M-x apropos= :: search for functions and variables
 
 - =C-h d= :: [[*apropos-documentation][~apropos-documentation~]]
+
+#+attrib_texinfo: :options apropos-documentation pattern [do-all]
+#+begin_defun
+Show symbols whose documentation contains matches for PATTERN.
+
+- PATTERN ::
+  - word; search for matches for that word as a substring;
+  - list of words separated by spaces; search for matches for any two or more
+    of thos words;
+  - regexp;
+
+- ~internal-doc-file-name~ :: =DOC=
+  By default this command only searches in the file specified by this variable.
+  When invoked with a =C-u= prefix, or if the variable ~apropos-do-all~ is
+  non-nil, it searches ALL currently defined documentation strings.
+#+end_defun
 
 - =C-h f= :: [[*describe-function][~describe-function~]]
 
