@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-19 10:47
-#+macro:version Version 0.0.142
+#+date:2020-09-20 22:24
+#+macro:version Version 0.0.143
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -312,7 +312,7 @@ See also the [[https://www.masteringemacs.org/reading-guide][Reading Guide]].
 
 - =C-h d= :: [[*apropos-documentation][~apropos-documentation~]]
 
-#+attrib_texinfo: :options apropos-documentation pattern [do-all]
+#+attr_texinfo: :options apropos-documentation pattern [do-all]
 #+begin_defun
 Show symbols whose documentation contains matches for PATTERN.
 
@@ -322,7 +322,7 @@ Show symbols whose documentation contains matches for PATTERN.
     of thos words;
   - regexp;
 
-- ~internal-doc-file-name~ :: =DOC=
+- ~internal-doc-file-name~ :: =<emacs-path>/etc/DOC=
   By default this command only searches in the file specified by this variable.
   When invoked with a =C-u= prefix, or if the variable ~apropos-do-all~ is
   non-nil, it searches ALL currently defined documentation strings.
@@ -1458,6 +1458,25 @@ change the variable [[*delete-by-moving-to-trash---a variable][~delete-by-moving
 commands =M-x delete-file= [[*delete-file][delete-file]] and =M-x delete-directory=
 [[*delete-directory][delete-directory]] (see Directories), as well as the deletion commands in =Dired=
 (see Dired Deletion).
+*** Emacs Files
+- ~user-emacs-directory~ :: Variable; default value is =~/.emacs.d/=.
+
+  Directory beneath which additional  per-user Emacs-specific files are placed.
+  Various programs in Emacs store information in this directory.
+
+- ~locate-user-emacs-file~ :: Function
+
+  #+attr_texinfo: :options locate-user-emacs-file new-name [old-name]
+  #+begin_defun
+  Return an absolute per-user Emacs-specific file name.
+
+  If NEW-NAME exists in ‘user-emacs-directory’, return it.
+
+  Else if OLD-NAME is non-nil and ~/OLD-NAME exists, return ~/OLD-NAME.
+
+  Else return NEW-NAME in ‘user-emacs-directory’, creating the directory if it
+  does not exist.
+  #+end_defun
 
 * Directories---Files---Buffers
 ** File Directories
@@ -8036,7 +8055,7 @@ OBJECT against the elements of the list.
 #+end_defun
 
 #+findex:delq
-#+attr_texinfo: :option delq object list
+#+attr_texinfo: :options delq object list
 #+begin_defun
 This function destructively removes all elements ‘eq’ to OBJECT from LIST, and
 returns the resulting list. The letter ‘q’ in ‘delq’ says that it uses ‘eq’ to
@@ -8376,8 +8395,7 @@ Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode
 
 - =completion-at-point= :: =C-M-i=
 
-- =inden
-t-pp-sexp= :: =C-M-q=
+- =indent-pp-sexp= :: =C-M-q=
 
 - =eval-defun= :: =C-M-x=
 
@@ -8476,7 +8494,7 @@ inferior process of Emacs, and pass expressions to it to be evaluated.
 
   Variable holding the namne of the lisp program to run with =run-lisp=.
 
-- =lisp-mode=
+- =lisp-mode= ::
 
   When you edit a Lisp program in Lisp mode, you can type =C-M-x=
   (=lisp-eval-defun=) to send an expression from the Lisp mode buffer
