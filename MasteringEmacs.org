@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-24 09:11
-#+macro:version Version 0.0.145
+#+date:2020-10-21 13:55
+#+macro:version Version 0.0.146
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6808,6 +6808,17 @@ Once setup, ~tern~ offers superb  completion. Together with ~company-mode~, you
 get great context-based completion with type inference.
 
 When completing a function, you can hit =<F1>= to get its documentation.
+** Tramp
+*** Open a File with Root Privilege
+To open a file as Root owner from within Emacs, use the Tramp package as
+follows:
+
+: C-x C-f
+: /sudo::<path/to/file>
+
+Tramp provides access to files that Emacs cannot open directly.
+
+=/sudo::= is shorthand for =/sudo:root@<hostname>:=
 * Additional Resources
 :PROPERTIES:
 :appendix: t
