@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-09-24 09:11
-#+macro:version Version 0.0.145
+#+date:2020-10-27 09:16
+#+macro:version Version 0.0.146
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -5112,10 +5112,13 @@ character.
 
 ** Quoted Insert
 
-** Comparing Diffing and Merging
+** Comparing-Diffing-Merging
+
+#+cindex:diff mode
 {{{heading(Diff Mode)}}}
 
-=M-x diff= command produces Diff mode, which displays the differences between
+#+findex:diff
+=M-x diff= [[diff-command][command]] produces Diff mode, which displays the differences between
 two files in a =*diff*= buffer through running the ~diff~ program.  Switches
 are found in the ~diff-switches~ variable (the default is =-u=, a unified
 context diff).
@@ -5126,9 +5129,9 @@ Ediff is a more sophisticated alternative to Diff mode.  See info:ediff.
 
 {{{heading(Comparing a File to a Backup)}}}
 
-=M-x diff-backack= compares a file with its most recent backup.  If you specify
-the name of a backup file, this command compares it with the source file
-instead.  Otherwise, it is the same as =M-x diff=.
+=M-x diff-backup= compares  a file with its most recent  backup. If you specify
+the  name of  a backup  file, this  command compares  it with  the source  file
+instead. Otherwise, it is the same as =M-x diff=.
 
 {{{heading(Compare a Buffer with its File)}}}
 
@@ -5165,17 +5168,21 @@ differ, you can choose which one of them to include in the merge buffer.
      a common ancestor in a third buffer.
 
 *** Diff Mode
+
 #+cindex:diff mode
 Used for the output of =M-x diff=.  Select Diff mode manually with =M-x
 diff-mode=.
 
-- =M-x diff= ‘(diff OLD NEW &optional SWITCHES)’ :: Find and display the
-     differences between OLD and NEW files.  When called interactively, read
-     NEW, then OLD, using the minibuffer.  The default for NEW is the current
-     buffer’s file name, and the default for OLD is a backup file for NEW, if
-     one exists.  When called interactively with a prefix argument, prompt
-     interactively for diff switches.  Otherwise, the switches specified in the
-     variable ‘diff-switches’ are passed to the diff command.
+<<diff-command>>
+#+attr_texinfo: :options diff OLD NEW &optional SWITCHES NO-ASYNC (interactive)
+#+begin_defun
+  Find  and   display  the  differences   between  OLD  and  NEW   files.  Read
+  @@texinfo:@var{@@new@@texinfo:}@@ and @@texinfo:@var{@@old@@texinfo:}@@ using
+  the minibuffer when called interactively  (defaults are current buffer’s file
+  name  and its  backup file,  respectively).  If called  interactively with  a
+  prefix argument, prompt  for ~diff~ switches. Otherwise the  swiches found in
+  the variable @@texinfo:@var{@@diff-switches@@texinfo:}@@ are passed.
+#+end_defun
 
 {{{heading(Hunks)}}}
 
