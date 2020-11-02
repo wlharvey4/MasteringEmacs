@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-10-27 09:19
-#+macro:version Version 0.0.146
+#+date:2020-11-02 14:17
+#+macro:version Version 0.0.147
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1218,7 +1218,74 @@ ways to start an Emacs server:
 - from ~/.bash_profile: ~/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs --daemon~
 - from ~/.bash_profile: ~EDITOR=emacsclient~
 
+*** Configuring Backups
+When configured, Emacs saves the old contents of a file you are working on in a
+backup file  before saving the  contents of  the newly-changed buffer  into the
+file, but  only for the first  save of the buffer.  If you kill the  buffer and
+then visit  the file again,  a new backup  fill will be  made upon a  new save.
+However, this behavior  can be overridden manually by  adding different numbers
+of =C-u= ‘s when saving.
+
+- ~make-backup-files~ :: Variable that determines whether to make backup files.
+  It’s default value is =t=.
+
+- ~backup-directory-alist~ :: Variable that  determines where backups should be
+  saved based  upon regexps. Emacs  creates the directories when  necessary. No
+  files are overwritten because of name clashes.
+
+  - ~("." . DIR)~ :: make all backups in the directory DIR.
+  - ~("." .  ".~")~ :: make backups  in the invisible subdirectory  =.~= of the
+    original file’s directory.
+
+- ~save-buffer~ :: Save current buffer in visited file if modified.
+
+  These are the possible variations that affect when backups are created::
+
+  - =C-x C-s= :: save the buffer in its associated file.
+  - =C-u C-x C-s= :: mark the file to be backed up on the next save.
+  - =C-u C-u C-x C-s= :: save the buffer and make a backup file immediately.
+  - =C-u C-u C-u C-x C-s= :: Do both of the above.
+  - =M-0 C-x C-s= :: Never make the previous version into a backup file.
+
+- ~version-control~ ::  Variable that  determines whether numbered backup files
+  are  produced. It  can be  set  globally as  well as  locally for  individual
+  buffers. This variable  can also be set according to  an environment variable
+  called =VERSION_CONTROL=.
+
+  - when =nil=  :: origin value;  make numeric  backup versions for  files that
+    already have some; otherwise not.
+
+  - when =never= :: never make numeric backup versions.
+
+  - when =t== :: make numeric backup versions unconditionally.
+
+- Deleting excessive backups ::
+  Emacs can save a  certain number of old file backups and  a certain number of
+  new  file backups,  deleting the  ones in  between, using  the following  two
+  variables:
+
+  - ~kept-old-versions~ :: Variable that determines how many oldest versions to
+    keep (default = 2).
+
+  - ~kept-new-versions~ :: Variable that determines how many newest versions to
+    keep (default = 2).
+
+  - ~delete-old-versions~ :: Variable that determines whether backups will be
+    deleted silently or only upon confirmation.
+
+    - =nil=  ::  Emacs  queries  whether   to  delete  excess  backup  versions
+      (default);
+
+    - =t= :: Emacs deletes excess backup files silently.
+
+  - Dired’s =.= :: (period) command can be used to delete old versions.
+
+- ~make-backup-file-name-function~ :: Holds an  elisp procedure to override the
+  usual way Emacs constructs backup file names.
+
 *** Customizing
+**** Configuring the Emacs Frame Height
+ - See [[http://irreal.org/blog/?p=1331][More on Setting the Emacs Frame Height]]
 **** Custom Indexing Command
 #+header_args: :eval no
 ***** insert-cindex
@@ -1433,8 +1500,6 @@ you want =super= use the prefix key =s-= (lower case).
 (setq mac-control-modifier 'control) ; make Control key do Control
 (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
 #+end_src
-*** Configuring the Emacs Frame Height
-- See [[http://irreal.org/blog/?p=1331][More on Setting the Emacs Frame Height]]
 *** Configuring File Name Completion
 If you have changed your system's case-sensitivity setting[fn:1], have a look
 at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
