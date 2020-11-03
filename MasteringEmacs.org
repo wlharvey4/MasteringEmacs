@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-11-02 14:17
-#+macro:version Version 0.0.147
+#+date:2020-11-02 18:01
+#+macro:version Version 0.0.148
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1343,6 +1343,42 @@ There’s a reason why the Emacs manual has dedicated 30-odd pages to describing
 in great detail, all the subtleties and nuances of how to bind keys.  I’ve
 written a guide that covers what you need to know to bind keys to even complex
 commands, and a set of templates you can use in your own code.
+
+**** Key Sequences
+A {{{dfn(key sequence)}}} (=key= for short), is a sequence of one or more input
+events that is meaningful  as a unit.  If a key sequence  invokes a command, it
+is called  a {{{dfn(complete key)}}}.  If  a key sequence isn’t  long enough to
+invoke a command, it is called  a {{{dfn(prefix key)}}}.  Every key sequence is
+either a complete key or a prefix key.
+
+A prefix key  combines with the following  input event to to make  a longer key
+sequence.  After a  prefix key is entered, Emacs waits  for further input.  The
+combination might be another prefix key, or  a complete key.  There is no limit
+to the  length of key  sequences, but in practice  they are seldom  longer than
+three or four input events.  An input  event cannot be combined with a complete
+key.
+
+***** Default Prefix Keys
+The default prefix keys in Emacs are:
+- =C-c=
+- =C-h= & =<F1>=
+- =C-x=
+- =C-x <RET>=
+- =C-x @=
+- =C-x a=
+- =C-x n=
+- =C-x r=
+- =C-x t=
+- =C-x v=
+- =C-x 4=
+- =C-x 5=
+- =C-x 6= & =<F2>=
+- =<ESC>=
+- =M-g=
+- =M-o=
+
+
+You can make new prefix keys by customizing Emacs.
 
 **** Keymaps
 #+cindex:keymap
