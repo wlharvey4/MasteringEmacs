@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-11-03 18:01
-#+macro:version Version 0.0.149
+#+date:2020-11-09 16:00
+#+macro:version Version 0.0.150
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1564,6 +1564,26 @@ of =C-u= ‘s when saving.
 *** Evaluating Lisp
 *** Package Manager
 *** Color Themes
+#+findex:customize-themes
+#+cindex:color themes
+To see a list of installed color themes, and to try them out, use:
+
+- =M-x customize-themes=
+
+
+There are  more available for free  from Emacs’s package manager  or sites like
+Github.
+
+To install a theme with the package manager, look for themes in the list.  Most
+have the suffix =-theme=, and they act and install like normal packages.
+
+- =M-x package-list-packages=
+
+
+You  can  override  specific  colors  you  don’t  like  by  using  the  regular
+=Customize= interface described in /The  Customize Interface/.  Changes made in
+the =Customize= interface take precedence over the themes.
+
 *** Configuring File Name Completion
 If you have changed your system's case-sensitivity setting[fn:1], have a look
 at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
@@ -6127,6 +6147,19 @@ readily portable.
   - ECL
   - Corman CL
   - ABCL
+
+** Auctex
+:PROPERTIES:
+:latest:   auctex-12.3.1.tar, 2020-Oct-22, 6.36 MiB
+:as-of:    2020-11-09
+:END:
+"AUCTEX is  an extensible package for  writing and formatting TEX  files in GNU
+Emacs."
+
+- [[https://www.gnu.org/software/auctex/index.html][Auctex Home]]
+- [[https://elpa.gnu.org/packages/auctex.html][Gnu ELPA Auctex]]
+- [[http://git.savannah.gnu.org/gitweb/?p=emacs/elpa.git;a=shortlog;h=refs/heads/externals/auctex][Browse ELPA’s Repo]]
+- [[https://www.gnu.org/software/auctex/manual/auctex.pdf][Auctex Manual Version 12.3, 2020-10-22]]
 
 * Special Packages
   :PROPERTIES:
