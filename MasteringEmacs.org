@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-11-09 16:07
-#+macro:version Version 0.0.151
+#+date:2020-11-09 20:59
+#+macro:version Version 0.0.152
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1574,6 +1574,11 @@ To see a list of installed color themes, and to try them out, use:
 There are  more available for free  from Emacs’s package manager  or sites like
 Github.
 
+To load a specific theme:
+
+- =M-x load-theme=
+
+
 To install a theme with the package manager, look for themes in the list.  Most
 have the suffix =-theme=, and they act and install like normal packages.
 
@@ -1583,6 +1588,33 @@ have the suffix =-theme=, and they act and install like normal packages.
 You  can  override  specific  colors  you  don’t  like  by  using  the  regular
 =Customize= interface described in /The  Customize Interface/.  Changes made in
 the =Customize= interface take precedence over the themes.
+**** Custom Theme Variables
+
+#+attr_texinfo: :options custom-theme-directory
+#+begin_defvar
+Variable defined in ~custom.el~.
+
+Default user  directory for storing custom  theme files. It’s current  value is
+~$HOME/.emacs.d/~.
+
+The command ~customize-create-theme~ writes theme files into this directory. By
+default,  Emacs  searches  for  custom  themes in  this  directory  first.  See
+~custome-theme-load-path~.
+#+end_defvar
+
+#+attr_texinfo: :options custom-theme-load-path
+#+begin_defvar
+Variable defined in ~custom.el~. This variable is designed for use in lisp code
+(including   external   packages).   For  manual   user   customizations,   use
+~custom-theme-directory~ instead.
+
+List of directories to search for  custom theme files. Emacs searches for theme
+files in the specified order.  Each element in the list should be one of:
+
+- ’custom-theme-directory (meaning use its value)
+- ’t (meaning value of the built-in theme directory, $data-directory/themes/)
+- a string naming a directory
+#+end_defvar
 
 *** Configuring File Name Completion
 If you have changed your system's case-sensitivity setting[fn:1], have a look
