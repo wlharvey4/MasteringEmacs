@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-11-10 07:31
-#+macro:version Version 0.0.154
+#+date:2020-11-10 08:39
+#+macro:version Version 0.0.155
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1356,6 +1356,9 @@ you want =super= use the prefix key =s-= (lower case).
 (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
 #+end_src
 ** Configuring
+"Configuring" are  things that "should" be  done or "should" be  checked, while
+"Customizing"  are things  that "can"  be done  to create  a more  personalized
+experience.
 *** Must Do’s
 **** Add to Init File
 
@@ -1447,6 +1450,22 @@ you want =super= use the prefix key =s-= (lower case).
 - from ~/.bash_profile: ~/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs --daemon~
 - from ~/.bash_profile: ~EDITOR=emacsclient~
 
+*** Init File
+
+- ~user-init-file~ :: File name,  including directory, of user’s initialization
+  file.
+
+- ~init-file-user~ :: Identity of user whose init file is or was read.
+
+  The value is =nil= if ‘-q’  or ‘--no-init-file’ was specified, meaning do not
+  load any init file.
+
+  Otherwise, the value  may be an empty  string, meaning use the  init file for
+  the user who originally logged in, or  it may be a string containing a user’s
+  name meaning use that person’s init file.
+
+  In either of the latter cases, ~(concat "~" init-file-user "/")~ evaluates to
+  the name of the directory where the init file was looked for.
 *** Configuring Backups
 When configured, Emacs saves the old contents of a file you are working on in a
 backup file  before saving the  contents of  the newly-changed buffer  into the
@@ -1512,12 +1531,79 @@ of =C-u= ‘s when saving.
 - ~make-backup-file-name-function~ :: Holds an  elisp procedure to override the
   usual way Emacs constructs backup file names.
 
-*** Customizing
-**** Configuring the Emacs Frame Height
- - See [[http://irreal.org/blog/?p=1331][More on Setting the Emacs Frame Height]]
-**** Custom Indexing Command
+*** Configuring File Name Completion
+If you have changed your system's case-sensitivity setting[fn:1], have a look
+at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
+*** Enabling Your Trash
+
+#+vindex:delete-by-moving-to-trash
+- [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]]
+
+
+#+begin_src emacs-lisp :exports results
+  (with-output-to-string
+    (princ "Your value of 'delete-by-moving-to-trash' is currently: ")
+    (princ delete-by-moving-to-trash))
+#+end_src
+
+#+cindex:Trash
+#+cindex:delete using Trash
+By default, Emacs =deletion= commands do not use the =Trash= facility.  To use
+the =Trash= facility (when it is available) for common deletion commands,
+change the variable [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]] to =t=.  This affects the
+commands =M-x delete-file= [[*delete-file][delete-file]] and =M-x delete-directory=
+[[*delete-directory][delete-directory]] (see Directories), as well as the deletion commands in =Dired=
+(see Dired Deletion).
+*** Package Manager
+*** Evaluating Lisp
+*** Emacs Files
+- ~user-emacs-directory~ :: Variable; default value is =~/.emacs.d/=.
+
+  Directory beneath which additional  per-user Emacs-specific files are placed.
+  Various programs in Emacs store information in this directory.
+
+- ~locate-user-emacs-file~ :: Function
+
+  #+attr_texinfo: :options locate-user-emacs-file new-name [old-name]
+  #+begin_defun
+  Return an absolute per-user Emacs-specific file name.
+
+  If NEW-NAME exists in ‘user-emacs-directory’, return it.
+
+  Else if OLD-NAME is non-nil and ~/OLD-NAME exists, return ~/OLD-NAME.
+
+  Else return NEW-NAME in ‘user-emacs-directory’, creating the directory if it
+  does not exist.
+  #+end_defun
+** Customizing
+*** Customization File
+The following variable is user-customizable:
+
+<<custom-file-defvar>>
+#+attr_texinfo: :options custom-file
+#+begin_defvar
+File used  for storing customization  information. The default is  =nil=, which
+means to use your  init file as specified by ~user-init-file~.  If the value is
+not =nil=, it should be an absolute file name.
+
+While you can use  Customize to set this option, it is easier  and safer to use
+the following procedure.  Instead of using Customize, write  something like the
+following in your init file:
+
+: (setq custom-file "~/.emacs.d/custom/.emacs-custom.el")
+: (load custom-file)
+
+When you change this variable outside  Custom, look in the previous custom file
+(usually  your  init  file)  for the  forms  ‘(custom-set-variables  ...)’  and
+‘(custom-set-faces ...)’,  and move them (whichever  ones you find) to  the new
+custom file. This will preserve your existing customizations.
+#+end_defvar
+
+*** Configuring the Emacs Frame Height
+- See [[http://irreal.org/blog/?p=1331][More on Setting the Emacs Frame Height]]
+*** Custom Indexing Command
 #+header_args: :eval no
-***** insert-cindex
+**** insert-cindex
 #+begin_src emacs-lisp
 (defun insert-cindex ()
   "Insert #+cindex: in an Orgmode document."
@@ -1528,7 +1614,7 @@ of =C-u= ‘s when saving.
 (global-set-key (kbd "C-c I") 'insert-cindex)
 #+end_src
 
-***** insert-pindex
+**** insert-pindex
 #+begin_src emacs-lisp
 (defun insert-pindex ()
   "Insert #+pindex: in an Orgmode document."
@@ -1539,7 +1625,7 @@ of =C-u= ‘s when saving.
 (global-set-key (kbd "C-c P") 'insert-pindex)
 #+end_src
 
-***** insert-vindex
+**** insert-vindex
 #+begin_src emacs-lisp
 (defun insert-vindex ()
   "Insert #+vindex: in an Orgmode document."
@@ -1550,7 +1636,7 @@ of =C-u= ‘s when saving.
 (global-set-key (kbd "C-c V") 'insert-vindex)
 #+end_src
 
-***** insert-findex
+**** insert-findex
 #+begin_src emacs-lisp
 (defun insert-findex ()
   "Insert #+findex: in an Orgmode document."
@@ -1560,9 +1646,6 @@ of =C-u= ‘s when saving.
   (insert "#+findex:"))
 (global-set-key (kbd "C-c F") 'insert-findex)
 #+end_src
-
-*** Evaluating Lisp
-*** Package Manager
 *** Custom Themes
 #+findex:customize-themes
 #+cindex:color themes
@@ -1571,19 +1654,19 @@ This section summarizes some information from
 - [[info:emacs#Custom Themes][Custom Themes]]
 
 
-The following variables are user-customizable:
-
-- [[custom-file-defvar][custom-file]]
+The following variable is user-customizable:
 
 - [[custom-theme-directory-defvar][custom-theme-directory]]
 
+
+#+texinfo: Installed Color Themes
 
 To see a list of installed color themes, and to try them out, use:
 
 - =M-x customize-themes=
 
 
-#+texinfo: @heading Install Themes using Package Manager
+#+texinfo: @heading Install Color Themes using Package Manager
 
 To install a theme with the package manager, look for themes in the list.  Most
 have the suffix =-theme=, and they act and install like normal packages.
@@ -1591,7 +1674,7 @@ have the suffix =-theme=, and they act and install like normal packages.
 - =M-x package-list-packages=
 
 
-#+texinfo: @heading Install New Themes by Hand
+#+texinfo: @heading Install New Color Themes by Hand
 
 There are  more available for free  from Emacs’s package manager  or sites like
 Github.  To  install  new  themes  by   hand,  add  =THEME=.el  files  to  your
@@ -1606,37 +1689,17 @@ the =Customize= interface take precedence over the themes.
 
 **** Custom Theme Variables
 
-<<custom-file-defvar>>
-#+attr_texinfo: :options custom-file
-#+begin_defvar
-File used  for storing customization  information. The default is  =nil=, which
-means to use your  init file as specified by ~user-init-file~.  If the value is
-not =nil=, it should be an absolute file name.
-
-While you can use  Customize to set this option, it is easier  and safer to use
-the following  procedure. Instead, write  something like the following  in your
-init file:
-
-: (setq custom-file "~/.emacs.d/themes/.emacs-custom.el")
-: (load custom-file)
-
-When you change this variable outside  Custom, look in the previous custom file
-(usually  your  init  file)  for the  forms  ‘(custom-set-variables  ...)’  and
-‘(custom-set-faces ...)’,  and move them (whichever  ones you find) to  the new
-custom file. This will preserve your existing customizations.
-#+end_defvar
-
 <<custom-theme-directory-defvar>>
 #+attr_texinfo: :options custom-theme-directory
 #+begin_defvar
 Variable defined in ~custom.el~.
 
 Default user  directory for storing custom  theme files. It’s current  value is
-~$HOME/.emacs.d/~.
+~$HOME/.emacs.d/themes~.
 
 The command [[customize-create-theme-defun][customize-create-theme]]  writes theme files into  this directory. By
 default,  Emacs  searches  for  custom  themes in  this  directory  first.  See
-~custome-theme-load-path~.
+~custom-theme-load-path~, next.
 #+end_defvar
 
 #+attr_texinfo: :options custom-theme-load-path
@@ -1689,7 +1752,7 @@ Autoloaded interactive compile lisp function in ~cus-theme.el~.
 Display a selectable list of custom themes.
 
 - BUFFER :: buffer to use when called from lisp, or if omitted,
-  then use a buffer named ~*Custom Themes*.
+  then use a buffer named ~*Custom Themes*~.
 #+end_defun
 
 #+attr_texinfo: :options load-theme theme &optional no-confirm no-enable
@@ -1754,48 +1817,6 @@ Create or edit a custom theme.
 - BUFFER  ::   @@texinfo:@var{@@buffer@@texinfo:}@@, if non-=nil=, should  be a
   buffer to use; the default is named ~*Custom Theme*~.
 #+end_defun
-*** Configuring File Name Completion
-If you have changed your system's case-sensitivity setting[fn:1], have a look
-at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
-*** Enabling Your Trash
-
-#+vindex:delete-by-moving-to-trash
-- [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]]
-
-
-#+begin_src emacs-lisp :exports results
-  (with-output-to-string
-    (princ "Your value of 'delete-by-moving-to-trash' is currently: ")
-    (princ delete-by-moving-to-trash))
-#+end_src
-
-#+cindex:Trash
-#+cindex:delete using Trash
-By default, Emacs =deletion= commands do not use the =Trash= facility.  To use
-the =Trash= facility (when it is available) for common deletion commands,
-change the variable [[*delete-by-moving-to-trash---a variable][~delete-by-moving-to-trash~]] to =t=.  This affects the
-commands =M-x delete-file= [[*delete-file][delete-file]] and =M-x delete-directory=
-[[*delete-directory][delete-directory]] (see Directories), as well as the deletion commands in =Dired=
-(see Dired Deletion).
-*** Emacs Files
-- ~user-emacs-directory~ :: Variable; default value is =~/.emacs.d/=.
-
-  Directory beneath which additional  per-user Emacs-specific files are placed.
-  Various programs in Emacs store information in this directory.
-
-- ~locate-user-emacs-file~ :: Function
-
-  #+attr_texinfo: :options locate-user-emacs-file new-name [old-name]
-  #+begin_defun
-  Return an absolute per-user Emacs-specific file name.
-
-  If NEW-NAME exists in ‘user-emacs-directory’, return it.
-
-  Else if OLD-NAME is non-nil and ~/OLD-NAME exists, return ~/OLD-NAME.
-
-  Else return NEW-NAME in ‘user-emacs-directory’, creating the directory if it
-  does not exist.
-  #+end_defun
 
 * Directories---Files---Buffers
 ** File Directories
