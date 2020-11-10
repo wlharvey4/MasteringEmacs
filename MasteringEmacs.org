@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-11-09 20:59
-#+macro:version Version 0.0.152
+#+date:2020-11-10 06:45
+#+macro:version Version 0.0.153
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1563,21 +1563,27 @@ of =C-u= ‘s when saving.
 
 *** Evaluating Lisp
 *** Package Manager
-*** Color Themes
+*** Custom Themes
 #+findex:customize-themes
 #+cindex:color themes
+This section summarizes some information from
+
+- [[info:emacs#Custom Themes][Custom Themes]]
+
+
+The following variables are user-customizable:
+
+- [[custom-file-defvar][custom-file]]
+
+- [[custom-theme-directory-defvar][custom-theme-directory]]
+
+
 To see a list of installed color themes, and to try them out, use:
 
 - =M-x customize-themes=
 
 
-There are  more available for free  from Emacs’s package manager  or sites like
-Github.
-
-To load a specific theme:
-
-- =M-x load-theme=
-
+#+texinfo: @heading Install Themes using Package Manager
 
 To install a theme with the package manager, look for themes in the list.  Most
 have the suffix =-theme=, and they act and install like normal packages.
@@ -1585,11 +1591,42 @@ have the suffix =-theme=, and they act and install like normal packages.
 - =M-x package-list-packages=
 
 
+#+texinfo: @heading Install New Themes by Hand
+
+There are  more available for free  from Emacs’s package manager  or sites like
+Github.  To  install  new  themes  by   hand,  add  =THEME=.el  files  to  your
+[[custom-theme-directory-defvar][custom-theme-directory]] and  then issue the forgoing  ~customize-themes~ command
+or alternatively, add the following theme command to your init file:
+
+: (load-theme 'theme t)
+
 You  can  override  specific  colors  you  don’t  like  by  using  the  regular
 =Customize= interface described in /The  Customize Interface/.  Changes made in
 the =Customize= interface take precedence over the themes.
+
 **** Custom Theme Variables
 
+<<custom-file-defvar>>
+#+attr_texinfo: :options custom-file
+#+begin_defvar
+File used  for storing customization  information. The default is  =nil=, which
+means to use your  init file as specified by ~user-init-file~.  If the value is
+not =nil=, it should be an absolute file name.
+
+While you can use  Customize to set this option, it is easier  and safer to use
+the following  procedure. Instead, write  something like the following  in your
+init file:
+
+: (setq custom-file "~/.emacs.d/themes/.emacs-custom.el")
+: (load custom-file)
+
+When you change this variable outside  Custom, look in the previous custom file
+(usually  your  init  file)  for the  forms  ‘(custom-set-variables  ...)’  and
+‘(custom-set-faces ...)’,  and move them (whichever  ones you find) to  the new
+custom file. This will preserve your existing customizations.
+#+end_defvar
+
+<<custom-theme-directory-defvar>>
 #+attr_texinfo: :options custom-theme-directory
 #+begin_defvar
 Variable defined in ~custom.el~.
@@ -1597,7 +1634,7 @@ Variable defined in ~custom.el~.
 Default user  directory for storing custom  theme files. It’s current  value is
 ~$HOME/.emacs.d/~.
 
-The command ~customize-create-theme~ writes theme files into this directory. By
+The command [[customize-create-theme-defun][customize-create-theme]]  writes theme files into  this directory. By
 default,  Emacs  searches  for  custom  themes in  this  directory  first.  See
 ~custome-theme-load-path~.
 #+end_defvar
@@ -1616,6 +1653,107 @@ files in the specified order.  Each element in the list should be one of:
 - a string naming a directory
 #+end_defvar
 
+#+attr_texinfo: :options custom-safe-themes
+#+begin_defvar
+Variable defined in ~custom.el~
+
+Variable holding list of themes (actually their SHA-256 has) that are considerd
+safe to load, or the value =t=, meaning consider all themes as safe. The symbol
+'default means to consider all themes in ~$data-directory/themes~ as safe.
+#+end_defvar
+
+#+attr_texinfo: :options custom-enabled-themes
+#+begin_defvar
+Variable defined in ~custom.el~.
+
+List of  enabled Custom Themes,  highest precedence  first. This list  does not
+include the ‘user’ theme, which is set by Customize and always takes precedence
+over other Custom Themes.
+
+Setting this variable through  =Customize= calls ~enable-theme~ or ~load-theme~
+for each theme in the list.
+#+end_defvar
+**** Custom Theme Procedures
+
+#+attr_texinfo: :options custom-file &optional no-error
+#+begin_defun
+Compiled lisp function in ~cus-edit.el~.
+
+Return the file name for saving customizations.
+#+end_defun
+
+#+attr_texinfo: :options customize-themes &optional buffer
+#+begin_defun
+Autoloaded interactive compile lisp function in ~cus-theme.el~.
+
+Display a selectable list of custom themes.
+
+- BUFFER :: buffer to use when called from lisp, or if omitted,
+  then use a buffer named ~*Custom Themes*.
+#+end_defun
+
+#+attr_texinfo: :options load-theme theme &optional no-confirm no-enable
+#+begin_defun
+Interactive compiled lisp function in ~custom.el~.
+
+Load the custom theme named =THEME= from its file (=THEME=~-theme.el~) found in
+one of the directories specified by ~custom-theme-load-path~.
+
+- NO-CONFIRM ::
+
+  When loading,  Emacs will take into  consideration the value of  the variable
+  ~custom-safe-themes~ unless  @@texinfo:@var{@@NO-CONFIRM@@texinfo:}@@ is =t=,
+  in which case Emacs will load the theme without prompting.
+
+- NO-ENABLE ::
+
+  Emacs will enable the @@texinfo:@var{@@theme@@texinfo:}@@ unless the variable
+  @@texinfo:@var{@@no-enable@@texinfo:}@@  is =t=.  Enabling a  theme DOES  NOT
+  disable   any   already-enabled  theme.   To   disable   other  themes,   use
+  ~disable-theme~.
+
+
+This function is normally called  through Customize when setting custom-enabled
+themes. See ~custom-enabled-themes~ for a list of enabled themes.
+#+end_defun
+
+#+attr_texinfo: :options load-theme theme
+#+begin_defun
+Interactive compiled lisp function in ~custom.el~.
+
+Reenable     all     variable     and      face     settings     defined     by
+@@texinfo:@var{@@theme@@texinfo:}@@.
+
+- THEME ::   @@texinfo:@var{@@theme@@texinfo:}@@ should  be either =user=, or a
+  theme   loaded    via   ~load-theme~.   After   this    function   completes,
+  @@texinfo:@var{@@theme@@texinfo:}@@  will have  the  highest precedence  (after
+  =user=)  among enabled  themes.  See ~custom-enabled-themes~  for  a list  of
+  enabled themes.
+#+end_defun
+
+#+attr_texinfo: :options disable-theme theme
+#+begin_defun
+Interactive compiled lisp function in ~custom.el~.
+
+Disable     all      variable     and     face     settings      defined     by
+@@texinfo:@var{@@theme@@texinfo:}@@.
+#+end_defun
+
+<<customize-create-theme-defun>>
+#+attr_texinfo: :options customize-create-theme &optional theme buffer
+#+begin_defun
+Autoloaded interactive compilded lisp function in ~cus-theme.el~.
+
+Create or edit a custom theme.
+
+- THEME  ::    @@texinfo:@var{@@theme@@texinfo:}@@, if  non-=nil=, should be an
+  existing theme to edit. If @@texinfo:@var{@@theme@@texinfo:}@@ is =user=, the
+  resulting ~*Custom Theme*~  buffer also contains a checkbox  for removing the
+  theme settings specified in the buffer from the Custom save file.
+
+- BUFFER  ::   @@texinfo:@var{@@buffer@@texinfo:}@@, if non-=nil=, should  be a
+  buffer to use; the default is named ~*Custom Theme*~.
+#+end_defun
 *** Configuring File Name Completion
 If you have changed your system's case-sensitivity setting[fn:1], have a look
 at file name completion, [[ignore-case-variables][ignore case sensitivity]]:
