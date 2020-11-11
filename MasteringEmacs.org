@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-11-10 08:39
-#+macro:version Version 0.0.155
+#+date:2020-11-10 23:39
+#+macro:version Version 0.0.156
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1466,6 +1466,10 @@ experience.
 
   In either of the latter cases, ~(concat "~" init-file-user "/")~ evaluates to
   the name of the directory where the init file was looked for.
+
+**** Init File Examples
+- https://github.com/skeeto/.emacs.d
+
 *** Configuring Backups
 When configured, Emacs saves the old contents of a file you are working on in a
 backup file  before saving the  contents of  the newly-changed buffer  into the
@@ -1817,7 +1821,13 @@ Create or edit a custom theme.
 - BUFFER  ::   @@texinfo:@var{@@buffer@@texinfo:}@@, if non-=nil=, should  be a
   buffer to use; the default is named ~*Custom Theme*~.
 #+end_defun
+*** Various Starter Packs
+**** Emacs Live
+An opinionated  set of defaults  for getting started  with a specific  focus on
+live coding with Overtone and Quil.
 
+- [[http://overtone.github.io/emacs-live/][emacs-live Home]]
+- [[https://github.com/overtone/emacs-live][emacs-live on GitHub]]
 * Directories---Files---Buffers
 ** File Directories
 A /directory listing/ is a list of all the files in a directory.
@@ -9142,6 +9152,18 @@ closing one as well.
   - [[http://mumble.net/~campbell/emacs/paredit.html][paredit cheat sheet]]
 
 - parinfer mode
+** Pcase Macro
+   :PROPERTIES:
+   :date:     Jan 21, 2016
+   :author:   John Wiegley
+   :END:
+Emacs: Pattern Matching with pcase
+
+- http://www.newartisans.com/2016/01/pattern-matching-with-pcase/
+
+
+This is  a tutorial  on how to  use the  pcase macro in  modern flavors  of GNU
+Emacs.
 * Interacting with the System
 :PROPERTIES:
 :appendix: t
@@ -10564,6 +10586,10 @@ return, which is something that the native profiler will not report on).
 
 
 ~log4e.el~ provides a logging framework for Elisp.
+* Email
+** Leaving Gmail Behind
+- https://nullprogram.com/blog/2013/09/03/
+
 * Copying
 :PROPERTIES:
 :copying:  t
