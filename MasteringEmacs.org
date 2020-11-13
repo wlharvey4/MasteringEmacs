@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2020-11-10 23:39
-#+macro:version Version 0.0.156
+#+date:2020-11-13 00:13
+#+macro:version Version 0.0.157
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6349,6 +6349,24 @@ readily portable.
   - Corman CL
   - ABCL
 
+** Polymode
+- https://polymode.github.io
+- [[https://github.com/polymode/polymode][on GitHub]]
+
+
+Polymode is  a framework for multiple  major modes (MMM) inside  a single Emacs
+buffer.  It is  fast and  has  a simple  but flexible  object oriented  design.
+Creating new polymodes normally takes a few lines of code.
+
+** literate-elisp
+"A  literate programming  tool to  load  Emacs Lisp  codes from  org mode  file
+directly"
+
+- https://github.com/jingtaozf/literate-elisp
+
+
+It extends the Emacs load mechanism so  Emacs can load org files as lisp source
+files directly.
 * Special Packages
   :PROPERTIES:
   :ID:       4BACDC59-1256-480D-A680-FD3559A85C1A
