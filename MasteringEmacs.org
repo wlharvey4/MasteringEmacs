@@ -4,7 +4,7 @@
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
 #+date:2021-01-07T22:30
-#+macro:version Version 0.0.159
+#+macro:version Version 0.0.160
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -29,9 +29,9 @@ brighter; it simply makes everything else vanish.
 
 - [[https://www.gnu.org/software/emacs/manual/elisp.html][Emacs Online Lisp Reference Manual]]
 
-- [[https://www.gnu.org/software/emacs/refcards/pdf/refcard.pdf][Emacs 26 Reference Card]]
+- [[https://www.gnu.org/software/emacs/refcards/pdf/refcard.pdf][Emacs Reference Card]]
 
-- [[https://www.gnu.org/software/emacs/refcards/pdf/survival.pdf][Emacs 26 Survival Card]]
+- [[https://www.gnu.org/software/emacs/refcards/pdf/survival.pdf][Emacs Survival Card]]
 
 
 
@@ -1828,6 +1828,9 @@ live coding with Overtone and Quil.
 
 - [[http://overtone.github.io/emacs-live/][emacs-live Home]]
 - [[https://github.com/overtone/emacs-live][emacs-live on GitHub]]
+*** Advanced Customization Examples
+**** Bastien Guerry
+- https://github.com/bzg/dotemacs/blob/master/emacs.org
 * Directories---Files---Buffers
 ** File Directories
 A /directory listing/ is a list of all the files in a directory.
