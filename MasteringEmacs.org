@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-07T22:30
-#+macro:version Version 0.0.160
+#+date:2021-01-10 10:22
+#+macro:version Version 0.0.161
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9884,6 +9884,113 @@ unavailable (MS-Windows).
 To determine whether a given subprocess actually got a pipe or a pty, use the
 function ~process-tty-name~.
 #+end_defvar
+** Time
+
+*** Current Time
+#+texinfo: @heading Functions on this Page
+#+texinfo: @subheading @code{current-time-string}
+#+texinfo: @subheading @code{current-time}
+#+texinfo: @subheading @code{float-time}
+#+texinfo: @subheading @code{time-to-seconds}
+
+#+findex:current-time-string
+#+attr_texinfo: :options current-time-string &optional TIME ZONE
+#+begin_defun
+ =(current-time-string) => "Fri Nov  1 15:59:49 2019"=
+
+ Returns the current time[fn:3] as a human-readable string. The format does not
+ vary for  the initial  part of  the string,  which contains  the day  of week,
+ month, day of month,  and time of day in that order:  the number of characters
+ used for these fields  is always the same. It is  typically more convenient to
+ use  ~format-time-string~   than  to  extract   fields  from  the   output  of
+ ~current-time-string~.
+
+ The optional argument =ZONE= defaults to the current time zone rule.
+#+end_defun
+
+#+findex:current-time
+#+attr_texinfo: :options current-time
+#+begin_defun
+
+ This function returns the current time as a Lisp timestamp in the form[fn:2]:
+ - =(high low micro pico)=
+#+end_defun
+
+#+findex:float-time
+#+findex:time-to-seconds
+#+attr_texinfo: :options float-time &optional TIME
+#+begin_defun
+ This function returns  the current time as a floating-point  number of seconds
+ since the epoch. Since  the result is floating point, it may  not be exact. Do
+ not use this function if precise time stamps are required.
+
+ ~time-to-seconds~ is an alias for this function.
+#+end_defun
+
+**** Lisp Timestamp
+
+#+cindex:Lisp timestamp
+#+cindex:timestamp, Lisp
+#+cindex:absolute time
+#+cindex:time, absolute
+#+cindex:epoch
+Many functions return /Lisp timestamp/ values  that count seconds, and that can
+represent  absolute time  by counting  seconds  since the  epoch of  1970-01-01
+00:00:00 UTC.
+
+Traditionally Lisp timestamps  were integer pairs. Things have  changed and now
+programs ordinarily should not depend on  the current default form. You can use
+the ~time-convert~ function to convert it to the needed form.
+
+#+texinfo: @heading Three Forms of Lisp Timestamp Values
+
+Each of these represents a number of seconds.
+
+ - integer :: simplest, but cannot represent subsecond timestamps
+
+ - pair of   integers :: =(ticks .  hz)= This represents =ticks/hz=  seconds. A
+   common value for =hz= is 1000000000, for a nanosecond-resolution clock.
+
+ - list of 4 integers :: =(high low micro pico)=
+   - This represents the number of seconds using the formula:
+     - =high * 2**16 + low + micro * 10**-6 + pico * 10**-12=
+   - =low= -- 0 \le low \lt 65536
+   - =micro= -- 0 \le micro \lt 1000000
+   - =pico= -- 0 \le pico \le 1000000 (multiple of 1000s)
+
+#+texinfo: More General Time Value Formats
+
+Function arguments accept a more general /time value/ format.
+
+ - =NIL= representing the current time
+ - Lisp timestamp
+ - Truncated Lisp timestamp; missing values are zero;
+   - =(high low micro)= or
+   - =(high low)=
+ - floating-point number representing seconds
+
+#+texinfo: Conversion of Lisp Timestamp Values into Calendrical and Other Forms
+
+Time values can be  converted to and from calendrical and  other forms. Some of
+these conversions  rely on operating system  functions that limit the  range of
+possible time values.
+
+ - human-readable string -- ~format-time-string~
+ - Lisp timestamp -- ~time-convert~
+ - other forms -- ~decode-time~, ~float-time~
+
+**** Time Zones
+
+*** Time Conversion
+
+*** Time Parsing
+
+*** Time Calculations
+
+*** Timers
+
+**** Idle Timers
+
 
 * Debugging
 :PROPERTIES:
@@ -10652,6 +10759,10 @@ Copyright \copy 2020 by {{{author}}}
 :END:
 
 * Footnotes
+
+[fn:3]  The operating system limits the range of time and zone values. 
+
+[fn:2] This is planned to change in a future Emacs version. 
 
 [fn:1]For example, Mac OS is case-insensitive by default, but can be configured
 to be case-sensitive.
