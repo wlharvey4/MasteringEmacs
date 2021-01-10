@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-10 10:22
-#+macro:version Version 0.0.161
+#+date:2021-01-10 13:23
+#+macro:version Version 0.0.162
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9885,7 +9885,6 @@ To determine whether a given subprocess actually got a pipe or a pty, use the
 function ~process-tty-name~.
 #+end_defvar
 ** Time
-
 *** Current Time
 #+texinfo: @heading Functions on this Page
 #+texinfo: @subheading @code{current-time-string}
@@ -9980,17 +9979,305 @@ possible time values.
  - other forms -- ~decode-time~, ~float-time~
 
 **** Time Zones
+#+texinfo: @heading Default Time Zone
+#+cindex:time zone, default
+#+cindex:TZ environment variable
+#+cindex:system wall clock time
+The default time  zone is determined by the =TZ=  environment variable. If =TZ=
+is  not in  the environment,  Emacs uses  system wall  clock time,  which is  a
+platform-dependent default time zone.
+
+#+cindex:Universal Time
+You can tell Emacs to default to Universal Time with =(setenv "TZ" "UTC0")=.
+
+#+texinfo: TZ Strings
+
+#+cindex:tzdata database
+The  set of  supported =TZ=  strings is  system-dependent. GNU  and many  other
+systems  support the  =tzdata= database  ([[https://en.wikipedia.org/wiki/Tz_database][tzdata]]). GNU  and most  other systems
+support  POSIX-style =TZ=  strings.  All systems  support  the string  ‘"UTC0"’
+meaning Universal Time.
+
+#+texinfo: Functions Using Time Zone
+
+Functions that convert to and from local time accept an optional time zone rule
+argument, which specifies  the conversion’s time zone and  daylight saving time
+history.
+
+ - =NIL= :: the conversion uses Emacs’s default time zone
+ - =t= :: the conversion uses Universal Time
+ - =wall= :: the conversion uses the system wall clock time
+ - string :: the conversion uses the  time zone rule equivalent to setting =TZ=
+   to that string
+ - list =(offset abbr)= :: where =offset=  is an integer number of seconds east
+   of Universal Time and  =abbr= is a string, the conversion  uses a fixed time
+   zone with the given offset and abbreviation
+ - integer :: An integer offset is treated as if it were =(offset abbr)=, where
+   =abbr= is a numeric abbreviation on POSIX-compatible platforms
+
+#+attr_texinfo: :options current-time-zone &optional TIME ZONE
+#+begin_defun
+ This function returns a list describing the time zone that the user is in.
+
+ The value has the form =(offset abbr)=. Here =offset= is an integer giving the
+ number of  seconds ahead  of Universal  Time (east  of Greenwich).  A negative
+ value means west  of Greenwich. Both elements can change  when daylight saving
+ time begins or ends;
+#+end_defun
 
 *** Time Conversion
 
-*** Time Parsing
+#+cindex:calendrical information
+#+cindex:Gregorial calendare
+Functions  that  convert time  values  to  Lisp  timestamps or  to  calendrical
+information.  Calendrical   conversion  functions  always  use   the  Gregorian
+calendar, even  for dates  before the Gregorian  calendar was  introduced. Year
+numbers count the number of years since the  year 1 BC, and do not skip zero as
+traditional Gregorian years do; for example, the year number -37 represents the
+Gregorian year 38 BC.
 
+#+texinfo: @heading Time Conversion Functions
+
+#+texinfo: @subheading @code{time-convert}---Time Value to Lisp Timestamp
+
+#+findex:time-convert
+#+attr_texinfo: :options time-convert TIME &optional FORM
+#+begin_defun
+ This function converts a time value into a Lisp timestamp.
+
+ : (time-convert nil nil)
+ is equivalent to
+ : (current-time)
+ but the latter is a bit faster.
+
+ - FORM :: The optional form argument specifies the timestamp form to be
+   returned.
+   - =’integer= :: this function returns an integer count of seconds.
+   - positive  integer ::  it specifies  a  clock frequency  and this  function
+     returns an integer-pair timestamp =(ticks . form)=.
+   - =t=   ::  this  function  treats it  as a  positive  integer suitable  for
+     representing the  timestamp; for example,  it is treated as  1000000000 if
+     time is =nil= and the platform timestamp has nanosecond resolution.
+   - =’list= ::  this function returns an integer list =(high low micro pico)=.
+   - =NIL= :: currently acts like =’list=[fn:4]
+
+ - TIME ::
+   - form  is =t=  ::  When form  is  =t=,  conversion is  always  exact so  no
+     truncation occurs, and the returned clock  resolution is no less than that
+     of time.
+
+   - inexact :: if time cannot  be represented exactly, conversion truncates it
+     toward minus infinity.
+
+   - infinite or =NaN= :: this function signals an error
+
+     By way of  contrast, ~float-time~ can convert any Lisp  time value without
+     signaling an error, although the result might not be exact.
+#+end_defun
+
+#+texinfo: @subheading @code{decode-time}---Time Value to Calendrical Info
+
+#+findex:decode-time
+#+attr_texinfo: :options decode-time &optional TIME ZONE FORM
+#+begin_defun
+ This function converts a time value into calendrical information of the form:
+ : (seconds minutes hour day month year dow dst utcoff)
+
+ - TIME :: Defaults to the current time.
+
+ - ZONE :: Defaults to the current time zone rule.
+
+ - FORM :: Controls the form of the returned =seconds= element.
+
+   The =seconds= element is a Lisp  timestamp that is nonnegative and less than
+   61; it is less than 60 except during positive leap seconds
+
+   If the optional  =form= argument is =t=, seconds uses  the same precision as
+   time;
+
+   If =form= is =’integer=, =seconds= is truncated to an integer.
+
+   If =form= is omitted or =nil=, it currently defaults to integer[fn:5]
+
+ - VALUE :: The return value is a list of nine elements:
+   : (seconds minutes hour day month year dow dst utcoff)
+   - seconds: past the minute
+   - minutes: past the hour--- 0 \le minutes \le 59
+   - hour: of day--- 0 \le hour \le 23
+   - day: of month--- 1 \le day \le 31
+   - month: of year--- 1 \le month \le 12
+   - year: an integer \gt 1900
+   - dow: an integer representing the day of  week--- 0 \le dow \le 6 (0 stands
+     for Sunday)
+   - dst: =t= if daylight savings time is in effect, =NIL= if not, -1 if
+     unavailable
+   - utcoff:  an integer  representing the  Universal Time  offset in  seconds,
+     .i,e, number of seconds east of Greenwich
+
+ - Accessors and  Setters :: To access (or alter) the elements in the =TIME=
+   value, these accessors can be used.
+   - ~decoded-time-second~
+   - ~decoded-time-minute~
+   - ~decoded-time-hour~
+   - ~decoded-time-day~
+   - ~decoded-time-month~
+   - ~decoded-time-year~
+   - ~decoded-time-weekday~
+   - ~decoded-time-dst~
+   - ~decoded-time-zone~
+#+end_defun
+
+#+texinfo: @subheading @code{decoded-time-add}
+
+#+findex:decoded-time-add
+#+attr_texinfo: :options decoded-time-add TIME DELTA
+#+begin_defun
+ This  function takes  a  /decoded time  structure/ and  adds  =DELTA= (also  a
+ /decoded  time structure/)  to  it.
+
+ - DELTA ::
+
+   Elements in =DELTA= that  are =nil= are ignored. Fields are  added in a most
+   to  least significant  order.  The  values in  =DELTA=  can  be negative  to
+   subtract values instead.
+
+   For instance, if you want “same time next month”, you could say:
+
+    #+begin_src elisp
+      (let ((time (decode-time nil nil t))
+   	 (delta (make-decoded-time :month 2)))
+         (encode-time (decoded-time-add time delta)))
+    #+end_src
+
+   If this  date doesn’t exist  (if you’re running  this on January  31st, for
+   instance), then  the date will  be shifted back until  you get a  valid date
+   (which will be February 28th or 29th, depending).
+
+ - Return Value :: The return value is a /decoded time structure/.
+#+end_defun
+
+#+texinfo: @subheading @code{make-decoded-time}
+
+#+findex:make-decoded-time
+#+attr_texinfo: :options make-decoded-time &key SECOND MINUTE HOUR DAY MONTH YEAR DST ZONE
+#+begin_defun
+ Return  a decoded  time structure  with only  the given  keywords filled  out,
+ leaving the rest  =nil=. To get a structure that  represents “two months”, you
+ could say:
+
+ : (make-decoded-time :month 2)
+#+end_defun
+
+#+texinfo: @subheading @code{encode-time}
+
+#+findex:encode-time
+#+attr_texinfo: :options encode-time &rest obsolescent-arguments
+#+begin_defun
+ This function converts =TIME= to a /Lisp timestamp/. It can act as the inverse
+ of ~decode-time~. You can perform simple date arithmetic by using out-of-range
+ values for  seconds, minutes, hour, day,  and month; for example,  day 0 means
+ the day preceding the given month.
+
+ - TIME ::  Ordinarily  the first argument is a list  that specifies a /decoded
+   time/ in the style of ~decode-time~:
+   : (second minute hour day month year ignored dst zone)
+
+ - Obsolescent Arguments :: As an obsolescent calling convention, this function
+   can be given six or more  arguments. The first six arguments second, minute,
+   hour, day, month, and year specify most of the components of a decoded time.
+   If there are more than six arguments the last argument is used as =ZONE= and
+   any other extra arguments are ignored.
+#+end_defun
+
+*** Time Parsing
+These functions convert time  values to text in a string,  and vice versa. Time
+values include =nil, numbers, and /Lisp timestamps/.
+
+#+texinfo:@subheading @code{date-to-time}---Time String to Timestamp
+
+#+findex:date-to-time
+#+attr_texinfo: :options date-to-time STRING
+#+begin_defun
+ This function parses the time-string string and returns the corresponding Lisp
+ timestamp.
+
+ - STRING :: should represent a =date-time=, and  should be in one of the forms
+   recognized by  ~parse-time-string~. This function assumes  Universal Time if
+   string lacks explicit time zone information.
+#+end_defun
+
+#+texinfo:@subheading @code{parse-time-string}---Time String to Time List
+
+#+attr_texinfo: :options parse-time-string STRING
+#+begin_defun
+ This function  parses the time-string  =STRING= into  a list of  the following
+ form:
+ : (sec min hour day mon year dow dst tz)
+ The format of this list is the same as what ~decode-time~ accepts. Any element
+ that cannot be determined from the input will be set to =nil=.
+
+ - STRING ::  should  resemble an RFC 822  (or later) or ISO  8601 string, like
+   “Fri, 25  Mar 2016 16:24:56  +0100” or “1998-09-12T12:21:54-0200”,  but this
+   function will attempt to parse less well-formed time strings as well.
+#+end_defun
+
+#+texinfo:@subheading @code{ iso8601-parse}
+
+#+findex:iso8601-parse
+#+findex:iso8601-parse-duration
+#+findex:iso8601-parse-interval
+#+attr_texinfo: :options  iso8601-parse STRING
+#+begin_defun
+ For a  more strict  function (that  will error out  upon invalid  input), this
+ function  can be  used instead.  It can  parse all  variants of  the ISO  8601
+ standard, so in addition to the formats mentioned above, it also parses things
+ like “1998W45-3” (week number) and “1998-245” (ordinal day number). It returns
+ decoded time structures.
+
+ - ~iso8601-parse-duration~ :: Parses a duration; returns a time structure.
+
+ - ~iso8601-parse-interval~   ::  Parse an  interval;  returns  3 decoded  time
+   structures: the start, the end, and the duration.
+#+end_defun
+
+#+texinfo: @subheading @code{format-time-string}
+
+#+findex:format-time-string
+#+attr_texinfo: :options format-time-string FORMAT-STRING &optional TIME ZONE
+#+begin_defun
+ This function  converts =TIME=  (or the  current time, if  time is  omitted or
+ =nil=) to a string according to =FORMAT-STRING=.
+
+ - FORMAT-STRING ::  may contain =%=-sequences which say to substitute parts of
+   the time.
+
+   One or more  flag characters can appear immediately after  the ‘%’.
+   - ‘0’ pads with zeros,
+   - ‘+’ pads with zeros  and also puts ‘+’  before nonnegative year numbers with  more than four  digits,
+   - ‘_’  pads with blanks,
+   - ‘-’ suppresses padding,
+   - ‘^’ upper-cases letters, and
+   - ‘#’ reverses the case of letters.
+
+   You can also  specify the field width  and type of padding for  any of these
+   ‘%’-sequences.
+
+   This function uses the C library function ~strftime~.
+#+end_defun
+
+#+texinfo: @subheading @code{format-seconds}
+
+#+attr_texinfo: :options format-seconds FORMAT-STRING SECONDS
+#+begin_defun
+ This function  converts its  argument SECONDS  into a  string of  years, days,
+ hours, etc.,  according to  =FORMAT-STRING=. The argument  =FORMAT-STRING= may
+ contain ‘%’-sequences which control the conversion.
+#+end_defun
 *** Time Calculations
 
 *** Timers
 
 **** Idle Timers
-
 
 * Debugging
 :PROPERTIES:
@@ -10759,6 +11046,10 @@ Copyright \copy 2020 by {{{author}}}
 :END:
 
 * Footnotes
+
+[fn:5] This default may change in future Emacs releases, so callers requiring a particular form should specify form. 
+
+[fn:4] this is planned to change in a future Emacs version, so callers requiring list timestamps should pass list explicitly. 
 
 [fn:3]  The operating system limits the range of time and zone values. 
 
