@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-10 13:23
-#+macro:version Version 0.0.162
+#+date:2021-01-10 17:36
+#+macro:version Version 0.0.163
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -10191,7 +10191,7 @@ Gregorian year 38 BC.
 
 *** Time Parsing
 These functions convert time  values to text in a string,  and vice versa. Time
-values include =nil, numbers, and /Lisp timestamps/.
+values include =nil=, numbers, and /Lisp timestamps/.
 
 #+texinfo:@subheading @code{date-to-time}---Time String to Timestamp
 
@@ -10275,10 +10275,344 @@ values include =nil, numbers, and /Lisp timestamps/.
 #+end_defun
 *** Time Calculations
 
+#+cindex:calendrical computations
+These functions perform  /calendrical computations/ using time  values. A value
+of =nil=  for any of their  time-value arguments stands for  the current system
+time, and a single number stands for the number of seconds since the epoch.
+
+#+findex:time-less-p
+#+texinfo: @subheading @code{time-less-p T1 T2}
+
+This returns =t= if time value =T1= is less than time value =T2=. The result is
+=nil= if either argument is a =NaN=.
+
+#+findex:time-equal-p
+#+texinfo: @subheading @code{time-equal-p T1 T2}
+
+This returns =t= if =T1= and =T2= are equal time values. The result is =nil= if
+either argument is a =NaN=.
+
+#+findex:time-subtract
+#+texinfo: @subheading @code{time-subtract T1 T2}
+
+This returns the time difference =T1= \minus =T2= between two time values, as a
+Lisp time value.  If you need the  difference in units of  elapsed seconds, you
+can convert it with ~time-convert~ or ~float-time~.
+
+#+findex:time-add
+#+texinfo: @subheading @code{time-add T1 T2}
+
+This returns  the sum of  two time values, using  the same conversion  rules as
+~time-subtract~. One argument should represent  a time difference rather than a
+point in time,  as a time value that  is often just a single  number of elapsed
+seconds.
+
+: (time-add time seconds)
+
+#+findex:time-to-days
+#+texinfo: @subheading @code{time-to-days TIME-VALUE}
+
+This function returns  the number of days  between the beginning of  year 1 and
+time-value, assuming the default time zone.
+
+#+findex:time-to-day-in-year
+#+texinfo: @subheading @code{time-to-day-in-year TIME-VALUE}
+
+This  returns the  day number  within the  year corresponding  to =time-value=,
+assuming the default time zone.
+
+#+findex:date-leap-year-p
+#+texinfo: @subheading @code{date-leap-year-p YEAR}
+
+This function returns =t= if year is a leap year.
+
+#+findex:date-days-in-month
+#+texinfo: @subheading @code{date-days-in-month YEAR MONTH}
+
+Return the number of days in month  in year. For instance, February 2020 has 29
+days.
+
+#+findex:date-ordinal-to-time
+#+texinfo: @subheading @code{date-ordinal-to-time YEAR ORDINAL}
+
+Return  the date  of  =ORDINAL= in  year  as a  /decoded  time structure/.  For
+instance, the 120th day in 2004 is April 29th.
+
 *** Timers
+You can set up a *timer* to call a function at a specified future time or after
+a certain  length of idleness.  A *timer* is a  special object that  stores the
+information about the next invocation times and the function to invoke.
+
+#+texinfo: @subheading When Timers Can Run
+
+Emacs cannot run  timers at any arbitrary  point in a Lisp program;  it can run
+them  only when  Emacs could  accept output  from a  subprocess: namely,  while
+waiting or inside certain primitive functions such as ~sit-for~ or ~read-event~
+which can wait. Therefore, a timer’s execution may be delayed if Emacs is busy.
+However, the time of execution is very precise if Emacs is idle.
+
+#+texinfo: @subheading Timers Inhibit Quitting
+
+Emacs binds  ~inhibit-quit~ to =t=  before calling the timer  function, because
+quitting out of many timer functions can leave things in an inconsistent state.
+This is normally unproblematical because most timer functions don’t do a lot of
+work.  If   a  timer  function   needs  to   allow  quitting,  it   should  use
+~with-local-quit~.
+
+#+texinfo: @subheading Timers Should Not Alter Buffer Contents
+
+It is  usually a bad  idea for timer functions  to alter buffer  contents. When
+they  do,  they usually  should  call  ~undo-boundary~  both before  and  after
+changing  the buffer,  to  separate  the timer’s  changes  from user  commands’
+changes and prevent a single undo entry from growing to be quite large.
+
+#+texinfo: @subheading Timers Should Not Call Functions that Wait
+
+Timer functions should  also avoid calling functions that cause  Emacs to wait,
+such as ~sit-for~ (see Waiting). This  can lead to unpredictable effects, since
+other  timers (or  even the  same  timer) can  run  while waiting.  If a  timer
+function needs to perform an action after a certain time has elapsed, it can do
+this by scheduling a new timer.
+
+#+texinfo: @subheading Timers Should Avoid Changing Match Data
+
+If a timer function  calls functions that can change the  match data, it should
+save and restore the match data.
+
+**** Timer Functions and Commands
+
+#+texinfo: @subheading Function @code{timerp OBJECT}
+
+#+findex:timerp
+#+attr_texinfo: :options timerp OBJECT
+#+begin_defun
+ This predicate function returns non-nil if object is a timer.
+#+end_defun
+
+#+texinfo: @subheading Command @code{ run-at-time}
+
+#+findex:run-at-time
+#+attr_texinfo: :options  run-at-time TIME REPEAT FUNCTION &rest ARGS
+#+begin_defun
+ This sets up a timer that  calls the function =FUNCTION= with arguments =ARGS=
+ at time =TIME=.
+
+ - TIME :: may specify an absolute or a relative time.
+
+   - Absolute times may  be specified using a string with  a limited variety of
+     formats, and are taken to be times today, even if already in the past. The
+     recognized forms are:
+
+     - xxxx
+     - x:xx
+     - xx:xx
+     - xxam
+     - xxAM
+     - xxpm
+     - xxPM
+     - xx:xxam
+     - xx:xxAM
+     - xx:xxpm
+     - xx:xxPM
+
+   - The result of ~encode-time~ can also  be used to specify an absolute value
+     for time.
+
+   - To specify a relative time as a string, use numbers followed by units.
+
+     - =1 min=: denotes 1 minute from now.
+     - =1 min 5 sec=: denotes 65 seconds from now.
+     - =1 min 2  sec 3 hour 4 day  5 week 6 fortnight 7 month  8 year=: denotes
+       exactly 103 months,  123 days, and 10862 seconds from  now. For relative
+       time values,  Emacs considers a month  to be exactly thirty  days, and a
+       year to be exactly 365.25 days.
+
+     - If time is a number (integer or floating point), that specifies a
+      relative time measured in seconds.
+
+ - REPEAT :: If =REPEAT= is a number  (integer or floating point), the timer is
+   scheduled to  run again every  =REPEAT= seconds  after time. If  =REPEAT= is
+   =nil=, the timer runs only once.
+
+   Any invocation  of a timer  can be late. Lateness  of one repetition  has no
+   effect on the scheduled time of the  next repetition. If you want a timer to
+   run again no less than =n= seconds  after the last invocation, don’t use the
+   =REPEAT= argument. Instead, the  timer function should explicitly reschedule
+   the timer.
+
+   In  most   cases,  =REPEAT=  has  no   effect  on  when  first   call  takes
+   place---=TIME= alone  specifies that. There  is one exception: if  =TIME= is
+   =t=, then the timer  runs whenever the time is a  multiple of repeat seconds
+   after the epoch. This is useful for functions like ~display-time~.
+
+ - Return  Value  ::   The function ~run-at-time~ returns a  /timer value/ that
+   identifies the particular scheduled future action. You can use this value to
+   call ~cancel-timer~.
+#+end_defun
+
+#+texinfo: @subheading Command @code{run-with-timer}
+
+#+findex:run-with-timer
+#+attr_texinfo: :options run-with-timer SECS REPEAT FUNCTION &rest ARGS
+#+begin_defun
+ This  is exactly  the same  as ~run-at-time~  (so see  that definition  for an
+ explanation of the  parameters; =SECS= is passed as =TIME=  to that function),
+ but is meant to be used when the delay is specified in seconds.
+#+end_defun
+
+#+texinfo: @subheading User Option @code{timer-max-repeats}
+
+#+vindex:timer-max-repeats
+#+attr_texinfo: :options timer-max-repeats
+#+begin_defvar
+ This variable’s value specifies the maximum  number of times to repeat calling
+ a  timer  function  in  a  row, when  many  previously  scheduled  calls  were
+ unavoidably delayed.
+#+end_defvar
+
+#+texinfo: @subheading Macro @code{with-timeout}
+
+#+findex:with-timeout
+#+findex:y-or-no-p-with-timeout
+#+attr_texinfo: :options with-timeout (SECONDS TIMEOUT-FORMS...) BODY
+#+begin_defun
+ This macro works by setting a timer  to run after =SECONDS= seconds. If =BODY=
+ finishes before that  time, it cancels the timer. If  the timer actually runs,
+ it terminates execution of =BODY=, then executes =TIMEOUT-FORMS=.
+
+ Execute =BODY=, but give up after =SECONDS= seconds. If =BODY= finishes before
+ the time is up, ~with-timeout~ returns the value of the last form in body. If,
+ however,  the   execution  of  body  is   cut  short  by  the   timeout,  then
+ ~with-timeout~ executes all  the =TIMEOUT-FORMS= and returns the  value of the
+ last of them.
+
+ Since timers  can run  within a  Lisp program  only when  the program  calls a
+ primitive that can wait, ~with-timeout~  cannot stop executing =BODY= while it
+ is in the midst of a computation---only when it calls one of those primitives.
+ So use ~with-timeout~ only with a body that waits for input, not one that does
+ a long computation.
+
+ The function ~y-or-n-p-with-timeout~  provides a simple way to use  a timer to
+ avoid waiting too long for an answer.
+#+end_defun
+
+#+texinfo: @subheading Function @code{cancel-timer}
+
+#+findex:cancel-timer
+#+attr_texinfo: :options cancel-timer TIMER
+#+begin_defun
+ This   cancels  the   requested  action   for   timer,  which   should  be   a
+ timer---usually,    one    previously    returned    by    ~run-at-time~    or
+ ~run-with-idle-timer~. This  cancels the effect of  that call to one  of these
+ functions; the arrival  of the specified time will not  cause anything special
+ to happen.
+#+end_defun
+
+#+texinfo: @subheading Command @code{list-timers}
+
+#+attr_texinfo: :options list-timers &optional IGNORE-AUTO NONCONFIRM
+#+begin_defun
+ The ~list-timers~ command[fn:6] lists all the currently active timers.
+
+ There’s   only  one   command   available  in   the   buffer  displayed:   =c=
+ ~(timer-list-cancel)~ that will cancel the timer on the line under point.
+#+end_defun
 
 **** Idle Timers
+An *idle timer* is a timer that runs when Emacs is idle for a certain length of
+time, and work just like ordinary timers.
 
+#+texinfo: @heading The Meaning of Idle
+
+Emacs becomes /idle/ when it starts waiting for user input, and it remains idle
+until the  user provides  some input.  If a timer  is set  for five  seconds of
+idleness, it  runs approximately five  seconds after Emacs first  becomes idle.
+Even if  repeat is  non-nil, this  timer will not  run again  as long  as Emacs
+remains idle,  because the duration of  idleness will continue to  increase and
+will not go down to five seconds again.
+
+Emacs can do  various things while /idle/: garbage collect,  autosave or handle
+data from a  subprocess. But these interludes during idleness  do not interfere
+with idle timers, because  they do not reset the clock of  idleness to zero. An
+idle timer set for 600 seconds will run when ten minutes have elapsed since the
+last user  command was finished,  even if  subprocess output has  been accepted
+thousands  of times  within those  ten  minutes, and  even if  there have  been
+garbage collections and autosaves.
+
+When the user supplies input, Emacs becomes non-idle while executing the input.
+Then it becomes idle  again, and all the idle timers that are  set up to repeat
+will subsequently run another time, one by one.
+
+Do not  write an  idle timer function  containing a loop  which does  a certain
+amount  of processing  each time  around, and  exits when  (input-pending-p) is
+non-nil. This approach seems very natural but has two problems:
+
+ - It blocks  out all process output  (since Emacs accepts process  output only
+   while waiting).
+
+ - It blocks out any idle timers that ought to run during that time.
+
+Similarly, do not write an idle timer  function that sets up another idle timer
+(including the same  idle timer) with secs  argument less than or  equal to the
+current idleness time.  Such a timer will run almost  immediately, and continue
+running again  and again, instead  of waiting for  the next time  Emacs becomes
+idle. The  correct approach is to  reschedule with an appropriate  increment of
+the current value of the idleness time, as described below.
+
+#+texinfo: @heading Idle Timer Commands and Functions
+
+#+texinfo: @subheading Command @code{run-with-idle-timer}
+
+#+attr_texinfo: :options run-with-idle-timer SECS REPEAT FUNCTION &rest ARGS
+#+begin_defun
+ Set up a timer which runs the next time Emacs is idle for secs seconds.
+
+ - SECS ::  The value  of secs may be a number or a  value of the type returned
+   by ~current-idle-time~.
+
+ - REPEAT ::  If  =REPEAT= is =nil=, the  timer runs just once,  the first time
+   Emacs remains idle  for a long enough time. More  often REPEAT is non-=nil=,
+   which means to run the timer each time Emacs remains idle for SECS seconds.
+
+ - Return  Value  ::  returns a  timer  value  which  you  can use  in  calling
+   ~cancel-timer~.
+#+end_defun
+
+#+texinfo: @subheading Function @code{current-idle-time}
+
+#+attr_texinfo: :options current-idle-time
+#+begin_defun
+ If Emacs  is idle,  this function returns  the length of  time Emacs  has been
+ idle, using the same format as ~current-time~.
+
+ When  Emacs  is  not  idle,  ~current-idle-time~  returns  =nil=.  This  is  a
+ convenient way to test whether Emacs is idle.
+
+ The main  use of ~current-idle-time~ is  when an idle timer  function wants to
+ “take a break” for a while. It can  set up another idle timer to call the same
+ function again, after a few seconds more idleness.
+
+ #+begin_src elisp
+   (defvar my-resume-timer nil
+     "Timer for `my-timer-function' to reschedule itself, or nil.")
+
+   (defun my-timer-function ()
+     ;; If the user types a command while my-resume-timer
+     ;; is active, the next time this function is called from
+     ;; its main idle timer, deactivate my-resume-timer.
+     (when my-resume-timer
+       (cancel-timer my-resume-timer))
+     ...do the work for a while...
+     (when taking-a-break
+       (setq my-resume-timer
+	     (run-with-idle-timer
+	       ;; Compute an idle time break-length
+	       ;; more than the current value.
+	       (time-add (current-idle-time) break-length)
+	       nil
+	       'my-timer-function))))
+ #+end_src
+#+end_defun
 * Debugging
 :PROPERTIES:
 :appendix: t
@@ -11046,6 +11380,8 @@ Copyright \copy 2020 by {{{author}}}
 :END:
 
 * Footnotes
+
+[fn:6] According to documentation, the command is disabled. 
 
 [fn:5] This default may change in future Emacs releases, so callers requiring a particular form should specify form. 
 
