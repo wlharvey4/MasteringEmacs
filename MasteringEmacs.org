@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-10 17:36
-#+macro:version Version 0.0.163
+#+date:2021-01-14 23:12
+#+macro:version Version 0.0.164
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9188,6 +9188,295 @@ Emacs: Pattern Matching with pcase
 
 This is  a tutorial  on how to  use the  pcase macro in  modern flavors  of GNU
 Emacs.
+** Nonlocal Exits
+
+#+cindex:nonlocal exit
+#+cindex:exit, nonlocal
+A *nonlocal  exit* is  a transfer  of control from  one point  in a  program to
+another remote  point. Nonlocal exits  can occur in Emacs  Lisp as a  result of
+errors; you can also use them under explicit control.
+
+*** Catch and Throw---Explicit Nonlocal Exits
+
+#+findex:throw
+#+findex:catch
+The function ~throw~ performs a *nonlocal exit* on request. It is used inside a
+~catch~, and jumps back to that ~catch~.
+
+The  ~throw~  form,  if  executed,  transfers  control  straight  back  to  the
+corresponding  ~catch~,  which  returns  immediately. The  code  following  the
+~throw~ is not executed.  The second argument of ~throw~ is  used as the return
+value of the ~catch~. The function  ~throw~ finds the matching ~catch~ based on
+the first argument: it  searches for a ~catch~ whose first  argument is ~eq~ to
+the one specified in the ~throw~. If there is more than one applicable ~catch~,
+the innermost one takes precedence.
+
+#+caption:Simple example of catch-throw
+#+name:simple-catch-throw
+#+begin_example
+(defun foo-outer ()
+  (catch 'foo
+    (foo-inner)))
+
+(defun foo-inner ()
+  …
+  (if x
+      (throw 'foo t))
+  …)
+#+end_example
+
+In  the  above  example,  the  ~throw~ specifies  =foo=,  and  the  ~catch~  in
+~foo-outer~ specifies the same symbol, so that ~catch~ is the applicable one.
+
+Executing  ~throw~  exits all  Lisp  constructs  up  to the  matching  ~catch~,
+including function calls. The bindings are unbound, just as they are when these
+constructs exit  normally. ~throw~  restores the buffer  and position  saved by
+~save-excursion~, and the narrowing status saved by ~save-restriction~. It also
+runs any  cleanups established with  the ~unwind-protect~ special form  when it
+exits that form.
+
+The ~throw~ need not  appear lexically within the ~catch~ that  it jumps to. It
+can equally well be called from another function called within the ~catch~.
+
+#+attr_texinfo: :options catch tag body
+#+begin_defun
+~catch~ establishes a  return point for the ~throw~ function.  The return point
+is distinguished from other such return points  by =tag=, which may be any Lisp
+object except =nil=.
+
+~catch~ evaluates the forms of the body  in textual order. If the forms execute
+normally (without error  or nonlocal exit) the  value of the last  body form is
+returned from the ~catch~.
+
+If a  ~throw~ is executed during  the execution of =body=,  specifying the same
+value  =tag=, the  ~catch~  form exits  immediately; the  value  it returns  is
+whatever was specified as the second argument of ~throw~.
+#+end_defun
+
+#+attr_texinfo: :options throw tag value
+#+begin_defun
+The purpose of ~throw~ is to  return from a return point previously established
+with ~catch~. The  argument =tag= is used to choose  among the various existing
+return points; it must be ~eq~ to the value specified in the ~catch~. If multiple
+return points match =tag=, the innermost one is used.
+
+The argument =value= is used as the value to return from that ~catch~.
+#+end_defun
+
+*** Errors
+
+#+cindex:errors
+#+cindex:signal, error
+#+cindex:error signal
+When Emacs Lisp  attempts to evaluate a  form that, for some  reason, cannot be
+evaluated, it  *signals an error*. When  an error is signaled,  Emacs’s default
+reaction is  to print an error  message and terminate execution  of the current
+command.
+
+#+findex:unwind-protect
+In complicated programs,  simple termination may not be what  you want. In such
+cases, you would use ~unwind-protect~  to establish /cleanup expressions/ to be
+evaluated in case of error.
+
+#+cindex:error handler
+#+findex:condition-case
+Occasionally, you may  wish the program to continue execution  despite an error
+in a  subroutine. In these cases,  you would use ~condition-case~  to establish
+*error handlers* to recover control in case of error.
+
+Resist the temptation  to use error handling to transfer  control from one part
+of the program to another; use ~catch~ and ~throw~ instead.
+
+**** Signalling Errors
+
+#+cindex:error signalling
+#+cindex:error processing
+*Signaling  an  error* means  beginning  /error  processing/. Error  processing
+normally aborts all or part of the  running program and returns to a point that
+is set up to handle the error.
+
+#+findex:error
+#+findex:signal
+Most errors  are signaled  automatically within Lisp  primitives. You  can also
+signal errors explicitly with the functions ~error~ and ~signal~.
+
+#+texinfo: @heading Error message
+
+#+cindex:error message
+Every error specifies an error message. The message should state what is wrong,
+not how things ought to be. The convention in Emacs Lisp is that error messages
+should  start with  a capital  letter,  but should  not  end with  any sort  of
+punctuation.
+
+#+attr_texinfo: :options error format-string &rest args
+#+begin_defun
+This function  signals an error with  an error message constructed  by applying
+~format-message~  to  =format-string=  and  =args=. ~error~  works  by  calling
+~signal~ with  two arguments: the error  symbol =error=, and a  list containing
+the string returned by ~format-message~.
+#+end_defun
+
+#+attr_texinfo: :options signal error-symbol data
+#+begin_defun
+This function signals an error named  by =error-symbol=. The argument =data= is
+a list of additional Lisp objects relevant to the circumstances of the error.
+
+The argument =error-symbol=  must be an /error symbol/---a  symbol defined with
+~define-error~.
+
+If the error is  not handled, the two arguments are used  in printing the error
+message.  Normally,  this error  message  is  provided by  the  =error-message=
+property  of =error-symbol=.  The number  and  significance of  the objects  in
+=data= depends on =error-symbol=.
+#+end_defun
+
+#+attr_texinfo: :options user-error format-string &rest args
+#+begin_defun
+This  function behaves  exactly like  ~error~, except  that it  uses the  error
+symbol =user-error= rather than =error=. As the name suggests, this is intended
+to  report errors  on the  part of  the user,  rather than  errors in  the code
+itself.
+#+end_defun
+
+**** Processing Errors
+
+#+cindex:handler, error
+#+cindex:error handler
+When an =error= is /signaled/, ~signal~  searches for an active handler for the
+=error=.  A *handler*  is  a  sequence of  Lisp  expressions  designated to  be
+executed if an error  happens in part of the Lisp program. If  the error has an
+applicable handler, the handler is  executed, and control resumes following the
+handler. The handler  executes in the environment of  the ~condition-case~ that
+established it; all functions called  within that ~condition-case~ have already
+been exited, and the handler cannot return to them.
+
+If there  is no applicable handler  for the =error=, it  terminates the current
+command and  returns control  to the  editor command  loop. The  command loop’s
+handler uses the =error= symbol and associated data to print an error message.
+
+#+texinfo: @heading The Debugger
+
+An error that has no explicit handler  may call the Lisp debugger. The debugger
+is enabled if the variable ~debug-on-error~ is non-=nil=.
+
+Unlike error  handlers, the debugger runs  in the environment of  the error, so
+that you can examine values of variables  precisely as they were at the time of
+the error.
+
+#+attr_texinfo: :options command-error-function
+#+begin_defvar
+This variable, if non-=nil=, specifies a  function to use to handle errors that
+return  control to  the  Emacs command  loop. The  function  should take  three
+arguments:
+1. =data=,  a list of  the same form that  ~condition-case~ would bind  to its
+  variable;
+2. =context=, a string describing the situation in which the error occurred, or
+   (more often) =nil=;
+3. =caller=,  the Lisp function  which called  the primitive that  signaled the
+   error.
+#+end_defvar
+
+**** Handling Errors
+
+#+texinfo: @heading condition-case
+
+#+cindex:trap error
+#+cindex:error trap
+#+findex:condition-case
+You  can  arrange to  trap  errors  occurring in  a  part  of your  program  by
+establishing an error handler, with the special form ~condition-case~.
+
+#+begin_src elisp
+(condition-case nil
+    (delete-file filename)
+  (error nil))
+#+end_src
+
+This catches any error on file deletion and returns =nil=. You can also use the
+macro ~ignore-errors~ in a simple case like this.
+
+- The  condition-case  construct  is  often   used  to  trap  errors  that  are
+  predictable,   such   as   failure   to   open  a   file   in   a   call   to
+  insert-file-contents.
+
+- It is also used  to trap errors that are totally  unpredictable, such as when
+  the program evaluates an expression read from the user.
+
+- The second argument  of ~condition-case~ is called the  *protected form*. The
+  error  handlers go  into  effect  when this  form  begins  execution and  are
+  deactivated  when this  form  returns.  They remain  in  effect  for all  the
+  intervening time. In  particular, they are in effect during  the execution of
+  functions called by this form, in their subroutines, and so on.
+
+- Strictly speaking, errors can be  signaled only by Lisp primitives (including
+  ~signal~ and ~error~) called by the protected form.
+
+- The arguments after the protected form are *handlers*. Each handler lists one
+  or more /condition names/ (which are symbols) to specify which errors it will
+  handle. The /error symbol/ specified when an error is signaled also defines a
+  list of  /condition names/. A  handler applies to an  error if they  have any
+  condition names in common.
+
+- The  search for  an applicable  handler checks  all the  established handlers
+  starting with the most recently established one.
+
+- If you want to be able to debug errors that are caught by a ~condition-case~,
+  set the variable ~debug-on-signal~ to a non-=nil= value.
+
+- You can  also specify that a  particular handler should let  the debugger run
+  first, by writing debug among the conditions, like this:
+
+  #+begin_src elisp
+    (condition-case nil
+	(delete-file filename)
+      ((debug error) nil))
+  #+end_src
+
+  The  effect  of  =debug=  here  is  only  to  prevent  ~condition-case~  from
+  suppressing  the call  to  the  debugger. Any  given  error  will invoke  the
+  debugger only  if ~debug-on-error~ and  the other usual  filtering mechanisms
+  say it should.
+
+#+attr_texinfo: :options macro condition-case-unless-debug var protected-form handlers…
+#+begin_deffn
+The  macro   ~condition-case-unless-debug~  provides  another  way   to  handle
+debugging of such  forms. It behaves exactly like  ~condition-case~, unless the
+variable ~debug-on-error~  is non-=nil=, in which  case it does not  handle any
+errors at all.
+#+end_deffn
+
+Once Emacs decides that a certain handler handles the error, it returns control
+to that handler.
+
+- Emacs unbinds all variable bindings made by binding constructs that are being
+  exited,
+- and  executes the  cleanups  of  all ~unwind-protect~  forms  that are  being
+  exited.
+- Once  control arrives  at  the  handler, the  body  of  the handler  executes
+  normally.
+- After   execution  of   the  handler   body,  execution   returns  from   the
+  condition-case form.  All it can do is clean up and proceed.
+
+
+#+texinfo: @heading Resemblance to Catch and Throw
+Error signaling and  handling have some resemblance to ~throw~  and ~catch~ but
+they  are entirely  separate  facilities:  An =error=  cannot  be  caught by  a
+~catch~, and a ~throw~ cannot be handled by an error handler.
+
+- using ~throw~ when  there is no suitable ~catch~ signals  an =error= that can
+  be handled.
+
+#+attr_texinfo: :options Special Form condition-case var protected-form handlers…
+#+begin_deffn
+This special form establishes the  error handlers handlers around the execution
+of ~protected-form~.
+
+- If ~protected-form~ executes without error,  the value it returns becomes the
+  value of the ~condition-case~ form; in this case, the ~condition-case~ has no
+  effect.
+- The  ~condition-case~ form  makes a  difference when  an error  occurs during
+  ~protected-form~.
+#+end_deffn
 * Interacting with the System
 :PROPERTIES:
 :appendix: t
