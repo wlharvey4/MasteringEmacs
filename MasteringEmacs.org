@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-15 07:44
-#+macro:version Version 0.0.165
+#+date:2021-01-17 20:34
+#+macro:version Version 0.0.166
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9193,27 +9193,23 @@ Emacs.
 #+cindex:nonlocal exit
 #+cindex:exit, nonlocal
 A *nonlocal  exit* is  a transfer  of control from  one point  in a  program to
-another remote  point. Nonlocal exits  can occur in Emacs  Lisp as a  result of
-errors; you can also use them under explicit control.
+another remote point. A *nonlocal exit*  can occur intentionally through use of
+~catch~ and ~throw~, or unintentionally, through the occurrence of an =error=.
 
-*** Catch and Throw---Explicit Nonlocal Exits
+The  following sections  discuss  intentional  non-local exists,  unintentional
+non-local exits,  and making sure  your process  remains in a  consistent state
+following a non-local exit.
+
+*** ~catch~ and ~throw~---Explicit Nonlocal Exits
 
 #+findex:throw
 #+findex:catch
 The function ~throw~ performs a *nonlocal exit* on request. It is used inside a
 ~catch~, and jumps back to that ~catch~.
 
-The  ~throw~  form,  if  executed,  transfers  control  straight  back  to  the
-corresponding  ~catch~,  which  returns  immediately. The  code  following  the
-~throw~ is not executed.  The second argument of ~throw~ is  used as the return
-value of the ~catch~. The function  ~throw~ finds the matching ~catch~ based on
-the first argument: it  searches for a ~catch~ whose first  argument is ~eq~ to
-the one specified in the ~throw~. If there is more than one applicable ~catch~,
-the innermost one takes precedence.
-
 #+caption:Simple example of catch-throw
 #+name:simple-catch-throw
-#+begin_example
+#+begin_src elisp
 (defun foo-outer ()
   (catch 'foo
     (foo-inner)))
@@ -9223,20 +9219,10 @@ the innermost one takes precedence.
   (if x
       (throw 'foo t))
   …)
-#+end_example
+#+end_src
 
 In  the  above  example,  the  ~throw~ specifies  =foo=,  and  the  ~catch~  in
 ~foo-outer~ specifies the same symbol, so that ~catch~ is the applicable one.
-
-Executing  ~throw~  exits all  Lisp  constructs  up  to the  matching  ~catch~,
-including function calls. The bindings are unbound, just as they are when these
-constructs exit  normally. ~throw~  restores the buffer  and position  saved by
-~save-excursion~, and the narrowing status saved by ~save-restriction~. It also
-runs any  cleanups established with  the ~unwind-protect~ special form  when it
-exits that form.
-
-The ~throw~ need not  appear lexically within the ~catch~ that  it jumps to. It
-can equally well be called from another function called within the ~catch~.
 
 #+attr_texinfo: :options catch tag body
 #+begin_defun
@@ -9263,71 +9249,123 @@ return points match =tag=, the innermost one is used.
 The argument =value= is used as the value to return from that ~catch~.
 #+end_defun
 
-*** Errors
+The  ~throw~  form,  if  executed,  transfers  control  straight  back  to  the
+corresponding  ~catch~,  which  returns  immediately. The  code  following  the
+~throw~ is not executed.  The second argument of ~throw~ is  used as the return
+value of the ~catch~. The function  ~throw~ finds the matching ~catch~ based on
+the first argument: it  searches for a ~catch~ whose first  argument is ~eq~ to
+the one specified in the ~throw~. If there is more than one applicable ~catch~,
+the innermost one takes precedence.
+
+Executing  ~throw~  exits all  Lisp  constructs  up  to the  matching  ~catch~,
+including function calls. The bindings are unbound, just as they are when these
+constructs exit  normally. ~throw~  restores the buffer  and position  saved by
+~save-excursion~, and the narrowing status saved by ~save-restriction~. It also
+runs any  cleanups established with  the ~unwind-protect~ special form  when it
+exits that form.
+
+The ~throw~ need not  appear lexically within the ~catch~ that  it jumps to. It
+can equally well be called from another function called within the ~catch~.
+
+*** Errors---Unintentional Nonlocal Exits
+
+#+texinfo: @subsubheading Error Concepts
+
+- =error= signalling
+- =error= handling, =error= handlers
+- function ~unwind-protect~
+- function ~condition-case~
 
 #+cindex:errors
 #+cindex:signal, error
 #+cindex:error signal
 When Emacs Lisp  attempts to evaluate a  form that, for some  reason, cannot be
-evaluated, it  *signals an error*. When  an error is signaled,  Emacs’s default
-reaction is  to print an error  message and terminate execution  of the current
-command.
+evaluated,  it *signals*  an  =error= ([[*Error Signaling][signals  an error]]).  When  an error  is
+signaled, Emacs’s default  reaction is to print an error  message and terminate
+execution of the current command.
 
 #+findex:unwind-protect
 In complicated programs,  simple termination may not be what  you want. In such
-cases, you would use ~unwind-protect~  to establish /cleanup expressions/ to be
-evaluated in case of error.
+cases,  you  would use  the  function  ~unwind-protect~ ([[*Cleaning  Up  from  Nonlocal Exits][unwind-protect]]) to
+establish /cleanup expressions/ to be evaluated in case of error.
 
 #+cindex:error handler
 #+findex:condition-case
 Occasionally, you may  wish the program to continue execution  despite an error
-in a  subroutine. In these cases,  you would use ~condition-case~  to establish
-*error handlers* to recover control in case of error.
+in a subroutine. In these cases,  you would use the function ~condition-case~ ([[*Handling
+ Errors][condition-case]])  to establish  *error  handlers* ([[*Processing  Errors][error  handlers]])
+to  recover control in case of error.
 
 Resist the temptation  to use error handling to transfer  control from one part
 of the program to another; use ~catch~ and ~throw~ instead.
 
-**** Signalling Errors
+**** Error Signaling
+
+#+texinfo: @subsubheading Error Signalling Concepts
+
+- =error= signaling
+- =error= processing
+- =error= handling
+- =error= message
+- function ~error~
+- function ~signal~
 
 #+cindex:error signalling
 #+cindex:error processing
-*Signaling  an  error* means  beginning  /error  processing/. Error  processing
+*Signaling  an error*  means  beginning /error  processing/. Error  processing
 normally aborts all or part of the  running program and returns to a point that
 is set up to handle the error.
 
 #+findex:error
 #+findex:signal
-Most errors  are signaled  automatically within Lisp  primitives. You  can also
-signal errors explicitly with the functions ~error~ and ~signal~.
+Most =errors= are  signaled automatically within Lisp primitives.  You can also
+signal =errors= explicitly with the functions ~error~ and ~signal~.
 
-#+texinfo: @heading Error message
+#+texinfo: @heading The ~error~ Function---The Error message
 
 #+cindex:error message
-Every error specifies an error message. The message should state what is wrong,
-not how things ought to be. The convention in Emacs Lisp is that error messages
-should  start with  a capital  letter,  but should  not  end with  any sort  of
-punctuation.
+
+- =error message= ::
+
+  Every =error= specifies an =error message=.  The message should state what is
+  wrong, not how things ought to be. The convention in Emacs Lisp is that error
+  messages should start with a capital letter, but should not end with any sort
+  of punctuation.
 
 #+attr_texinfo: :options error format-string &rest args
 #+begin_defun
-This function  signals an error with  an error message constructed  by applying
-~format-message~  to  =format-string=  and  =args=. ~error~  works  by  calling
-~signal~ with  two arguments: the error  symbol =error=, and a  list containing
-the string returned by ~format-message~.
+
+This  function  signals an  =error=  with  an  =error message=.
+
+- error ::
+
+  ~error~  works by  calling  ~signal~  with two  arguments:  the error  symbol
+  =error=, and a list containing the string returned by ~format-message~.
+
+- error message ::
+
+  The   eror   message  is   constructed   by   applying  ~format-message~   to
+  =format-string= and =args=.
 #+end_defun
 
 #+attr_texinfo: :options signal error-symbol data
 #+begin_defun
-This function signals an error named  by =error-symbol=. The argument =data= is
-a list of additional Lisp objects relevant to the circumstances of the error.
-
-The argument =error-symbol=  must be an /error symbol/---a  symbol defined with
-~define-error~.
+This function /signals/ an =error= named by =error-symbol=.
 
 If the error is  not handled, the two arguments are used  in printing the error
 message.  Normally,  this error  message  is  provided by  the  =error-message=
 property  of =error-symbol=.  The number  and  significance of  the objects  in
 =data= depends on =error-symbol=.
+
+- error-symbol
+
+  The argument =error-symbol= must be an /error symbol/---a symbol defined with
+  ~define-error~.
+
+- data ::
+
+  The argument  =data= is  a list  of additional Lisp  objects relevant  to the
+  circumstances of the error.
 #+end_defun
 
 #+attr_texinfo: :options user-error format-string &rest args
