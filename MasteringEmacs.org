@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-19 07:16
-#+macro:version Version 0.0.167
+#+date:2021-01-19 08:18
+#+macro:version Version 0.0.168
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9202,6 +9202,10 @@ following a non-local exit.
 
 *** ~catch~ and ~throw~---Explicit Nonlocal Exits
 
+#+texinfo: @subsubheading Catch and Throw Concepts
+- catch
+- throw
+
 #+findex:throw
 #+findex:catch
 The function ~throw~ performs a *nonlocal exit* on request. It is used inside a
@@ -9270,31 +9274,30 @@ can equally well be called from another function called within the ~catch~.
 *** Errors---Unintentional Nonlocal Exits
 
 #+texinfo: @subsubheading Error Concepts
-
-- =error= signalling
+- signal, error
+- handle, error
 - =error= handling, =error= handlers
-- function ~unwind-protect~, cleanup expressions
-- function ~condition-case~, recover control
+- ~unwind-protect~ function, cleanup expressions
+- ~condition-case~ function, recover control
 
 #+cindex:errors
 #+cindex:signal, error
 #+cindex:error signal
 When Emacs Lisp  attempts to evaluate a  form that, for some  reason, cannot be
-evaluated,  it *signals*  an  =error= ([[*Error Signaling][signals  an error]]).  When  an error  is
-signaled, Emacs’s default  reaction is to print an error  message and terminate
-execution of the current command.
+evaluated, it  [[*Error Signaling][signals  an error]].  When an error  is signaled,  Emacs’s default
+reaction is  to print an error  message and terminate execution  of the current
+command.
 
 #+findex:unwind-protect
 In complicated programs,  simple termination may not be what  you want. In such
-cases,  you  would use  the  function  ~unwind-protect~ ([[*Cleaning  Up  from  Nonlocal Exits][unwind-protect]]) to
-establish /cleanup expressions/ to be evaluated in case of error.
+cases,  you would  use  the function  [[*Cleaning  Up  from Nonlocal  Exits][unwind-protect]]  to establish  /cleanup
+expressions/ to be evaluated in case of error.
 
 #+cindex:error handler
 #+findex:condition-case
 Occasionally, you may  wish the program to continue execution  despite an error
-in a subroutine. In these cases,  you would use the function ~condition-case~ ([[*Handling
- Errors][condition-case]])  to establish  *error  handlers* ([[*Processing  Errors][error  handlers]])
-to  recover control in case of error.
+in a subroutine. In these  cases, you would use the function [[*Using condition-case to Trap  and Handle Errors with Handlers][condition-case]] to
+establish [[*Error Processing---Error Debugging][error handlers]] to recover control in case of error.
 
 Resist the temptation  to use error handling to transfer  control from one part
 of the program to another; use ~catch~ and ~throw~ instead.
@@ -9302,7 +9305,6 @@ of the program to another; use ~catch~ and ~throw~ instead.
 **** Error Signaling
 
 #+texinfo: @subsubheading Error Signaling Concepts
-
 - =error= signaling
 - =error= processing
 - =error= handling
@@ -9383,10 +9385,10 @@ to  report errors  on the  part of  the user,  rather than  errors in  the code
 itself.
 #+end_defun
 
-**** Processing Errors
+**** Error Processing---Error Debugging
 
-#+texinfo: @subsubheading Concepts
-
+#+texinfo: @subsubheading Error Processing Concepts
+- ~signal~
 - error handler
 - ~condition-case~ function
 - =debug-on-error= variable
@@ -9397,7 +9399,7 @@ itself.
 #+cindex:error handler
 #+findex:condition-case
 When an  =error= is /signaled/, ~signal~  searches for an active  *handler* for
-the =error=.
+the =error= ([[*Using condition-case to Trap and Handle Errors with Handlers][next]]).
 
 - *handler* :: a  sequence of Lisp expressions designated to  be executed if an
   error happens in part of the Lisp program.
@@ -9419,9 +9421,9 @@ the =error=.
 An error that has no explicit handler  may call the Lisp debugger. The debugger
 is enabled if the variable ~debug-on-error~ is non-=nil=.
 
-Unlike error  handlers, the debugger runs  in the environment of  the error, so
-that you can examine values of variables  precisely as they were at the time of
-the error.
+Unlike /error handlers/,  the debugger runs in the environment  of the =error=,
+so that you can examine values of  variables precisely as they were at the time
+of the =error=.
 
 #+attr_texinfo: :options command-error-function
 #+begin_defvar
@@ -9436,13 +9438,13 @@ arguments:
    error.
 #+end_defvar
 
-**** Handling Errors
+**** Using condition-case to Trap and Handle Errors with Handlers
 
-#+texinfo: @subsubheading Concepts
+#+texinfo: @subsubheading Error Handling Concepts
 
-- ~condition-case~ special form
-- error handler
 - error trapping
+- error handling, handlers
+- ~condition-case~ special form
 - error symbol
 - error condition names
 - error description
@@ -9461,47 +9463,55 @@ establishing an =error handler=, with the special form ~condition-case~.
 
 #+attr_texinfo: :options condition-case var protected-form handlers…
 #+begin_defun
-This  special  form establishes  the  /error  handlers/ =HANDLERS=  around  the
-execution of =PROTECTED-FORM=.  Each of the =HANDLER=  s is a list  of the form
-~(conditions body…)~.
 
-If =PROTECTED-FORM=  executes without error,  the value it returns  becomes the
-value of the  ~condition-case~ form; in this case, the  ~condition-case~ has no
-effect.
+  Each ~error~  that occurs has an  /error symbol/ that describes  what kind of
+  ~error~ it  is, and which describes  also a list of  /condition names/. Emacs
+  searches all the active ~condition-case~ forms for a /handler/ that specifies
+  one   or  more   of   these  /condition   names/;   the  innermost   matching
+  ~condition-case~ handles the ~error~. Within this ~condition-case~, the first
+  applicable  /handler/ handles  the error.  After  executing the  body of  the
+  /handler/, the ~condition-case~ returns normally, using the value of the last
+  form in the handler body as the overall value.
 
-=CONDITIONS=  is  an  /error condition  name/  to  be  handled,  or a  list  of
-/condition  names/ (which  can include  ~debug~ to  allow the  debugger to  run
-before the handler). A condition name of =t= matches any condition.
+  PROTECTED-FORM ::
 
-=BODY= is one or more Lisp expressions to be executed when this handler handles
-an error.
+    This special  form establishes the  /error handlers/ =HANDLERS=  around the
+    execution of =PROTECTED-FORM=. If  =PROTECTED-FORM= executes without error,
+    the value  it returns becomes  the value  of the ~condition-case~  form; in
+    this case, the ~condition-case~ has no effect.
 
-Each ~error~  that occurs  has an  /error symbol/ that  describes what  kind of
-~error~ it  is, and  which describes  also a list  of /condition  names/. Emacs
-searches all the  active ~condition-case~ forms for a  /handler/ that specifies
-one or more of these /condition names/; the innermost matching ~condition-case~
-handles  the  ~error~.  Within  this  ~condition-case~,  the  first  applicable
-/handler/ handles  the error. After  executing the  body of the  /handler/, the
-~condition-case~ returns  normally, using  the value  of the  last form  in the
-handler body as the overall value.
+  HANDLERS  ::
 
-The argument =VAR= is a variable.  ~condition-case~ does not bind this variable
-when executing the  ~protected-form~, only when it handles an  ~error~. At that
-time, it binds =VAR= locally to an  /error description/, which is a list giving
-the  particulars  of  the  ~error~.   The  /error  description/  has  the  form
-=(error-symbol . data)=. The  handler can refer to this list  to decide what to
-do. If =VAR= is  =nil=, that means no variable is bound.  Then the error symbol
-and associated data are not available to the handler.
+    Each of the =HANDLER= s is a list of the form ~(conditions body…)~.
 
-Sometimes it is necessary to re-throw  a signal caught by ~condition-case~, for
-some outer-level handler to catch. Here’s how to do that:
+    =CONDITIONS=  is an  /error condition  name/ to  be handled,  or a  list of
+    /condition names/ (which  can include ~debug~ to allow the  debugger to run
+    before the handler). A condition name of =t= matches any condition.
 
-: (signal (car err) (cdr err))
+    =BODY= is  one or more  Lisp expressions to  be executed when  this handler
+    handles an error.
 
-where =ERR= is the /error description/ variable.
+  VAR ::
+
+    The  argument =VAR=  is a  variable.  ~condition-case~ does  not bind  this
+    variable  when executing  the  ~protected-form~, only  when  it handles  an
+    ~error~. At  that time, it binds  =VAR= locally to an  /error description/,
+    which  is  a  list  giving  the particulars  of  the  ~error~.  The  /error
+    description/ has the form =(error-symbol . data)=. The handler can refer to
+    this list to decide  what to do. If =VAR= is =nil=,  that means no variable
+    is bound.  Then the error symbol  and associated data are  not available to
+    the handler.
+
+  Sometimes it  is necessary to  re-throw a signal caught  by ~condition-case~,
+  for some outer-level handler to catch. Here’s how to do that:
+  : (signal (car err) (cdr err))
+  where =ERR= is the /error description/ variable.
 #+end_defun
 
 ***** Condition-Case Examples
+
+#+caption:Simple ~condition-case~ Example
+#+name:simple-condition-case-example
 #+begin_src elisp
 (condition-case nil
     (delete-file filename)
@@ -9542,8 +9552,8 @@ the macro ~ignore-errors~ in a simple case like this.
 - You can  also specify that a  particular handler should let  the debugger run
   first, by writing =debug= among the conditions, like this:
 
-  #+caption:Handle Error on File Deletion
-  #+name:handle-error-on-file-deletion
+  #+caption:Run Debugger First on File Deletion
+  #+name:run-debugger-first-on-file-deletion
   #+begin_src elisp
     (condition-case nil
 	(delete-file filename)
@@ -9554,6 +9564,9 @@ the macro ~ignore-errors~ in a simple case like this.
   suppressing  the call  to the  debugger. Any  given =error=  will invoke  the
   debugger only  if ~debug-on-error~ and  the other usual  filtering mechanisms
   say it should.
+
+
+#+texinfo: @subheading Example Error Handlers
 
 #+caption: Example Handlers
 #+name:example-handlers
@@ -9567,45 +9580,7 @@ the macro ~ignore-errors~ in a simple case like this.
   "Either division by zero or failure to open a file"))
 #+end_example
 
-#+attr_texinfo: :options macro condition-case-unless-debug var protected-form handlers…
-#+begin_deffn
-The  macro   ~condition-case-unless-debug~  provides  another  way   to  handle
-debugging of such  forms. It behaves exactly like  ~condition-case~, unless the
-variable ~debug-on-error~  is non-=nil=, in which  case it does not  handle any
-errors at all.
-#+end_deffn
-
-Once Emacs  decides that a  certain *handler*  handles the =error=,  it returns
-control to that *handler*.
-
-- Emacs unbinds all variable bindings made by binding constructs that are being
-  exited,
-- and  executes the  cleanups  of  all ~unwind-protect~  forms  that are  being
-  exited.
-- Once  control arrives  at  the  handler, the  body  of  the handler  executes
-  normally.
-- After   execution  of   the  handler   body,  execution   returns  from   the
-  condition-case form.  All it can do is clean up and proceed.
-
-
-#+attr_texinfo: :options error-message-string error-descriptor
-#+begin_defun
-This  function  returns   the  /error  message  string/  for   a  given  /error
-descriptor/. It is useful if you want  to handle an error by printing the usual
-error message for that error.
-#+end_defun
-
-#+texinfo: @heading Resemblance to Catch and Throw
-Error signaling and  handling have some resemblance to ~throw~  and ~catch~ but
-they  are entirely  separate  facilities:  An =error=  cannot  be  caught by  a
-~catch~, and a ~throw~ cannot be handled by an error handler.
-
-- using ~throw~ when  there is no suitable ~catch~ signals  an =error= that can
-  be handled.
-
-#+texinfo: @heading Examples
-
-***** Handling a Specific Error
+#+texinfo: @heading Handling a Specific Error
 Here is an example of using ~condition-case~ to handle the =error= that results
 from dividing by zero. The *handler*  displays the /error message/ (but without
 a beep),  then returns a  very large  number. The handler  specifies *condition
@@ -9636,7 +9611,7 @@ Other kinds of errors will not be handled (by this ~condition-case~).
 
 #+texinfo: @subheading Handling All Kinds of Errors
 
-***** Handling All Errors
+#+texinfo: @heading Handling All Errors
 Here is a condition-case that catches all kinds of errors, including those from
 ~error~:
 
@@ -9658,43 +9633,85 @@ Here is a condition-case that catches all kinds of errors, including those from
   ⇒ 2
 #+end_src
 
+***** Additional Error Handling Concepts
+
+#+texinfo: @heading @code{condition-case-unless-debug} Macro
+
+#+attr_texinfo: :options macro condition-case-unless-debug var protected-form handlers…
+#+begin_deffn
+The  macro   ~condition-case-unless-debug~  provides  another  way   to  handle
+debugging of such  forms. It behaves exactly like  ~condition-case~, unless the
+variable ~debug-on-error~  is non-=nil=, in which  case it does not  handle any
+errors at all.
+#+end_deffn
+
+Once Emacs  decides that a  certain *handler*  handles the =error=,  it returns
+control to that *handler*.
+
+- Emacs unbinds all variable bindings made by binding constructs that are being
+  exited,
+- and  executes the  cleanups  of  all ~unwind-protect~  forms  that are  being
+  exited.
+- Once  control arrives  at  the  handler, the  body  of  the handler  executes
+  normally.
+- After   execution  of   the  handler   body,  execution   returns  from   the
+  condition-case form.  All it can do is clean up and proceed.
+
+
+#+texinfo: @heading @code{error-message-string} Function
+#+attr_texinfo: :options error-message-string error-descriptor
+#+begin_defun
+  This  function  returns  the  /error  message  string/  for  a  given  /error
+  descriptor/. It  is useful  if you want  to handle an  error by  printing the
+  usual error message for that error.
+#+end_defun
+
+#+texinfo: @heading Resemblance to Catch and Throw
+Error signaling and  handling have some resemblance to ~throw~  and ~catch~ but
+they  are entirely  separate  facilities:  An =error=  cannot  be  caught by  a
+~catch~, and a ~throw~ cannot be handled by an error handler.
+
+- using ~throw~ when  there is no suitable ~catch~ signals  an =error= that can
+  be handled.
+
 **** Ignoring Errors
 
-#+texinfo: @subsubheading Concepts
+#+texinfo: @subsubheading Ignoring Errors Concepts
 - ~ignore-errors~ macro
 - ~ignore-error~ macro
 - ~with-demoted-errors~ macro
 
 #+attr_texinfo: :options Macro ignore-errors body…
 #+begin_deffn
-This  construct executes  =BODY=, ignoring  any  errors that  occur during  its
-execution. If the execution is without error, ~ignore-errors~ returns the value
-of the last form in body; otherwise, it returns =nil=.
+  This construct  executes =BODY=,  ignoring any errors  that occur  during its
+  execution. If  the execution  is without  error, ~ignore-errors~  returns the
+  value of the last form in body; otherwise, it returns =nil=.
 
-Here’s the example at the beginning of this subsection rewritten using
-~ignore-errors~:
+  Here’s  the example  at  the  beginning of  this  subsection rewritten  using
+  ~ignore-errors~:
 
-: (ignore-errors
-:    (delete-file filename))
+  : (ignore-errors
+  :    (delete-file filename))
 #+end_deffn
 
 #+attr_texinfo: :options Macro ignore-error condition body…
 #+begin_deffn
-This macro  is like ~ignore-errors~,  but will  only ignore the  specific error
-condition specified.  =CONDITION= can also be a list of error conditions.
+  This macro is  like ~ignore-errors~, but will only ignore  the specific error
+  condition specified. =CONDITION= can also be a list of error conditions.
 
-: (ignore-error end-of-file
-:     (read ""))
+  : (ignore-error end-of-file
+  :     (read ""))
 #+end_deffn
 
 #+attr_texinfo: :options Macro with-demoted-errors format body…
 #+begin_deffn
-This macro is like a milder version of ~ignore-errors~. Rather than suppressing
-errors altogether, it converts them into  messages. It uses the string =FORMAT=
-to format  the message.  =FORMAT= should contain  a single  ‘%’-sequence; e.g.,
-"Error:  %S". Use  ~with-demoted-errors~ around  code that  is not  expected to
-signal errors,  but should be  robust if one does  occur. Note that  this macro
-uses ~condition-case-unless-debug~ rather than ~condition-case~.
+  This  macro  is  like  a  milder  version  of  ~ignore-errors~.  Rather  than
+  suppressing errors  altogether, it converts  them into messages. It  uses the
+  string  =FORMAT= to  format the  message.  =FORMAT= should  contain a  single
+  ‘%’-sequence; e.g.,  "Error: %S". Use ~with-demoted-errors~  around code that
+  is not  expected to signal  errors, but should be  robust if one  does occur.
+  Note  that   this  macro   uses  ~condition-case-unless-debug~   rather  than
+  ~condition-case~.
 #+end_deffn
 
 **** Error Symbols---Condition Names
@@ -9713,7 +9730,7 @@ uses ~condition-case-unless-debug~ rather than ~condition-case~.
 
 #+cindex:error symbol
 #+cindex:symbol, error
-When you signal an  =error=, you specify an /error symbol/  to specify the kind
+When you /signal/ an =error=, you specify an /error symbol/ to specify the kind
 of =error= you have  in mind. Each =error= has one and  only one /error symbol/
 to categorize it.
 
@@ -9802,7 +9819,7 @@ possible to categorize =errors= at various  levels of generality when you write
 an error handler.
 *** Cleaning Up from Nonlocal Exits
 
-#+texinfo: @subsubheading Cleaning Up Concept
+#+texinfo: @subsubheading Error Clean Up Concepts
 - ~unwind-protect~ special form
 - ~with-temp-buffer~ macro
 
