@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-19 08:18
-#+macro:version Version 0.0.168
+#+date:2021-01-19 09:51
+#+macro:version Version 0.0.169
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9324,7 +9324,7 @@ is set up to handle the error.
 Most =errors= are  signaled automatically within Lisp primitives.  You can also
 signal =errors= explicitly with the functions ~error~ and ~signal~.
 
-#+texinfo: @heading The ~error~ Function---The Error message
+#+texinfo: @heading The @code{error} Function---The Error Message
 
 #+cindex:error message
 - =error message= ::
@@ -9348,39 +9348,40 @@ containing the string returned by ~format-message~.
   format characters like ‘%’, ‘`’ and ‘'’, use =(error "%s" MESSAGE)=.
 #+end_defun
 
-#+texinfo: @heading The ~signal~ Function
+#+texinfo: @heading The @code{signal} Function
 
 #+cindex:error symbol
 #+cindex:error conditions
 #+attr_texinfo: :options signal error-symbol data
 #+begin_defun
-The function ~signal~ /signals/ an =error= named by =error-symbol=. It does not
+The function ~signal~ /signals/ an =error= named by =ERROR-SYMBOL=. It does not
 return.
 
-If the  =error= is  not handled,  the two  arguments are  used in  printing the
-=error  message=.   Normally,  this   =error  message=   is  provided   by  the
-=error-message= property of =error-symbol=. The  number and significance of the
-objects in =data= depends on =error-symbol=.
+If the  =error= is not handled,  the two arguments (=ERROR-SYMBOL=  and =DATA=)
+are used  in printing  an =error  message=. Normally,  this =error  message= is
+provided  by the  =error-message= property  of =ERROR-SYMBOL=.  The number  and
+significance of the objects in =DATA= depend on =ERROR-SYMBOL=.
 
-- error-symbol
+- ERROR-SYMBOL
 
-  The argument =error-symbol= must be an /error symbol/---a symbol defined with
-  ~define-error~.  An =error  symbol= is  a symbol  with an  ‘error-conditions’
-  property that is a list of condition names.
+  The argument =ERROR-SYMBOL= must be an /error symbol/---a symbol defined with
+  [[*Error Symbols---Condition  Names][~define-error~]]. An  /error symbol/  is a  symbol with  an =error-conditions=
+  property that is a list of /condition/ names.
 
-- data ::
+- DATA ::
 
-  The argument  =data= is  a list  of additional Lisp  objects relevant  to the
-  circumstances of  the error. Its  elements are printed  as part of  the error
-  message.
+  The argument  =DATA= is  a list  of additional Lisp  objects relevant  to the
+  circumstances of the =error=. Its elements  are printed as part of the /error
+  message/.
 #+end_defun
 
-#+texinfo: @heading The ~user-error~ Function
+#+texinfo: @heading The @code{user-error} Function
 
+#+cindex:user errors
 #+attr_texinfo: :options user-error format-string &rest args
 #+begin_defun
-This  function behaves  exactly like  ~error~, except  that it  uses the  error
-symbol =user-error= rather than =error=. As the name suggests, this is intended
+This  function behaves  exactly like  ~error~, except  that it  uses the  /error
+symbol/ =user-error= rather than =error=. As the name suggests, this is intended
 to  report errors  on the  part of  the user,  rather than  errors in  the code
 itself.
 #+end_defun
@@ -9473,14 +9474,14 @@ establishing an =error handler=, with the special form ~condition-case~.
   /handler/, the ~condition-case~ returns normally, using the value of the last
   form in the handler body as the overall value.
 
-  PROTECTED-FORM ::
+  - PROTECTED-FORM ::
 
     This special  form establishes the  /error handlers/ =HANDLERS=  around the
     execution of =PROTECTED-FORM=. If  =PROTECTED-FORM= executes without error,
     the value  it returns becomes  the value  of the ~condition-case~  form; in
     this case, the ~condition-case~ has no effect.
 
-  HANDLERS  ::
+  - HANDLERS  ::
 
     Each of the =HANDLER= s is a list of the form ~(conditions body…)~.
 
@@ -9491,7 +9492,7 @@ establishing an =error handler=, with the special form ~condition-case~.
     =BODY= is  one or more  Lisp expressions to  be executed when  this handler
     handles an error.
 
-  VAR ::
+  - VAR ::
 
     The  argument =VAR=  is a  variable.  ~condition-case~ does  not bind  this
     variable  when executing  the  ~protected-form~, only  when  it handles  an
