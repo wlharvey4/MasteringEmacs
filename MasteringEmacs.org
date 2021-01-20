@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-19 21:36
-#+macro:version Version 0.0.170
+#+date:2021-01-19 22:49
+#+macro:version Version 0.0.171
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -4478,6 +4478,134 @@ The : means it’s UNIX-style line endings.  For DOS it would say =(DOS)=.
 ** Frame Management
 
 ** Elemental Movement
+
+*** Navigation Keys---Arrow Keys Etc
+Arrow keys move  by character; can combine the arrow  keys with the =<control>=
+key to move by word.
+
+- =<left>=, =C-<left>=
+- =<right>=, =C-<right>=
+- =<up>=, =C-<up>=
+- =<down>=, =C-<down>=
+- =<insert>=: activate =overwrite-mode=
+- =<delete>=: delete character after point
+- =<prior>=, =<next>=: Page-up, Page-down move by full page
+- =<home>=, =<end>=: Move to beginning, end of  line
+
+#+attr_texinfo: :options next-screen-context-lines
+#+begin_defvar
+Variable  controlling  number   of  lines  of  continuity   when  scrolling  by
+screenfuls; default is 2.
+#+end_defvar
+
+*** Moving by Character
+|-------------+------------------------|
+| Key Binding | Purpose                |
+|-------------+------------------------|
+| =C-f=       | Forward character      |
+| =C-b=       | Backward character     |
+| =C-p=       | Previous (visual) line |
+| =C-n=       | Next (visual) line     |
+|-------------+------------------------|
+
+*** Moving By Line
+|------------------+-------------------------|
+| Key Binding      | Purpose                 |
+|------------------+-------------------------|
+| =C-a= / =<home>= | Beginning of line       |
+| =C-e= / =<end>=  | End of line             |
+| =M-m=            | First character on line |
+|------------------+-------------------------|
+
+**** Lines
+- Visual :: physical lines; "what you see"
+- Screen :: identical to visual line
+- Logical :: buffer lines; opposite of visual or screen lines
+
+#+attr_texinfo: :options line-move-visual arg &optional noerror
+#+begin_defun
+  Move =ARG= lines forward.
+#+end_defun
+
+#+attr_texinfo: :options line-move-visual
+#+begin_defvar
+  When non-=nil=, ‘line-move’ moves point by /visual lines/.
+
+  If =nil=, ‘line-move’ moves point by /logical lines/.
+#+end_defvar
+
+**** Visual Line Mode
+A  minor mode  that  builds on  the  concept of  visual  lines with  additional
+functionality. *Visual Line Mode* wraps by word boundary resulting in “cleaner”
+word wrapping  like what you’d see  in a traditional word  processor. The minor
+mode will also disable the fringe indicators.
+
+Additionally,  *Visual Line  Mode* replaces  a number  of movement  and editing
+commands with  visual equivalents. =C-p=  and =C-n= will  behave as they  do in
+default Emacs installations with the ~line-move-visual~ option enabled.
+
+Furthermore, commands  like moving  to the  beginning and end  of a  line (with
+=C-a= and =C-e=) now work on visual lines instead of logical lines.
+
+The ~kill~ command (bound to =C-k=) will also work on visual lines.
+
+#+attr_texinfo: :options visual-line-mode &optional arg
+#+begin_defun
+  Toggle visual line-based editing (*Visual Line mode*) in the current buffer.
+
+  When *Visual Line mode* is enabled,  ‘word-wrap’ is turned on in this buffer,
+  and simple editing commands are redefined to act on visual lines, not logical
+  lines.
+#+end_defun
+
+#+attr_texinfo: :options global-visual-line-mode
+#+begin_defun
+  *Visual-Line mode* is enabled in all buffers where ‘turn-on-visual-line-mode’
+  would do it.
+#+end_defun
+
+#+attr_texinfo: :options toggle-truncate-lines &optional ARG
+#+begin_defun
+  When truncating is off, long lines are folded.
+#+end_defun
+
+*** Moving By Word
+|---------------------+---------------|
+| Key Binding         | Purpose       |
+|---------------------+---------------|
+| =M-f= / =C-<left>=  | Forward word  |
+| =M-b= / =C-<right>= | Backward word |
+|---------------------+---------------|
+
+**** What Constitutes a Word
+
+- Syntax Table ::
+
+  Every character ---  printable characters, including Unicode  code points ---
+  are given a meaning by the mode author, directly or indirectly, in a registry
+  that maps the characters to a  particular syntactic meaning. The syntax table
+  keeps track of things like, "What characters are used for comments?" or "What
+  characters make up  a word?" and, although obscured from  view, affects every
+  part of Emacs.
+
+  The syntax table alone decides the  makeup of a word (or symbol, punctuation,
+  comment, etc.) as a syntactic unit. So  when you move the point around on the
+  screen,  it  move saccording  to  the  syntax  table  and the  general  rules
+  governing ~forward-word~ and ~backward-word~.
+
+  What sets Emacs apart  from other editors is that you  can inspect and change
+  the syntax table, which  in turn will affect how your  point moves across the
+  screen when you invoke certain commands.
+
+  You can view your current buffer’s syntax  table by typing =C-h s=. In it you
+  will see a human readable version of the characters and their assigned syntax
+  class.
+
+*** Moving By S-Expression
+
+*** Other Movement Commands
+
+*** Scrolling
 
 ** Bookmarks and Registers
 
