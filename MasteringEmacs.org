@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-19 09:51
-#+macro:version Version 0.0.169
+#+date:2021-01-19 21:36
+#+macro:version Version 0.0.170
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9818,6 +9818,59 @@ By  contrast,  using  only  /error symbols/  without  /condition  names/  would
 seriously decrease  the power  of ~condition-case~.  /Condition names/  make it
 possible to categorize =errors= at various  levels of generality when you write
 an error handler.
+**** Standard Errors
+This is a list of the more  important error symbols in standard Emacs. The list
+includes each symbol’s message.
+
+- error :: "error"
+- quit :: "Quit"; note that the error symbol =quit= does not have the condition
+  =error=, because quitting is not considered an error.
+- args-out-of-range :: "Args out of range"
+- arith-error :: "Arithmetic error"
+- beginning-of-buffer :: "Beginning of buffer"
+- buffer-read-only :: "Buffer is read-only"
+- circular-list :: "List contains a loop"
+- cl-assertion-failed :: "Assertion failed"
+- coding-system-error :: "Invalid coding system"
+- cyclic-function-indirection :: "Symbol's chain of function indirections contains a loop"
+- cyclic-variable-indirection :: "Symbol's chain of variable indirections contains a loop"
+- dbus-error :: "D-Bus error"
+- end-of-buffer :: "End of buffer"
+- end-of-file ::  "End of file  during parsing"; note  that it pertains  to the
+  Lisp reader, not to file I/O.
+- file-already-exists :: a subcategory of= file-error=
+- file-date-error ::  a subcategory of =file-error=; it occurs when ~copy-file~
+  tries and fails to set the last-modification time of the output file.
+- file-error  ::     We  do not list the /error-strings/ of  this error and its
+  subcategories, because the  /error message/ is normally  constructed from the
+  =DATA= items  alone when the  error condition =file-error= is  present. Thus,
+  the /error-strings/ are not very relevant.
+- file-missing :: a subcategory of =file-error=;
+- compression-error :: a subcategory of =file-error=;
+- file-locked :: a subcategory of =file-error=;
+- file-supersession :: a subcategory of =file-error=;
+- file-notify-error :: a subcategory of =file-error=;
+- ftp-error :: a subcategory of =file-error=;
+- invalid-function :: "Invalid function"
+- invalid-read-syntax :: "Invalid read syntax" or "Trailing garbage following expression"
+- invalid-regexp :: "Invalid regexp"
+- mark-inactive :: "The mark is not active now"
+- no-catch :: "No catch for tag"
+- range-error :: "Arithmetic range error"
+- overflow-error :: "Arithmetic overflow error"; a subcategory of =range-error=;
+- scan-error :: "Scan error"
+- search-failed :: "Search failed"
+- setting-constant :: "Attempt to set a constant symbol"
+- text-read-only :: "Text is read-only"; a subcategory of =buffer-read-only=;
+- undefined-color :: "Undefined color"
+- user-error :: the empty string
+- user-search-failed :: This  is like =search-failed=, but  doesn’t trigger the
+  debugger, like =user-error=.
+- void-function :: "Symbol's function definition is void"
+- void-variable :: "Symbol's value as variable is void"
+- wrong-number-of-arguments :: "Wrong number of arguments"
+- wrong-type-argument :: "Wrong type argument"
+- unknown-image-type :: "Cannot determine image type"
 *** Cleaning Up from Nonlocal Exits
 
 #+texinfo: @subsubheading Error Clean Up Concepts
