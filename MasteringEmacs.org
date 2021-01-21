@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-21 08:24
-#+macro:version Version 0.0.175
+#+date:2021-01-21 09:53
+#+macro:version Version 0.0.176
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6124,6 +6124,422 @@ message in a separate window.
 *** Terminal Emulator
 
 *** eshell---Emac's Shell
+
+* Modes
+Modes are divided into two categories:
+
+- Major Modes ::
+
+  Provide specialized  facilities for working  on a  particular file type  or a
+  particular type of non-file buffer.  They are mutually exclusive.
+
+- Minor Modes ::
+
+  Optional features which you can turn on or off, not necessarily specific to a
+  type of  file or  buffer. They  are independent  of one  another, and  of the
+  selected major mode.
+
+** Major Modes
+
+#+cindex:major modes
+#+cindex:modes, major
+Every buffer possesses  a major mode, which determines the  editing behavior of
+Emacs while that  buffer is current. The  mode line normally shows  the name of
+the current major mode, in parentheses
+
+#+cindex:fundamental mode
+- Fundamental Mode ::
+
+  Least specialized major mode. This mode has no mode-specific redefinitions or
+  variable settings,  so that each  Emacs command  behaves in its  most general
+  manner, and each user option variable is in its default state.
+
+For editing text of  a specific type that Emacs knows about,  such as Lisp code
+or English text, you typically use a  more specialized major mode, such as Lisp
+mode or Text mode. Most major modes fall into three major groups.
+
+#+cindex:modes for normal text
+1. modes for normal text
+   - Text mode,
+   - HTML mode,
+   - SGML mode,
+   - TeX mode and
+   - Outline mode
+
+#+cindex:modes for programming
+2. modes for specific programming languages
+   - =Lisp= mode (which has several variants),
+   - =C= mode,
+   - =Fortran= mode,
+   - and others
+
+#+cindex:modes for special buffers
+3. are not associated directly with files; they are used in buffers created for
+   specific purposes by Emacs
+   - =Dired= mode for buffers made by Dired (see Dired),
+   - =Message= mode for buffers made by =C-x m= (see Sending Mail), and
+   - =Shell=  mode for  buffers  used  to communicate  with  an inferior  shell
+     process
+
+#+texinfo: @subheading Selecting a Major Mode
+
+Usually, the major mode  is automatically set by Emacs, when  you first visit a
+file or create a  buffer (see Choosing Modes). You can  explicitly select a new
+major mode by using  an M-x command. Take the name of the  mode and add =-mode=
+to get  the name  of the  command to  select that  mode (e.g.,  =M-x lisp-mode=
+enters =Lisp= mode). Since every buffer has exactly one major mode, there is no
+way to “turn off” a major mode; instead you must switch to a different one.
+
+*** Mode Variables and Commands
+
+- ~major-mode~
+
+#+attr_texinfo: :options major-mode
+#+begin_defvar
+  Symbol for current  buffer’s major mode. This variable  is set automatically;
+  you should not change it yourself.
+
+  The  default or  global value  is  =fundamental-mode=. The  default value  of
+  major-mode determines the major  mode to use for files that  do not specify a
+  major mode,  and for new  buffers created with =C-x  b=. You can  change this
+  default value via the =Customization=  interface (see Easy Customization), or
+  by adding a line like this to your ~init~ file (see Init File):
+
+  : (setq-default major-mode 'text-mode)
+
+  If the default value  of ~major-mode~ is =nil=, the major  mode is taken from
+  the previously current buffer.
+#+end_defvar
+
+To view the documentation  for the current major mode, including  a list of its
+key bindings, type =C-h m= (~describe-mode~).
+
+- ~describe-mode~
+
+#+attr_texinfo: :options describe-mode &optional buffer
+#+begin_defun
+  Display documentation of current major mode  and minor modes. A brief summary
+  of the minor modes comes first,  followed by the major mode description. This
+  is followed by  detailed descriptions of the minor modes,  each on a separate
+  page.
+#+end_defun
+
+*** Mode Hooks
+#+cindex:mode hook
+#+cindex:hook, mode
+Every  major mode,  apart from  =Fundamental= mode,  defines a  *mode hook*,  a
+customizable list of Lisp  functions to run each time the mode  is enabled in a
+buffer.
+
+Each  mode  hook  is  named  after  its major  mode,  e.g.,  Fortran  mode  has
+~fortran-mode-hook~.    Furthermore,   all    text-based   major    modes   run
+~text-mode-hook~,  and many  programming  language modes  (including all  those
+distributed with Emacs)  run ~prog-mode-hook~, prior to running  their own mode
+hooks. Hook functions can look at the value of the variable ~major-mode~ to see
+which mode is actually being entered.
+
+Mode hooks are  commonly used to enable  minor modes. For example,  you can put
+the following lines in your ~init~ file  to enable =Flyspell= minor mode in all
+text-based major  modes (see Spelling),  and =ElDoc=  minor mode in  Emacs Lisp
+mode (see Lisp Doc):
+
+  : (add-hook 'text-mode-hook 'flyspell-mode)
+  : (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
+
+** Minor Modes
+#+cindex:minor modes
+#+cindex:modes, minor
+A *minor mode* is an optional editing mode that alters the behavior of Emacs in
+some well-defined way. Unlike major modes, any  number of minor modes can be in
+effect at any time.
+
+#+texinfo: @subheading Buffer Local
+Some minor modes are *buffer-local*, and  can be turned on (enabled) in certain
+buffers and off (disabled) in others.
+
+#+texinfo: @subheading Global
+Other minor modes are *global*: while enabled, they affect everything you do in
+the Emacs session, in all buffers.
+
+#+texinfo: @subheading Enabling Minor Modes
+Each minor mode is associated with a *mode command*, whose name consists of the
+mode name followed  by =-mode=. For instance, the mode  command for =Auto Fill=
+mode is ~auto-fill-mode~. But unlike a major mode command, which simply enables
+the mode, the  mode command for a  minor mode can either  /enable/ or /disable/
+it:
+
+- toggle minor mode ::
+
+  invoking the mode-command with no prefix argument /toggles/ it on or off;
+
+- turn minor mode on or off ::
+
+  - zero or negative prefix argument turns the mode unconditionally off
+  - positive prefox argument turns the mode unconditionally on
+  - when called from elisp,
+    - =nil= or ommitted, mode is unconditinally turned on
+    - non-=nil= is handled as above for zero, negative, or positive argument
+
+#+texinfo: @subheading Mode Variable
+#+cindex:mode variable
+Most minor modes  also have a *mode  variable*, with the same name  as the mode
+command. Its  value is non-=nil=  if the  mode is enabled,  and =nil= if  it is
+disabled. You  should run the mode  command instead of altering  this variable.
+setting  the   mode  variable  through   the  Customize  interface   (see  Easy
+Customization) will always properly enable or disable the mode, since Customize
+automatically runs the mode command for you.
+
+*** Buffer Local Minor Modes
+#+cindex:minor modes, buffer local
+- =Abbrev= mode  automatically expands  text based on  pre-defined abbreviation
+  definitions. See Abbrevs.
+
+- =Auto Fill= mode inserts newlines as  you type to prevent lines from becoming
+  too long. See Filling.
+
+- =Auto Save= mode saves the buffer  contents periodically to reduce the amount
+  of work you can lose in case of a crash. See Auto Save.
+
+- =Electric Quote= mode automatically converts quotation marks. For example, it
+  requotes text  typed `like this'  to text ‘like  this’. You can  control what
+  kind of text  it operates in, and  you can disable it  entirely in individual
+  buffers. See Quotation Marks.
+
+- =Enriched= mode  enables editing and  saving of formatted text.  See Enriched
+  Text.
+
+- =Flyspell= mode automatically highlights misspelled words. See Spelling.
+
+- =Font-Lock=  mode automatically  highlights  certain textual  units found  in
+  programs.  It is  enabled globally  by  default, but  you can  disable it  in
+  individual buffers. See Faces.
+
+- =Display   Line    Numbers=   mode   is   a    convenience   wrapper   around
+  ~display-line-numbers~,     setting     it     using     the     value     of
+  ~display-line-numbers-type~. See Display Custom.
+
+- =Outline minor=  mode provides  similar facilities to  the major  mode called
+  =Outline= mode. See  Outline Mode.
+
+- =Overwrite= mode causes ordinary printing characters to replace existing text
+  instead of shoving it to the right. For  example, if point is in front of the
+  ‘B’ in ‘FOOBAR’,  then in Overwrite mode  typing a G changes  it to ‘FOOGAR’,
+  instead of  producing ‘FOOGBAR’  as usual. In  =Overwrite= mode,  the command
+  =C-q=  inserts the  next  character whatever  it  may  be, even  if  it is  a
+  digit—this gives  you a  way to  insert a character  instead of  replacing an
+  existing character. The mode command,  overwrite-mode, is bound to the Insert
+  key.
+
+- =Binary Overwrite= mode  is a variant of =Overwrite= mode  for editing binary
+  files;  it treats  newlines  and tabs  like other  characters,  so that  they
+  overwrite  other  characters and  can  be  overwritten  by them.  In  =Binary
+  Overwrite=  mode, digits  after =C-q=  specify  an octal  character code,  as
+  usual.
+
+- =Visual Line= mode  performs word wrapping, causing long lines  to be wrapped
+  at word boundaries. See Visual Line Mode.
+
+*** Global Minor Modes
+#+cindex:minor modes, global
+- =Column Number= mode enables display of the current column number in the mode
+  line. See Mode Line.
+
+- =Delete Selection= mode causes text insertion to first delete the text in the
+  region, if the region is active. See Using Region.
+
+- =Icomplete= mode displays an indication of available completions when you are
+  in the minibuffer and completion is active. See Icomplete.
+
+- =Line Number=  mode enables display  of the current  line number in  the mode
+  line. It is enabled by default. See Mode Line.
+
+- =Menu Bar= mode  gives each frame a  menu bar. It is enabled  by default. See
+  Menu Bars.
+
+- =Scroll Bar= mode gives  each window a scroll bar. It  is enabled by default,
+  but the scroll bar is only displayed on graphical terminals. See Scroll Bars.
+
+- =Tool Bar= mode  gives each frame a  tool bar. It is enabled  by default, but
+  the tool bar is only displayed on graphical terminals. See Tool Bars.
+
+- =Tab Bar= mode gives each frame a tab bar. See Tab Bars.
+
+- =Tab Line= mode gives each window a tab line. See Tab Line.
+
+- =Transient Mark=  mode highlights the  region, and makes many  Emacs commands
+  operate on the region when the mark  is active. It is enabled by default. See
+  Mark.
+
+** File Modes
+When you visit  a file, Emacs chooses a major  mode automatically. Normally, it
+makes the choice  based on the file  name. Sometimes it chooses  the major mode
+based on special text in the file. This special text can also be used to enable
+buffer-local minor modes.
+
+#+cindex:mode variable, file-local
+#+cindex:file-local variable, major mode
+1. First, Emacs checks whether the file contains file-local mode variables.
+   - If there is a file-local variable  that specifies a major mode, then Emacs
+     uses that major mode, ignoring all other criteria.
+   - There  are several  methods to  specify a  major mode  using a  file-local
+     variable;
+     - =; -*-Lisp-*-=
+     - =; -*- mode: Lisp; -*-=
+       #+cindex:file-local variable, minor mode
+   - You can also use file-local variables to specify buffer-local minor modes,
+     by using ~eval~ specifications.
+     - =; -*- mode: Lisp; eval: (auto-fill-mode 1); -*-=
+   - Note, however, that it is usually inappropriate to enable minor modes this
+     way, since most minor modes  represent individual user preferences. If you
+     personally want  to use  a minor mode  for a particular  file type,  it is
+     better to enable the minor mode via a major mode hook.
+
+2. Second, if there  is no file variable specifying a  major mode, Emacs checks
+   whether the file’s contents begin with =#!=.
+   #+cindex:executable shell command
+   #+cindex:shell command, executable
+   - If  so, that  indicates that  the file  can serve  as an  executable shell
+     command, which works  by running an interpreter named on  the file’s first
+     line (the rest of the file is used as input to the interpreter).
+   - Emacs tries to use the interpreter name to choose a mode.
+   - The variable ~interpreter-mode-alist~ specifies the correspondence between
+     interpreter program names and major modes.
+   - When the  first line starts  with =#!=, you  usually cannot use  the =-*-=
+     feature on  the first  line, because  the system  would get  confused when
+     running the  interpreter. So Emacs looks  for =-*-= on the  second line in
+     such files as well as on the first line.
+
+3. Third, Emacs tries to determine the major mode by looking at the text at the
+   start of the buffer, based on the variable ~magic-mode-alist~.
+
+4. Fourth  it looks at the  file’s name. The correspondence  between file names
+   and major modes is controlled by the variable ~auto-mode-alist~.
+
+5. Finally, if  Emacs still hasn’t found  a major mode to use,  it compares the
+   text at the start of the buffer to the variable ~magic-fallback-mode-alist~.
+   - This variable works like magic-mode-alist, described above, except that it
+     is consulted only /after/ ~auto-mode-alist~.
+   - By default, magic-fallback-mode-alist contains  forms that check for image
+     files, HTML/XML/SGML files, PostScript files, and Unix style Conf files.
+
+#+texinfo: @subheading @code{interpreter-mode-alist}
+
+   #+attr_texinfo: :options interpreter-mode-alist
+   #+begin_defvar
+     Alist mapping interpreter names to major modes.
+
+     See also ~auto-mode-alist~.
+   #+end_defvar
+
+#+texinfo: @subheading @code{auto-mode-alist}
+
+   #+attr_texinfo: :options auto-mode-alist
+   #+begin_defvar
+     Alist of  filename patterns  vs corresponding  major mode  functions.
+
+     Each element looks like
+     : (REGEXP  . FUNCTION)
+     or
+     : (REGEXP FUNCTION NON-NIL).
+
+     (=NON-NIL=  stands for  anything that  is not  =nil=; the  value does  not
+     matter.)
+
+     Visiting a  file whose name  matches =REGEXP= specifies =FUNCTION=  as the
+     mode function to use. =FUNCTION= will be called, unless it is =nil=.
+
+     If the element has the form
+     : (REGEXP FUNCTION NON-NIL)
+     then after calling =FUNCTION= (if it’s not nil), we delete the suffix that
+     matched =REGEXP= and search the list again for another match.
+
+     See also ~magic-mode-alist~.
+   #+end_defvar
+
+#+texinfo: @subheading @code{magic-mode-alist}
+
+   #+attr_texinfo: :options magic-mode-alist
+   #+begin_defvar
+     Alist of  buffer beginnings vs.  corresponding major mode  functions. Each
+     element looks  like
+     : (REGEXP  . FUNCTION)
+     or
+     : (MATCH-FUNCTION  . FUNCTION).
+     After visiting  a file, if =REGEXP=  matches the text at  the beginning of
+     the  buffer   (case-sensitively),  or  calling   =MATCH-FUNCTION=  returns
+     non-=nil=,  =normal-mode=  will  call   =FUNCTION=  rather  than  allowing
+     ~auto-mode-alist~ to decide the buffer’s major mode.
+
+     If =FUNCTION= is  =nil=, then it is  not called. (That is a  way of saying
+     "allow ‘auto-mode-alist’ to decide for these files.")
+
+     It’s default value is =nil=.
+   #+end_defvar
+
+#+texinfo: @subheading @code{magic-fallback-mode-alist}
+
+   #+attr_texinfo: :options magic-fallback-mode-alist
+   #+begin_defvar
+      Like ‘magic-mode-alist’ but has lower priority than ~auto-mode-alist~.
+   #+end_defvar
+
+*** Normal Mode
+If you  have changed the major  mode of a buffer,  you can return to  the major
+mode Emacs would  have chosen automatically, by typing  =M-x normal-mode=. This
+is the same function  that ~find-file~ calls to choose the  major mode. It also
+processes the file’s =-*-= line or local variables list (if any).
+
+#+texinfo: @subheading @code{normal-mode} Command
+
+#+attr_texinfo: :options normal-mode &optional find-file
+#+begin_defun
+  Choose  the major  mode  for  this buffer  automatically.  Also  sets up  any
+  specified local variables of the file or its directory. Uses the visited file
+  name, the =-*-= line, and the local variables spec.
+
+  The command  =M-x normal-mode=,  when used  interactively, always  obeys file
+  local variable  specifications and the  =-*-= line, and ignores  the variable
+  ~enable-local-variable~.
+
+  ~enable-local-variables~ is  ignored if you run  ~normal-mode~ interactively,
+  from Lisp without specifying the optional argument =FIND-FILE=.
+#+end_defun
+
+#+texinfo: @subheading @code{enable-local-variables} Variable
+
+#+attr_texinfo: :options enable-local-variables
+#+begin_defvar
+  Control use of local  variables in files you visit. The value  can be
+  - =t= :: (default) A value of t means file local variables specifications are
+    obeyed if all the specified variable values are safe; if any values are not
+    safe, Emacs queries you, once, whether to set them all.
+
+  - =nil= :: means always ignore the file local variables.
+
+  - =:safe= :: means set the safe variables, and ignore the rest.
+
+  - =:all= :: means set all variables, whether safe or not.
+
+  - or something else :: Any other value means always query you once whether to
+    set them all.
+
+This variable also controls use of major modes specified in a =-*-= line.
+#+end_defvar
+
+*** New Major Mode
+
+#+findex:set-visited-file-name
+#+findex:write-file
+#+vindex:change-major-mode-with-file-name
+#+cindex:file name, set new
+The commands =C-x  C-w= (~write-file~) and ~set-visited-file-name~  change to a
+new major  mode if the new  file name implies  a mode (see Saving).  (=C-x C-s=
+(~save-buffer~) does this too, if the  buffer wasn’t visiting a file.)
+
+However, this does not happen if the  buffer contents specify a major mode, and
+certain special major modes  do not allow the mode to change.  You can turn off
+this mode-changing feature by setting ~change-major-mode-with-file-name~ to nil.
+
 
 * Loading
 All functions call the ~load~ function:
