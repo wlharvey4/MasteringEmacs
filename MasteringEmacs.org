@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-21 07:40
-#+macro:version Version 0.0.173
+#+date:2021-01-21 07:55
+#+macro:version Version 0.0.174
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -527,6 +527,21 @@ strings.
   #+end_defvar
 
 ** Describe
+The ~describe-mode~ function provides information about major modes.
+
+- ~describe-mode~ (=C-h m=)
+- variable ~major-mode~
+
+#+attr_texinfo: :options describe-mode &optional buffer
+#+begin_defun
+  This command  displays the documentation  of the current buffer’s  major mode
+  and  minor  modes.  It  uses  the  documentation  function  to  retrieve  the
+  documentation strings of the major and minor mode commands.
+
+  If called from Lisp with a non-=nil= =BUFFER= argument, display documentation
+  for the major and minor modes of that buffer.
+#+end_defun
+
 ** Documentation
 This section describes =ElDoc= mode, and some help commands:
 
@@ -550,45 +565,54 @@ on.
 
 *** Info-goto-emacs-command-node
 
+- The command ~Info-goto-emacs-command-node~
+
 #+attr_texinfo: :options Info-goto-emacs-command-node command
 #+begin_defun
-Go to the Info node in the Emacs manual for command COMMAND.
+  Go to the Info node in the Emacs manual for command COMMAND.
 
-The command is found by:
+  The command is found by:
 
-- looking up in Emacs manual’s indices or
-- in another manual found via COMMAND’s =info-file= property or
-- the variable ~Info-file-list-for-emacs~
+  - looking up in Emacs manual’s indices or
+  - in another manual found via COMMAND’s =info-file= property or
+  - the variable ~Info-file-list-for-emacs~
 #+end_defun
 
 *** documentation-property
+
+- The commnand ~documentation-property~
+
 #+attr_texinfo: :options documentation-property symbol property &optional verbatim
 #+begin_defun
-This function returns the documentation string recorded in =SYMBOL= 's property
-list under property =PROPERTY=.  It is most often used to look up the
-documentation strings of variables.
+  This  function  returns the  documentation  string  recorded in  =SYMBOL=  's
+  property list under property =PROPERTY=. It is most often used to look up the
+  documentation strings of variables.
 
-This differs from ~get~ in that it can refer to strings stored in the ‘etc/DOC’
-file; and that it evaluates documentation properties that aren’t strings.
+  This  differs from  ~get~ in  that  it can  refer  to strings  stored in  the
+  ‘etc/DOC’ file;  and that it  evaluates documentation properties  that aren’t
+  strings.
 
-For function documentation, use the ~documentation~ function.
+  For function documentation, use the ~documentation~ function.
 #+end_defun
 
-*** documentation
+*** The ~documentation~ Command
+
+- The command ~documentation~
+
 #+attr_texinfo: :options documentation function &optional verbatim
 #+begin_defun
-This function returns the documentation string of =FUNCTION=.  It handles
-macros, named keyboard macros, and special forms, as well as ordinary
-functions.
+  This  function returns  the documentation  string of  =FUNCTION=. It  handles
+  macros,  named  keyboard macros,  and  special  forms,  as well  as  ordinary
+  functions.
 
-If =FUNCTION= is a symbol, this function first looks for the
-=function-documentation= property of that symbol; if that has a non-nil value,
-the documentation comes from that value (if the value is not a string, it is
-evaluated).
+  If   =FUNCTION=  is   a   symbol,   this  function   first   looks  for   the
+  =function-documentation=  property of  that  symbol; if  that  has a  non-nil
+  value, the documentation comes from that value (if the value is not a string,
+  it is evaluated).
 
-If =FUNCTION= is not a symbol, or if it has no =function-documentation=
-property, then documentation extracts the documentation string from the actual
-function definition, reading it from a file if called for.
+  If  =FUNCTION= is  not a  symbol, or  if it  has no  =function-documentation=
+  property,  then  documentation extracts  the  documentation  string from  the
+  actual function definition, reading it from a file if called for.
 #+end_defun
 
 *** documentation example
@@ -600,16 +624,15 @@ ELisp code.
 
 - ~describe-function~ (=C-h f=)
 
-
 This is the only way to get the documentation of a command that is not bound to
-any key.  It describes the function called by the innermost Lisp expression in
+any key. It  describes the function called by the  innermost Lisp expression in
 the buffer around point.
 
 #+attr_texinfo: :options describe-function function
 #+begin_defun
-Display the full documentation of FUNCTION.
+  Display the full documentation of FUNCTION.
 
-- FUNCTION :: a symbol
+  - FUNCTION :: a symbol
 #+end_defun
 
 *** describe-variable
@@ -618,52 +641,55 @@ Display the full documentation of FUNCTION.
 
 #+attr_texinfo: :options describe-variable variable &optional buffer frame
 #+begin_defun
-Display the full documentation of VARIABLE (a symbol).  Returns the
-documentation as a string, also.
+  Display  the  full   documentation  of  VARIABLE  (a   symbol).  Returns  the
+  documentation as a string, also.
 
-- VARIABLE :: a symbol; default to using the current buffer and current frame;
+  - VARIABLE  :: a  symbol; default  to using  the current  buffer and  current
+    frame;
 
-- BUFFER :: if VARIABLE has a buffer-local value in BUFFER, it is displayed
-  along with the global value.
+  - BUFFER :: if  VARIABLE has a buffer-local value in  BUFFER, it is displayed
+    along with the global value.
 
-- FRAME :: if VARIABLE has a buffer-local value in FRAME, it is displayed along
-  with the global value.
+  - FRAME ::  if VARIABLE has  a buffer-local value  in FRAME, it  is displayed
+    along with the global value.
 #+end_defun
 
 *** describe-symbol
 
+- The command ~describe-symbol~
+
 #+attr_texinfo: :options describe-symbol
 #+begin_defun
-Display the full documentation of SYMBOL.  Will show the info of SYMBOL as a
-function, variable, and/or face.
+  Display the full documentation  of SYMBOL. Will show the info  of SYMBOL as a
+  function, variable, and/or face.
 
-- SYMBOL :: the symbol to use; default to the current buffer and selected
-  frame.
+  - SYMBOL ::  the symbol to  use; default to  the current buffer  and selected
+    frame.
 
-- BUFFER :: use BUFFER  to show the information about SYMBOL
+  - BUFFER :: use BUFFER  to show the information about SYMBOL
 
-- FRAME :: use FRAME  to show the information about SYMBOL
+  - FRAME :: use FRAME to show the information about SYMBOL
 #+end_defun
 
 ** Doc and Data Directory
 
 #+cindex:DOC
 #+cindex:documentation, preloaded functions & variables
-To save memory, the documentation for preloaded functions and variables
-(including primitives) is kept in a file named =DOC=, in the directory
-specified by ~doc-directory~.  This is usually the same as ~data-directory~.
+To  save  memory,  the  documentation for  preloaded  functions  and  variables
+(including  primitives)  is kept  in  a  file  named  =DOC=, in  the  directory
+specified by  ~doc-directory~. This  is usually  the same  as ~data-directory~.
 This directory contains a lot of other useful information as well.
 
 ~doc-directory~ ’s value on your system is:
 
 #+begin_src emacs-lisp :exports results
-(print doc-directory)
+  (print doc-directory)
 #+end_src
 
 This directory contains the following files:
 
 #+begin_src emacs-lisp :exports results :results list
-(directory-files doc-directory)
+  (directory-files doc-directory)
 #+end_src
 
 * First Steps
