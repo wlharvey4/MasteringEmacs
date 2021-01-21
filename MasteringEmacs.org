@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-21 07:27
-#+macro:version Version 0.0.172
+#+date:2021-01-21 07:40
+#+macro:version Version 0.0.173
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -528,6 +528,15 @@ strings.
 
 ** Describe
 ** Documentation
+This section describes =ElDoc= mode, and some help commands:
+
+- ~Info-goto-emacs-command-mode~
+- ~documentation-property~
+- ~documentation~
+- ~describe-function~
+- ~describe-variable~
+- ~describe-symbol~
+
 *** ElDoc Mode
 
 - =M-x eldoc-mode=
