@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-21 07:55
-#+macro:version Version 0.0.174
+#+date:2021-01-21 08:24
+#+macro:version Version 0.0.175
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -279,6 +279,37 @@ variable. Example:
   Set mark at LOCATION (point, by default) and push old mark on mark ring.
   Display ‘Mark set’ unless the optional second arg NOMSG is non-nil. In
   Transient Mark mode, activate mark if optional third arg ACTIVATE non-nil.
+
+***** Global Mark Ring
+#+cindex:global mark ring
+#+cindex:mark ring, global
+#+cindex:ring, global mark
+In addition to the ordinary mark ring  that belongs to each buffer, Emacs has a
+single *global mark ring*.
+
+Each time you set a mark, this is  recorded in the global mark ring in addition
+to the current buffer’s  own mark ring, if you have  switched buffers since the
+previous  mark setting.  Hence,  the global  mark ring  records  a sequence  of
+buffers that you have been in, and, for  each buffer, a place where you set the
+mark.
+
+- =C-x C-SPC= -- ~pop-global-mark~ ::
+
+  Jumps to the buffer  and position of the latest entry in  the global ring. It
+  also rotates  the ring,  so that  successive uses  of C-x  C-SPC take  you to
+  earlier buffers and mark positions.
+
+#+attr_texinfo: :options pop-global-mark
+#+begin_defun
+  Pop off global mark ring and jump to the top location.
+#+end_defun
+
+#+attr_texinfo: :options global-mark-ring-max
+#+begin_defvar
+  Maximum size of  global mark ring. Default value is  16. Start discarding off
+  end if gets this big.
+#+end_defvar
+
 **** Killing Yanking and CUA
 /Killing/ is cutting, /yanking/ is pasting, and copying is known as /saving to
 the kill ring/.
