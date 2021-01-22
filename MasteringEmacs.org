@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-21 19:35
-#+macro:version Version 0.0.178
+#+date:2021-01-21 22:48
+#+macro:version Version 0.0.179
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9808,9 +9808,31 @@ interactively, use ~funcall-interactively~.
   the called function ~called-interactively-p~ will return non-=nil=.
 #+end_defun
 
+#+texinfo: @heading @code{call-interactively}
+Some functions are  user-visible *commands*, which can  be called interactively
+(usually by a key sequence). It is possible to invoke such a command exactly as
+though it was called interactively, by using the ~call-interactively~ function.
+
+#+attr_texinfo: :options call-interactively function &optional record-flag keys
+#+begin_defun
+  Call =FUNCTION=, providing =ARGS= according to its interactive calling specs.
+  Return the value =FUNCTION= returns.
+
+  The function contains  a specification of how to do  the argument reading. In
+  the case  of user-defined functions, this  is specified by placing  a call to
+  the  function ~interactive~  at  the  top level  of  the  function body.
+#+end_defun
+
 #+texinfo: @heading @code{apply}
 When you  also need to determine  at run time  how many arguments to  pass, use
-~apply~.
+~apply~. ~apply~ calls function with  =ARGUMENTS=, just like ~funcall~ but with
+one difference: the last of =ARGUMENTS= is  a list of objects, which are passed
+to =FUNCTION=  as separate arguments,  rather than a  single list. We  say that
+~apply~  /spreads/  this  list  so  that each  individual  element  becomes  an
+argument.
+
+=FUNCTION= must  either be  a Lisp  function or  a primitive  function; special
+forms and macros do not make sense in ~apply~.
 
 #+attr_texinfo: :options apply function &rest arguments
 #+begin_defun
@@ -9823,6 +9845,141 @@ When you  also need to determine  at run time  how many arguments to  pass, use
 
   : (apply '+ 1 2 '(3 4)) ==> 10.
 #+end_defun
+*** Partial Application
+
+#+cindex:partial application
+Here’s how to do partial application in Emacs Lisp:
+
+#+attr_texinfo: :options apply-partially func &rest args
+#+begin_defun
+  Return a function  that is a partial application of  =FUNC= to =ARGS=. =ARGS=
+  is a  list of the first  N arguments to pass  to =FUNC=. The result  is a new
+  function which does the same as =FUNC=, except that the first N arguments are
+  fixed at the values with which this function was called.
+#+end_defun
+*** Mapping Functions
+#+cindex:mapping functions
+A /mapping function/ applies a given function  (not a special form or macro) to
+each element of a list or other collection.
+
+This section describes
+ - ~mapcar~ :: ~apply~ =FUNCTION= to each element of =SEQUENCE=; return a list
+   of results
+ - ~mapc~  :: like  ~mapcar~  except ~apply~  function  for side-effects  only;
+   return =SEQUENCE=
+ - ~mapconcat~ ::
+ - ~mapcan~ ::
+
+There are other sections that discuss:
+ - ~mapatoms~
+ - ~maphash~
+ - ~map-char-table~
+
+**** Function ~mapcar~
+~mapcar~ applies  function to each element  of sequence in turn,  and returns a
+list of the results.
+
+#+attr_texinfo: :options mapcar function sequence
+#+begin_defun
+  Apply =FUNCTION= to each element of =SEQUENCE=, and make a list of the results.
+
+  The result  is a list (always)  just as long  as =SEQUENCE=.
+
+  =SEQUENCE= may be a list, a vector, a bool-vector, or a string (not char-table).
+#+end_defun
+
+#+texinfo: @subheading Examples of @code{mapcar}
+
+#+begin_example
+  (mapcar 'car '((a b) (c d) (e f)))
+       ⇒ (a c e)
+  (mapcar '1+ [1 2 3])
+       ⇒ (2 3 4)
+  (mapcar 'string "abc")
+       ⇒ ("a" "b" "c")
+
+  ;; Call each function in my-hooks.
+  (mapcar 'funcall my-hooks)
+#+end_example
+
+#+caption:Define Function @{mapcar*}
+#+name:mapcar*
+#+begin_src elisp
+  (defun mapcar* (function &rest args)
+    "Apply FUNCTION to successive cars of all ARGS.
+  Return the list of results."
+    ;; If no list is exhausted,
+    (if (not (memq nil args))
+        ;; apply function to CARs.
+        (cons (apply function (mapcar 'car args))
+              (apply 'mapcar* function
+                     ;; Recurse for rest of elements.
+                     (mapcar 'cdr args)))))
+
+;  (mapcar* 'cons '(a b c) '(1 2 3 4))
+;       ⇒ ((a . 1) (b . 2) (c . 3))
+#+end_src
+
+**** Function ~mapcan~ 
+
+This function applies =FUNCTION= to  each element of =SEQUENCE=, like ~mapcar~,
+but instead  of collecting the  results into a list,  it returns a  single list
+with all  the elements of  the results (which must  be lists), by  altering the
+results (using ~nconc~).
+
+#+attr_texinfo: :options mapcan
+#+begin_defun
+  Apply =FUNCTION=  to each element of  =SEQUENCE=, and concatenate the  results by
+  altering  them  (using  ~nconc~).
+
+  =SEQUENCE= may be a list, a vector, a bool-vector, or a string.
+#+end_defun
+
+#+texinfo: @subheading Example of @code{mapcan}
+
+#+begin_src elisp
+  ; Contrast this:
+  (mapcar 'list '(a b c d))
+       ⇒ ((a) (b) (c) (d))
+  ;; with this:
+  (mapcan 'list '(a b c d))
+       ⇒ (a b c d)
+#+end_src
+
+**** Function ~mapconcat~ 
+
+~mapconcat~ applies =FUNCTION= to each  element of sequence; the results, which
+must be sequences of characters  (strings, vectors, or lists), are concatenated
+into  a single  string return  value. Between  each pair  of result  sequences,
+~mapconcat~  inserts the  characters from  =SEPARATOR=,  which also  must be  a
+string, or a vector or list of characters.
+
+#+attr_texinfo: :options mapconcat sequence separator
+#+begin_defun
+  Apply =FUNCTION= to  each element of =SEQUENCE=, and ~concat~  the results as
+  strings. =SEQUENCE= may be a list, a vector, a bool-vector, or a string.
+
+  In between each pair of results,  stick in =SEPARATOR=. =SEPARATOR= must be a
+  string, a vector, or a list of characters.
+
+  =FUNCTION= must be a  function of one argument, and must  return a value that
+  is a sequence of characters: either a  string, or a vector or list of numbers
+  that are valid character codepoints.
+#+end_defun
+
+#+texinfo: @subheading Example of @code{mapconcat}
+
+#+begin_src elisp
+  (mapconcat 'symbol-name
+             '(The cat in the hat)
+             " ")
+       ⇒ "The cat in the hat"
+
+  (mapconcat (lambda (x) (format "%c" (1+ x)))
+             "HAL-8000"
+             "")
+       ⇒ "IBM.9111"
+#+end_src
 
 ** Run an External Lisp or Scheme Session
 You can  run an  external Lisp  or Scheme session  as a  subprocess or
