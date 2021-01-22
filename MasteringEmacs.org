@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-21 11:11
-#+macro:version Version 0.0.177
+#+date:2021-01-21 19:35
+#+macro:version Version 0.0.178
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9768,6 +9768,61 @@ Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode
 
 **** Eshell
 You can evaluate elisp in Eshell directly from the prompt.
+
+** Functions
+*** Calling--Invoking Functions
+#+texinfo: @heading Evaluation
+The  most  common  way of  invoking  a  function  is  by /evaluating/  a  list.
+Evaluating  the  list =(concat  "a"  "b")=  calls  the function  ~concat~  with
+arguments "a" and "b".
+
+#+texinfo: @heading @code{funcall}
+Occasionally you  need to  compute at run  time which function  to call.  To do
+that, use the function ~funcall~.
+
+#+attr_texinfo: :options funcall function &rest arguments
+#+begin_defun
+  Call first argument as a function,  passing remaining arguments to it.
+
+  Return the value that =FUNCTION= returns.
+
+  : (funcall ’cons ’x ’y) ==> (x . y)
+
+  Since ~funcall~  is a function,  all of its arguments,  including =FUNCTION=,
+  are evaluated  before ~funcall~ is  called. This means  that you can  use any
+  expression to obtain the function to  be called. It also means that ~funcall~
+  does not see the expressions you  write for the arguments, only their values.
+  These values are not evaluated a second time in the act of calling function
+
+  The  argument =FUNCTION=  must  be  either a  Lisp  function  or a  primitive
+  function. Special forms and macros are not allowed.
+#+end_defun
+
+#+texinfo: @heading @code{funcall-interactively}
+If you need to use ~funcall~ to call a command and make it behave as if invoked
+interactively, use ~funcall-interactively~.
+
+#+attr_texinfo: :options funcall-interactively function &rest arguments
+#+begin_defun
+  Like ~funcall~  but marks the call  as interactive. I.e. arrange  that within
+  the called function ~called-interactively-p~ will return non-=nil=.
+#+end_defun
+
+#+texinfo: @heading @code{apply}
+When you  also need to determine  at run time  how many arguments to  pass, use
+~apply~.
+
+#+attr_texinfo: :options apply function &rest arguments
+#+begin_defun
+  Call =FUNCTION= with remaining =args=, using last =arg= as list of =args=.
+
+  Then return the value =FUNCTION= returns.
+
+  With a  single argument, call  the argument’s  first element using  the other
+  elements as =args=.
+
+  : (apply '+ 1 2 '(3 4)) ==> 10.
+#+end_defun
 
 ** Run an External Lisp or Scheme Session
 You can  run an  external Lisp  or Scheme session  as a  subprocess or
