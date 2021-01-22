@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-21 22:48
-#+macro:version Version 0.0.179
+#+date:2021-01-22 08:46
+#+macro:version Version 0.0.180
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -574,7 +574,15 @@ The ~describe-mode~ function provides information about major modes.
 #+end_defun
 
 ** Documentation
-This section describes =ElDoc= mode, and some help commands:
+#+cindex:documentation strings
+#+cindex:help facilities
+GNU Emacs has  convenient built-in help facilities, most of  which derive their
+information  from   *documentation  strings*  associated  with   functions  and
+variables. This chapter describes how to access *documentation strings* in Lisp
+programs.  Documentation  strings  are  specified in  the  definitions  of  the
+functions and variables they apply to.
+
+This section also describes =ElDoc= mode, and some help commands:
 
 - ~Info-goto-emacs-command-mode~
 - ~documentation-property~
@@ -582,6 +590,261 @@ This section describes =ElDoc= mode, and some help commands:
 - ~describe-function~
 - ~describe-variable~
 - ~describe-symbol~
+
+*** Writing Documentation Strings
+
+- The command ~checkdoc-minor-mode~
+
+#+attr_texinfo: :options checkdoc-minor-mode &optional arg
+#+begin_defun
+  Toggle automatic docstring checking (=Checkdoc= minor mode).
+
+  If called interactively, toggle ‘Checkdoc minor mode’. If the prefix argument
+  is positive,  enable the  mode, and if  it is zero  or negative,  disable the
+  mode.
+
+  If called from Lisp,  toggle the mode if ARG is ‘toggle’.  Enable the mode if
+  ARG is nil,  omitted, or is a positive  number. Disable the mode if  ARG is a
+  negative number.
+
+  The  mode’s hook  is called  both when  the mode  is enabled  and when  it is
+  disabled.
+#+end_defun
+
+- The variable ~emacs-lisp-docstring-fill-column~
+
+  - A documentation string  is written using the Lisp syntax  for strings, with
+    double-quote characters surrounding the text.
+
+  - Every  command, function,  or variable  intended  for users  to know  about
+    should have a documentation string.
+
+  - An internal variable or  subroutine of a Lisp program might  as well have a
+    documentation string. Documentation strings take  up very little space in a
+    running Emacs.
+
+  - Format the documentation  string so that it  fits in an Emacs  window on an
+    80-column screen. It is  a good idea for most lines to be  no wider than 60
+    characters. The  first line should  not be wider  than 67 characters  or it
+    will look bad in the output of ~apropos~.
+
+    You  can  fill  the  text  if  that  looks  good.  Emacs  Lisp  mode  fills
+    documentation      strings     to      the      width     specified      by
+    ~emacs-lisp-docstring-fill-column~.  However,  you  can  sometimes  make  a
+    documentation string much  more readable by adjusting its  line breaks with
+    care. Use blank lines between sections if the documentation string is long.
+
+  - The first  line of the  documentation string should  consist of one  or two
+    complete sentences  that stand  on their  own as  a summary.  ~M-x apropos~
+    displays just  the first line, and  if that line’s contents  don’t stand on
+    their own, the result looks bad. In particular, start the first line with a
+    capital letter and end it with a period.
+
+    For a  function, the first line  should briefly answer the  question, “What
+    does  this function  do?” For  a variable,  the first  line should  briefly
+    answer the question, “What does this value mean?”
+
+    Don’t limit the documentation string to one  line; use as many lines as you
+    need to explain the details of how  to use the function or variable. Please
+    use complete sentences for the rest of the text too.
+
+  - The first line should mention all  the important arguments of the function,
+    and should mention  them in the order  that they are written  in a function
+    call.  If the  function has  many  arguments, then  it is  not feasible  to
+    mention them  all in the  first line; in that  case, the first  line should
+    mention the first few arguments, including the most important arguments.
+
+  - When a function’s documentation string  mentions the *value* of an argument
+    of the function, use  the argument name in capital letters as  if it were a
+    name  for that  *value*. Thus,  the  documentation string  of the  function
+    ~eval~ refers to its first argument  as ‘FORM’, because the actual argument
+    name is ~form~.
+
+    Also write  metasyntactic variables  in capital letters,  such as  when you
+    show the decomposition of a list or vector into subunits, some of which may
+    vary; e.g. ‘KEY’ and ‘VALUE’.
+
+  - Never change  the case  of a  Lisp *symbol* when  you mention  it in  a doc
+    string. If the symbol’s  name is ~foo~, write “foo”, not  “Foo” (which is a
+    different symbol).
+
+    This might  appear to  contradict the policy  of writing  function argument
+    values, but there is no real contradiction; the argument *value* is not the
+    same thing as the  *symbol* that the function uses to  hold the *value*.
+
+    If this puts  a lower-case letter at  the beginning of a  sentence and that
+    annoys you, rewrite the sentence so that  the symbol is not at the start of
+    it.
+
+  - *Do not* start or end a documentation string with whitespace.
+
+  - *Do not* indent subsequent lines of a documentation string so that the text
+    is lined up in the source code with  the text of the first line. This looks
+    nice  in  the   source  code,  but  looks  bizarre  when   users  view  the
+    documentation.   Remember  that   the  indentation   before  the   starting
+    double-quote is not part of the string!
+
+  - When a documentation string refers to a Lisp *symbol*, write it as it would
+    be printed (which usually means in  lower case), surrounding it with curved
+    single quotes  (‘..’). There are  two exceptions:  write t and  nil without
+    surrounding punctuation.
+
+    Documentation  strings can  also  use an  older single-quoting  convention,
+    which  quotes  symbols  with  =grave=  accent  =`=  and  =apostrophe=  ='=:
+    `like-this' rather than ‘like-this’. This older convention was designed for
+    now-obsolete  displays in  which grave  accent and  apostrophe were  mirror
+    images.  Documentation using  this convention  is converted  to the  user’s
+    preferred format when it is copied into a help buffer.
+
+    Help mode  automatically creates  a hyperlink  when a  documentation string
+    uses a *single-quoted* symbol name, if  the symbol has either a function or
+    a variable definition. You  do not need to do anything  special to make use
+    of this  feature. However, when a  symbol has *both* a  function definition
+    and a variable definition,  and you want to refer to just  one of them, you
+    can specify  which one by  writing one  of the words  ‘variable’, ‘option’,
+    ‘function’, or ‘command’,  immediately before the symbol  name. (Case makes
+    no difference in recognizing these indicator words.)
+
+    For example, if you write:
+    : This function sets the variable `buffer-file-name'.
+    then  the  hyperlink will  refer  only  to  the variable  documentation  of
+    buffer-file-name, and not to its function documentation.
+
+    If a  symbol has a  function definition  and/or a variable  definition, but
+    those are irrelevant to the use of the symbol that you are documenting, you
+    can write the words ‘symbol’ or ‘program’ before the symbol name to prevent
+    making any hyperlink. For example,
+    : If the argument KIND-OF-RESULT is the symbol `list',
+    : this function returns a list of all the objects
+    : that satisfy the criterion.
+    does not  make a hyperlink  to the  documentation, irrelevant here,  of the
+    function list.
+
+    Normally,  no   hyperlink  is   made  for   a  variable   without  variable
+    documentation. You  can force a  hyperlink for such variables  by preceding
+    them with one of the words ‘variable’ or ‘option’.
+
+    To make a hyperlink to Info  documentation, write the single-quoted name of
+    the Info  node (or  anchor), preceded  by ‘info  node’, ‘Info  node’, ‘info
+    anchor’  or ‘Info  anchor’. The  Info file  name defaults  to ‘emacs’.  For
+    example,
+    : See Info node `Font Lock' and Info node `(elisp)Font Lock Basics'.
+
+    Finally,  to create  a  hyperlink  to URLs,  write  the single-quoted  URL,
+    preceded by ‘URL’. For example,
+    : The home page for the GNU project has more information (see URL
+    : `https://www.gnu.org/').
+
+  - Don’t write key  sequences directly in documentation  strings. Instead, use
+    the ‘\\[…]’ construct to stand for them.
+
+    For   example,   instead   of    writing   ‘C-f’,   write   the   construct
+    ‘\\[forward-char]’.
+
+  - In documentation strings  for a major mode,  you will want to  refer to the
+    key bindings of that mode’s local  map, rather than global ones. Therefore,
+    use the construct ‘\\<…>’ once in the documentation string to specify which
+    key map to  use. Do this before  the first use of ‘\\[…]’.  The text inside
+    the ‘\\<…>’ should be the name  of the variable containing the local keymap
+    for the major mode.
+
+    It is not practical to use ‘\\[…]’  very many times, because display of the
+    documentation string  will become slow.  So use  this to describe  the most
+    important commands in your major mode,  and then use ‘\\{…}’ to display the
+    rest of the mode’s keymap.
+
+  - For consistency,  phrase the  verb in  the first  sentence of  a function’s
+    documentation string as an imperative—for instance, use “Return the cons of
+    A and B.” in preference to “Returns the  cons of A and B.” Usually it looks
+    good  to do  likewise  for  the rest  of  the  first paragraph.  Subsequent
+    paragraphs usually  look better if  each sentence  is indicative and  has a
+    proper subject.
+
+  - The  documentation string  for a  function  that is  a yes-or-no  predicate
+    should start with words such as  “Return t if”, to indicate explicitly what
+    constitutes  truth. The  word “return”  avoids starting  the sentence  with
+    lower-case “t”, which could be somewhat distracting.
+
+  - Write documentation  strings in the active  voice, not the passive,  and in
+    the  present tense,  not  the  future. For  instance,  use  “Return a  list
+    containing  A and  B.”  instead of  “A  list  containing A  and  B will  be
+    returned.”
+
+  - When you  define a variable that  represents an option users  might want to
+    set, use ~defcustom~.
+
+  - The documentation  string for a  variable that  is a yes-or-no  flag should
+    start with words such as “Non-nil means”, to make it clear that all non-nil
+    values are equivalent and indicate explicitly what nil and non-nil mean.
+
+**** Text Quoting Style
+
+- User option ~text-quoting-style~
+
+The value of this user option is a symbol that specifies the style Emacs should
+use for single quotes in the wording of help and messages.
+
+  - =curve= :: If  the option’s value is  curve, the style is  ‘like this’ with
+    curved single quotes.
+
+  - =straight=  :: If  the value  is straight,  the style  is 'like  this' with
+    straight apostrophes.
+
+  - =grave= :: If the  value is grave, quotes are not  translated and the style
+    is `like this' with grave accent  and apostrophe, the standard style before
+    Emacs version 25.
+
+  - nil :: The default  value nil acts like curve if  curved single quotes seem
+    to be displayable, and like grave otherwise.
+
+#+attr_texinfo: :options User-option text-quoting-style
+#+begin_defvr
+  Style to use  for single quotes in  help and messages. Its value  should be a
+  symbol.
+
+  It  works  by  substituting  certain  single  quotes  for  grave  accent  and
+  apostrophe. This is done in help output (but not for display of Info manuals)
+  and  in functions  like ‘message’  and ‘format-message’.  It is  not done  in
+  ‘format’.
+#+end_defvr
+
+*** Emacs ~documentation-property~ Command
+
+- The commnand ~documentation-property~
+#+vindex:doc-directory
+#+vindex:DOC
+#+cindex:function-documentation property
+#+cindex:variable-documentation property
+
+#+attr_texinfo: :options documentation-property symbol property &optional verbatim
+#+begin_defun
+  This  function returns  the *documentation  string* recorded  in =SYMBOL=  's
+  property list under property =PROPERTY=. It is most often used to look up the
+  *documentation strings* of variables.
+
+  This  differs from  ~get~ in  that  it can  refer  to strings  stored in  the
+  ‘etc/DOC’ file;  and that it  evaluates documentation properties  that aren’t
+  strings.
+
+  For function documentation, use the ~documentation~ function.
+#+end_defun
+
+  - In a /function definition/ (a ~lambda~ or ~defun~ form), the *documentation
+    string*  is specified  after  the  argument list,  and  is normally  stored
+    directly in the function object.
+
+  - You can  also put  /function documentation/ in  the /function-documentation
+    property/ of a function name.
+
+  - In a /variable definition/ (a ~defvar~ form), the *documentation string* is
+    specified after the  initial value. The string is stored  in the variable’s
+    /variable-documentation property/.
+
+  - To save  memory, the  documentation for  preloaded functions  and variables
+    (including primitives)  is kept  in a  file named  ~DOC~, in  the directory
+    specified by ~doc-directory~.
+
+    : "/Applications/MacPorts/Emacs.app/Contents/Resources/etc/DOC"
 
 *** ElDoc Mode
 
@@ -594,7 +857,7 @@ variable, it displays the first line of that variable’s doc string.  Otherwise
 it displays the argument list of the function called in the expression point is
 on.
 
-*** Info-goto-emacs-command-node
+*** Emacs ~Info-goto-emacs-command-node~ Command
 
 - The command ~Info-goto-emacs-command-node~
 
@@ -609,30 +872,13 @@ on.
   - the variable ~Info-file-list-for-emacs~
 #+end_defun
 
-*** documentation-property
-
-- The commnand ~documentation-property~
-
-#+attr_texinfo: :options documentation-property symbol property &optional verbatim
-#+begin_defun
-  This  function  returns the  documentation  string  recorded in  =SYMBOL=  's
-  property list under property =PROPERTY=. It is most often used to look up the
-  documentation strings of variables.
-
-  This  differs from  ~get~ in  that  it can  refer  to strings  stored in  the
-  ‘etc/DOC’ file;  and that it  evaluates documentation properties  that aren’t
-  strings.
-
-  For function documentation, use the ~documentation~ function.
-#+end_defun
-
 *** The ~documentation~ Command
 
 - The command ~documentation~
 
 #+attr_texinfo: :options documentation function &optional verbatim
 #+begin_defun
-  This  function returns  the documentation  string of  =FUNCTION=. It  handles
+  This function  returns the *documentation  string* of =FUNCTION=.  It handles
   macros,  named  keyboard macros,  and  special  forms,  as well  as  ordinary
   functions.
 
@@ -642,7 +888,7 @@ on.
   it is evaluated).
 
   If  =FUNCTION= is  not a  symbol, or  if it  has no  =function-documentation=
-  property,  then  documentation extracts  the  documentation  string from  the
+  property,  then documentation  extracts the  *documentation string*  from the
   actual function definition, reading it from a file if called for.
 #+end_defun
 
@@ -650,6 +896,57 @@ on.
 
 See [[info:elisp#Accessing Documentation][Access to Documentation Strings]] for an example of using these functions in
 ELisp code.
+
+Here  is   an  example  of   using  the  two  functions,   ~documentation~  and
+~documentation-property~, to  display the  *documentation strings*  for several
+symbols in a *Help* buffer.
+
+#+caption:Definition of @code{describe-symbols}
+#+name:describe-symbols
+#+begin_src elisp -n
+  (defun describe-symbols (pattern)
+    "Describe the Emacs Lisp symbols matching PATTERN.
+  All symbols that have PATTERN in their name are described
+  in the *Help* buffer."
+    (interactive "sDescribe symbols matching: ")
+    (let ((describe-func
+	   (lambda (s)
+	     ;; Print description of symbol.
+	     (if (fboundp s)             ; It is a function.
+		 (princ
+		  (format "%s\t%s\n%s\n\n" s
+		    (if (commandp s)
+			(let ((keys (where-is-internal s)))
+			  (if keys
+			      (concat
+			       "Keys: "
+			       (mapconcat 'key-description
+					  keys " "))
+			    "Keys: none"))
+		      "Function")
+		    (or (documentation s)
+			"not documented"))))
+
+	     (if (boundp s)              ; It is a variable.
+		 (princ
+		  (format "%s\t%s\n%s\n\n" s
+		    (if (custom-variable-p s)
+			"Option " "Variable")
+		    (or (documentation-property
+			  s 'variable-documentation)
+			"not documented"))))))
+	  sym-list)
+
+      ;; Build a list of symbols that match pattern.
+      (mapatoms (lambda (sym)
+		  (if (string-match pattern (symbol-name sym))
+		      (setq sym-list (cons sym sym-list)))))
+
+      ;; Display the data.
+      (help-setup-xref (list 'describe-symbols pattern) (interactive-p))
+      (with-help-window (help-buffer)
+	(mapcar describe-func (sort sym-list 'string<)))))
+#+end_src
 
 *** describe-function
 
@@ -661,9 +958,9 @@ the buffer around point.
 
 #+attr_texinfo: :options describe-function function
 #+begin_defun
-  Display the full documentation of FUNCTION.
+  Display the full documentation of =FUNCTION=.
 
-  - FUNCTION :: a symbol
+  - =FUNCTION= :: a symbol
 #+end_defun
 
 *** describe-variable
@@ -672,35 +969,120 @@ the buffer around point.
 
 #+attr_texinfo: :options describe-variable variable &optional buffer frame
 #+begin_defun
-  Display  the  full   documentation  of  VARIABLE  (a   symbol).  Returns  the
+  Display  the  full  documentation  of  =VARIABLE=  (a  symbol).  Returns  the
   documentation as a string, also.
 
-  - VARIABLE  :: a  symbol; default  to using  the current  buffer and  current
+  - =VARIABLE=  ::  a symbol; default to  using the current buffer  and current
     frame;
 
-  - BUFFER :: if  VARIABLE has a buffer-local value in  BUFFER, it is displayed
-    along with the global value.
+  - =BUFFER=  :: if  =VARIABLE= has  a buffer-local  value in  =BUFFER=, it  is
+    displayed along with the global value.
 
-  - FRAME ::  if VARIABLE has  a buffer-local value  in FRAME, it  is displayed
-    along with the global value.
+  - =FRAME=  ::  if  =VARIABLE=  has a  buffer-local value  in  =FRAME=, it  is
+    displayed along with the global value.
 #+end_defun
 
 *** describe-symbol
 
-- The command ~describe-symbol~
+#+cindex:documentation, full
+- The command ~describe-symbol~ (=C-h o=)
 
-#+attr_texinfo: :options describe-symbol
+#+attr_texinfo: :options describe-symbol &optional buffer frame
 #+begin_defun
-  Display the full documentation  of SYMBOL. Will show the info  of SYMBOL as a
-  function, variable, and/or face.
+  Display the full documentation of =SYMBOL=. Will show the info of =SYMBOL= as
+  a function, variable, and/or face.
 
-  - SYMBOL ::  the symbol to  use; default to  the current buffer  and selected
+  - =SYMBOL= ::  the symbol to use;  default to the current buffer and selected
     frame.
 
-  - BUFFER :: use BUFFER  to show the information about SYMBOL
+  - =BUFFER= :: use =BUFFER=  to show the information about =SYMBOL=
 
-  - FRAME :: use FRAME to show the information about SYMBOL
+  - =FRAME= :: use =FRAME= to show the information about =SYMBOL=
 #+end_defun
+
+*** Bindings
+
+- The command ~describe-bindings~ (=C-h b=)
+
+#+attr_texinfo: :options describe-bindings &optional prefix buffer
+#+begin_defun
+  Display a buffer  showing a list of all defined  keys, and their definitions.
+  The keys are displayed in order of precedence.
+
+  - =PREFIX=  :: If  non-=nil=,  display  only bindings  that  start with  that
+    prefix.
+
+  - =BUFFER=  :: Specify  which buffer’s  bindings to  display (default  is the
+    current buffer).  Can be a buffer or buffer name.
+#+end_defun
+
+*** Key Bindings in Documentation
+
+When  *documentation strings*  refer  to  key sequences,  they  should use  the
+current,  actual /key  bindings/. They  can do  so using  certain special  text
+sequences described below.  Accessing *documentation strings* in  the usual way
+substitutes current key binding information for these special sequences.
+
+This works by calling ~substitute-command-keys~
+
+#+attr_texinfo: :options substitute-command-keys string
+#+begin_defun
+  Substitute key descriptions for command names in =STRING=.
+
+  - =\[COMMAND]= ::
+
+    Each substring of  the form =\[COMMAND]= is replaced by  either a keystroke
+    sequence that  invokes =COMMAND=, or =M-x  COMMAND= if =COMMAND= is  not on
+    any keys.
+
+  - =\{MAPVAR}= ::
+
+    Each substring  of the  form =\{MAPVAR}=  is replaced by  a summary  of the
+    value of =MAPVAR= as a keymap.
+
+  - =\<MAPVAR>= ::
+
+    Each substring of the form =\<MAPVAR>= specifies the use of =MAPVAR= as the
+    keymap for future =\[COMMAND]= substrings.
+
+  - grave accent =`= :: Each is replaced by left quote;
+
+  - apostrophe ='= :: Each is replaced by right quote;
+
+  - =\== :: quotes the following character and is discarded
+
+  - *RETURN*   :: Returns  the original =STRING= if no  substitutions are made.
+    Otherwise, return a new string (without any text properties).
+#+end_defun
+
+#+texinfo: @heading Examples of @code{substitute-command-keys}
+
+#+begin_src elisp
+  (substitute-command-keys
+     "To abort recursive edit, type `\\[abort-recursive-edit]'.")
+
+  ;; ⇒ "To abort recursive edit, type ‘C-]’."
+
+  (substitute-command-keys
+     "The keys that are defined for the minibuffer here are:
+    \\{minibuffer-local-must-match-map}")
+
+  ;; ⇒ "The keys that are defined for the minibuffer here are:
+
+  ;; ?               minibuffer-completion-help
+  ;; SPC             minibuffer-complete-word
+  ;; TAB             minibuffer-complete
+  ;; C-j             minibuffer-complete-and-exit
+  ;; RET             minibuffer-complete-and-exit
+  ;; C-g             abort-recursive-edit
+  ;; "
+
+  (substitute-command-keys
+     "To abort a recursive edit from the minibuffer, type \
+  `\\<minibuffer-local-must-match-map>\\[abort-recursive-edit]'.")
+
+  ;; ⇒ "To abort a recursive edit from the minibuffer, type ‘C-g’."
+#+end_src
 
 ** Doc and Data Directory
 
@@ -9394,57 +9776,6 @@ the result in LIST and returns it. Of several ‘equal’ occurrences of an elem
 in LIST, ‘delete-dups’ keeps the first one.
 #+end_defun
 * Elisp
-** Elisp Documentation
-
-#+cindex:documentation strings
-#+cindex:help facilities
-GNU Emacs has  convenient built-in help facilities, most of  which derive their
-information from documentation strings associated with functions and variables.
-This chapter  describes how to  access documentation strings in  Lisp programs.
-Documentation strings  are specified  in the definitions  of the  functions and
-variables they apply to.
-
-#+cindex:function-documentation property
-#+cindex:variable-documentation property
-#+vindex:doc-directory
-#+vindex:DOC
-#+findex:describe-function (@key{C-h f})
-#+texinfo: @heading Documentation String Conventions and Rules
-- A documentation  string is written  using the  Lisp syntax for  strings, with
-  double-quote characters surrounding the text.
-
-- Its first line should be a complete sentence (or two complete sentences) that
-  briefly describes what the function or variable does.
-
-- In a  /function definition/ (a  ~lambda~ or ~defun~ form),  the documentation
-  string is specified after the argument  list, and is normally stored directly
-  in the function object.
-
-- You  can also  put  /function documentation/  in the  *function-documentation
-  property* of a function name.
-
-- In a  /variable definition/  (a ~defvar~ form),  the documentation  string is
-  specified after  the initial value.  The string  is stored in  the variable’s
-  /variable-documentation property/.
-
-- To  save memory,  the  documentation for  preloaded  functions and  variables
-  (including  primitives) is  kept  in a  file named  ~DOC~,  in the  directory
-  specified by ~doc-directory~.
-
-  : "/Applications/MacPorts/Emacs.app/Contents/Resources/etc/DOC"
-
-- When a function or variable is loaded from a byte-compiled file, Emacs avoids
-  loading its documentation string.
-
-- In both  cases, Emacs looks  up the documentation  string from the  file only
-  when needed, such as when the  user calls =C-h f= (~describe-function~) for a
-  function.
-
-- Documentation  strings  can  contain   special  key  substitution  sequences,
-  referring to key  bindings which are looked  up only when the  user views the
-  documentation. This allows the help commands to display the correct keys even
-  if a user rearranges the default key bindings.
-
 ** Evaluate Emacs Lisp Expressions
 *Emacs Lisp mode* is the major mode for editing Emacs Lisp.
 
