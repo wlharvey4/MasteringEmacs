@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-22 08:46
-#+macro:version Version 0.0.180
+#+date:2021-01-23 09:16
+#+macro:version Version 0.0.181
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -998,6 +998,17 @@ the buffer around point.
   - =BUFFER= :: use =BUFFER=  to show the information about =SYMBOL=
 
   - =FRAME= :: use =FRAME= to show the information about =SYMBOL=
+#+end_defun
+
+*** Info-goto-emacs-command-node
+
+#+attr_texinfo: :options Info-goto-emacs-command-node command
+#+begin_defun
+  Go to the =Info= node in the Emacs manual for command =COMMAND=.
+
+  The command is  found by looking up  in Emacs manual’s indices  or in another
+  manual   found  via   =COMMAND=’s  ‘info-file’   property  or   the  variable
+  ~Info-file-list-for-emacs~.
 #+end_defun
 
 *** Bindings
@@ -6992,15 +7003,176 @@ file.
 =Outline minor= mode provides bindings with =C-c @= as the prefix.
 
 *** Outline Format
+Outline mode assumes  that the lines in  the buffer are of  two types: /heading
+lines/ and /body lines/.
+
+  - heading lines ::
+
+    A heading line represents a topic  in the outline. Heading lines start with
+    one or more  asterisk (‘*’) characters; the number  of asterisks determines
+    the depth of the heading in the outline structure.
+
+  - body lines  ::
+
+    Any line that is not a heading line  is a body line. Body lines belong with
+    the preceding heading line.
+
+  - entry ::
+
+    A  heading  line   together  with  all  following  body   lines  is  called
+    collectively an entry.
+
+  - subtree ::
+
+    A heading line  together with all following deeper heading  lines and their
+    body lines is called a subtree.
 
 *** Outline Motion
+Outline mode provides special motion commands that move backward and forward to
+heading lines. The  following commands take numeric prefix  arguments as repeat
+counts.
+
+  - ~outline-next-visible-heading~ (=C-c C-n=) :: Next visible heading line
+
+  - ~outline-previous-visible-heading~ (=C-c C-p=)  :: Previous visible heading
+    line
+
+  - ~outline-forward-same-level~ (=C-c C-f=) :: Next visible same level heading
+    line
+
+  - ~outline-backward-same-level~ (=C-c  C-b=) ::  Previous visible  same level
+    heading line
+
+  - ~outline-up-heading~ (=C-c C-u=) :: Lower level visible heading line
 
 *** Outline Visability
+Outline  mode provides  several commands  for temporarily  hiding or  revealing
+parts of the buffer, based on the outline structure. Many of these commands act
+on the current heading line. If point is on a heading line, that is the current
+heading line;  if point  is on  a body line,  the current  heading line  is the
+nearest preceding header line.
+
+#+texinfo: @heading Current Heading Commands
+
+  - ~outline-show-entry~ (=C-c  C-e=) :: Make  the current heading  line’s body
+    visible
+
+  - ~outline-hide-entry~ (=C-c  C-c=) :: Make  the current heading  line’s body
+    invisible
+
+#+texinfo: @heading Current Heading Subtree Commands
+These commands  apply to the current  heading line’s subtree: its  body, all of
+its subheadings, both direct and indirect, and all of their bodies.
+
+  - ~outline-show-subtree~  (=C-c C-s=)  ::   Make everything under the current
+    heading visible
+
+  - ~outline-hide-subtree~  (=C-c C-d=)  :: Make  everything under  the current
+    heading invisible
+
+  - ~outline-hide-leaves~   (=C-c   C-l=)    ::   Make  the body of the current
+    heading line, and the bodies of all its subheadings, invisible; subheadings
+    are left visible.
+
+  - ~outline-show-branches~  (=C-c    C-k=)  ::    Make all subheadings  of the
+    current  heading line,  at  all levels,  visible (if  they  were hidden  by
+    ~outline-hide-subtree~); bodies are left invisible;
+
+  - ~outline-hide-other~ (=C-c C-o=) :: Hide  everything except for the heading
+    or body that  point is in, plus  the headings leading up from  there to the
+    top level of the outline
+
+#+texinfo: @heading Whole Buffer Commands
+
+  - ~outline-show-all~ (=C-c C-a=) :: Make all lines in the buffer visible
+
+  - ~outline-hide-body~  (=C-c C-t=)  ::  Make  all body  lines  in the  buffer
+    invisible
+
+  - ~outline-hide-sublevels~ (=C-c  C-q=) :: Hide  everything except the  top n
+    levels of heading lines
+
+  - ~outline-show-children~  (=C-c C-i=)   :: Make  immediate subheadings  (one
+    level down) of the current heading line visible
 
 *** Outline Views
+You can display  two views of a  single outline at the same  time, in different
+windows. To do this, you must create an indirect buffer.
 
-*** Foldout
+*** Foldout Package
+The =Foldout= package extends =Outline= mode with folding commands.  In
+=Foldout= mode you zoom in on a nested portion of the outline while hiding its
+relatives at higher levels.
 
+To enable:
+
+: M-x load-library RET foldout RET
+
+or place the following in your ~inti~ file:
+
+#+begin_src elisp
+  (with-eval-after-load "outline"
+    (require 'foldout))
+#+end_src
+
+To use:
+
+1. ~foldout-zoom-subtree~ (=C-c C-z=) : Exposes *body and 2 child subheadings*,
+   while narrowing  the buffer so only  level-1 heading, the body,  and level-2
+   headings are visible.
+
+2. Now to look under one of the level-2 headings, position the cursor on it and
+   use =C-c  C-z= again. This  exposes the level-2  body and its  level-3 child
+   subheadings and narrows the buffer again.
+
+3. ~foldout-zoom-subtree  ARG~ (=C-u C-c  C-z=) : For *only  child subheadings*
+   specify a numeric argument.
+
+4.  ~foldout-zoom-subtree ARG~  (=M-2  C-C  C-z=) :  The  *number  of levels*  of
+   children can  be specified too (compare  =M-x outline-show-children=), e.g.,
+   =M-2 C-c C-z= exposes two levels of child subheadings.
+
+5. Zooming in on successive subheadings can be done as much as you like.
+
+6. A string in the mode line shows how deep you’ve gone.
+
+7.  ~foldout-zoom-subtree  NEG-ARG~ (=M-- C-c  C-z=) :  *The body only*  can be
+   specified with a negative argument.
+
+8. ~foldout-zoom-subtree ZERO-ARG~ (=M-o C-c C-z=) : *The whole subtree* can be
+   expanded, similarly to =C-c C-s= (=M-x outline-show-subtree=), by specifying
+   a zero argument.
+
+9. While you’re zoomed in, you can still use Outline mode’s exposure and hiding
+   functions without disturbing Foldout.
+
+10. Also, since the buffer is narrowed, global editing actions will only affect
+    text under the zoomed-in heading. This is useful for restricting changes to
+    a particular chapter or section of your document.
+
+11. ~foldout-exit-fold~ (=C-c C-x=) : To *unzoom (exit)* a fold. This hides all
+    the text and subheadings under the top-level heading and returns you to the
+    previous view of the buffer.
+
+12.  ~foldout-exit-fold  NUM-ARG~ (=M-2  C-c C-x=)  : To  *exit NUM  levels* of
+    folds, specify a numeric argument.
+
+13. ~foldout-exit-fold ZERO-ARG~ (=M-0 C-c C-x=)  : To *exit all folds* specify
+    a zero argument.
+
+14. ~foldout-exit-fold NEG-ARG~ (=M--2 C-c C-x=)  : To *cancel the narrowing of
+    a  fold*  without hiding  the  text  and  subheadings, specify  a  negative
+    argument. For example,  =M--2 C-c C-x= exits two folds  and leaves the text
+    and subheadings exposed.
+
+#+attr_texinfo: :options foldout-mouse-modifiers
+#+begin_defvar
+  List of  modifier keys to apply  to foldout’s mouse events.  Default value is
+  =(meta control)=.
+
+  The   default  =(meta   control)=   makes  foldout   bind   its  functions   to
+  =M-C-down-mouse-{1,2,3}=.
+#+end_defvar
 * Loading
 All functions call the ~load~ function:
 
