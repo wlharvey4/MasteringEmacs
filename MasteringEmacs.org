@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-23 09:16
-#+macro:version Version 0.0.181
+#+date:2021-01-25 07:42
+#+macro:version Version 0.0.182
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -797,7 +797,7 @@ use for single quotes in the wording of help and messages.
   - nil :: The default  value nil acts like curve if  curved single quotes seem
     to be displayable, and like grave otherwise.
 
-#+attr_texinfo: :options User-option text-quoting-style
+#+attr_texinfo: :options {User option} text-quoting-style
 #+begin_defvr
   Style to use  for single quotes in  help and messages. Its value  should be a
   symbol.
@@ -11399,6 +11399,167 @@ This example  has a small bug:  if the user types  =C-g= to quit, and  the quit
 happens immediately  after the  function ~ftp-setup-buffer~ returns  but before
 the variable =process= is set, the process will not be killed. There is no easy
 way to fix this bug, but at least it is very unlikely.
+
+* Emacs Display
+Relating to the display that Emacs presents.
+
+** Temporary Displays
+*Temporary displays* are used by Lisp programs  to put output into a buffer and
+then present it to the user for perusal rather than for editing.
+
+#+attr_texinfo: :options with-output-to-temp-buffer buffer-name body
+#+begin_defun
+  Bind ‘standard-output’ to  buffer =BUFFER-NAME=, eval =BODY=,  then show that
+  buffer.
+
+  This function  executes the  forms in  =BODY= while  arranging to  insert any
+  output they print into the buffer named =BUFFER-NAME=, which is first created
+  if necessary, and put  into =Help= mode. It does not  make the buffer current
+  for =BODY=.
+
+  - BUFFER-NAME ::
+
+    The string  =BUFFER-NAME= specifies  the temporary  buffer, which  need not
+    already exist. The argument  must be a string, not a  buffer. The buffer is
+    erased initially (with no questions asked),  and it is marked as unmodified
+    after this function exits.
+
+  - BODY ::
+
+    This  function binds  =STANDARD-OUTPUT= to  the temporary  buffer, then  it
+    evaluates the  forms in  =BODY=. At  the end of  =BODY=, this  marks buffer
+    =BUFFER-NAME= unmodified and  displays it in a window, but  does not select
+    it.
+
+    By default, the setup hook puts  the buffer into =Help= mode before running
+    =BODY=. If =BODY= does  not change the major mode, the  show hook makes the
+    buffer read-only, and scans it for function and variable names to make them
+    into clickable cross-references.
+
+  - HOOKS ::
+
+    Several hooks are available for customizing the behavior of this construct;
+
+    - ~temp-buffer-setup-hook~   ::    hook run  before evaluating  =BODY=, and
+      =BUFFER-NAME= is current.
+
+    - ~temp-buffer-show-hook~  ::  hook  run  after  displaying  the  temporary
+      buffer, and with the temporary buffer being current.
+
+  - RETURN :: The value of the last form in =BODY= is returned.
+
+  - ~temp-buffer-show-function~       ::      If   this  variable  is  non-nil,
+    ~with-output-to-temp-buffer~  calls it  as  a  function to  do  the job  of
+    displaying a  =help= buffer. The function  gets one argument, which  is the
+    buffer it should display.
+#+end_defun
+
+*** Macros Similar to ~with-output-to-temp-buffer
+
+ #+attr_texinfo: :options with-temp-buffer-window buffer-or-name action quit-function body
+ #+begin_defmac
+   As with  ~with-output-to-temp-buffer~, it executes =BODY=  while arranging to
+   insert  any output  it  prints  into the  buffer  named =BUFFER-OR-NAME=  and
+   displays  that buffer  in some  window. Unlike  ~with-output-to-temp-buffer~,
+   however, it does not automatically switch that buffer to =Help= mode.
+
+   - BUFFER-OR-NAME ::
+
+     specifies  the temporary  buffer. It  can be  either a  buffer, which  must
+     already exist, or a string, in which case a buffer of that name is created,
+     if  necessary.  The buffer  is  marked  as  unmodified and  read-only  when
+     ~with-temp-buffer-window~ exits.
+
+   - ACTION ::
+
+     It passes the =ACTION= argument to ~display-buffer~ in order to display the
+     buffer.
+
+   - QUIT-FUNCTION ::
+
+     If this argument  is non-nil, it should  be a function that  is called with
+     two arguments: the window showing the  buffer and the result of =BODY=. The
+     final return value is then whatever ~quit-function~ returns.
+
+   - HOOKS ::
+
+     - ~temp-buffer-window-setup-hook~
+
+     - ~temp-buffer-window-show-hook~
+ #+end_defmac
+
+ #+attr_texinfo: :options with-current-buffer-window buffer-or-name action quit-function &rest body
+ #+begin_defmac
+   Like   ~with-temp-buffer-window~   but   makes  the   buffer   specified   by
+   =BUFFER-OR-NAME= current for running =BODY=.
+ #+end_defmac
+
+ #+attr_texinfo: :options with-displayed-buffer-window buffer-or-name action quit-function &rest body
+ #+begin_defmac
+   Like  ~with-current-buffer-window~  but  displays  the  buffer  specified  by
+   =BUFFER-OR-NAME= before running =BODY=.
+ #+end_defmac
+
+*** Changing the Size of a Temporary Buffer Window
+A window showing  a temporary buffer can  be fitted to the size  of that buffer
+using the following mode:
+
+#+attr_texinfo: :options {Minor mode} temp-buffer-resize-mode
+#+begin_defvr
+  When  this minor  mode is  enabled, windows  showing a  temporary buffer  are
+  automatically resized to fit their buffer’s contents.
+
+  A window  is resized if  and only  if it has  been specially created  for the
+  buffer.
+
+  By default, this mode uses  ~fit-window-to-buffer~ (see Resizing Windows) for
+  resizing. You  can specify  a different function  by customizing  the options
+
+  - ~temp-buffer-max-height~ and
+  - ~temp-buffer-max-width~.
+#+end_defvr
+
+#+attr_texinfo: :options {User option} temp-buffer-max-height
+#+begin_defvr
+  This option specifies the maximum height  (in lines) of a window displaying a
+  temporary buffer  when ~temp-buffer-resize-mode~ is  enabled.
+
+  It can  also be  a function  to be  called to  choose the  height for  such a
+  buffer.  It gets  one  argument, the  buffer, and  should  return a  positive
+  integer.
+#+end_defvr
+
+#+attr_texinfo: :options {User option} temp-buffer-max-width
+#+begin_defvr
+  This option specifies the maximum width of a window (in columns) displaying a
+  temporary buffer when temp-buffer-resize-mode is enabled.
+
+  It can also be a function to be called to choose the width for such a buffer.
+  It gets one argument, the buffer, and should return a positive integer.
+#+end_defvr
+
+*** Momentary Display
+ #+attr_texinfo: :options momentary-string-display string position &optional char message
+ #+begin_defun
+   This function momentarily displays string in the current buffer at position.
+
+   - STRING :: string to display in current buffer
+
+   - POS :: Position in current buffer to display string at.  =POS= can be a
+     marker, in which case only its value is used; its buffer is ignored.
+
+   - EXIT-CHAR ::  Optional  third arg =EXIT-CHAR= can be a  character, event or
+     event description  list, defaulting to  =SPC=. If  the next input  event is
+     =CHAR=, it is  ignored and the function returns, otherwise  it is available
+     as input.
+
+   - MESSAGE  :: If  non-nil,  display  the =MESSAGE=  in  the  echo area  while
+     =STRING= is displayed. If nil, instructions to type =CHAR= are displayed in
+     the echo area.
+
+   - RETURN :: This function’s return value is not meaningful.
+ #+end_defun
+
 
 * Interacting with the System
 :PROPERTIES:
