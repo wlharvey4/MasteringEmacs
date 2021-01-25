@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-25 07:42
-#+macro:version Version 0.0.182
+#+date:2021-01-25 07:46
+#+macro:version Version 0.0.183
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -11400,12 +11400,15 @@ happens immediately  after the  function ~ftp-setup-buffer~ returns  but before
 the variable =process= is set, the process will not be killed. There is no easy
 way to fix this bug, but at least it is very unlikely.
 
-* Emacs Display
-Relating to the display that Emacs presents.
+* Display of Buffers
+Here are some functions, macros, and  user options Relating to the display that
+Emacs presents.
 
 ** Temporary Displays
 *Temporary displays* are used by Lisp programs  to put output into a buffer and
 then present it to the user for perusal rather than for editing.
+
+*** Display as a Help Buffer
 
 #+attr_texinfo: :options with-output-to-temp-buffer buffer-name body
 #+begin_defun
@@ -11454,7 +11457,7 @@ then present it to the user for perusal rather than for editing.
     buffer it should display.
 #+end_defun
 
-*** Macros Similar to ~with-output-to-temp-buffer
+*** Macros for Display of Non-help Buffers
 
  #+attr_texinfo: :options with-temp-buffer-window buffer-or-name action quit-function body
  #+begin_defmac
