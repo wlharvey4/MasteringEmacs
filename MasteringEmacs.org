@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-25 07:46
-#+macro:version Version 0.0.183
+#+date:2021-01-25 22:28
+#+macro:version Version 0.0.184
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -11400,6 +11400,259 @@ happens immediately  after the  function ~ftp-setup-buffer~ returns  but before
 the variable =process= is set, the process will not be killed. There is no easy
 way to fix this bug, but at least it is very unlikely.
 
+* Files---Buffers---Windows---Frames---Terminals
+** Files
+** Buffers
+** Windows
+This section describes the functions and variables related to Emacs windows.
+*** Concepts of Windows
+- WINDOW :: A *window* is an area of the screen that is used to display a buffer.
+  Windows are  represented by a special  Lisp object type.
+
+- LIVE WINDOW :: A *live window* is one that is actually displaying a buffer in
+  a frame.
+
+- INTERNAL WINDOW :: Not a live window.
+
+- VALID WINDOW   ::
+
+  A valid window is one that is either  live or internal. A valid window can be
+  deleted. Then  it is no longer  *valid*, but the Lisp  object representing it
+  might be  still referenced from other  Lisp objects. A deleted  window may be
+  made valid again by restoring a saved window configuration.
+
+- FRAME ::
+
+  Windows are grouped into frames. Each frame contains at least one window; the
+  user can subdivide it into  multiple, non-overlapping windows to view several
+  buffers at once. When a window is created, resized, or deleted, the change in
+  window space  is taken  from or given  to the adjacent  windows, so  that the
+  total area of the frame is unchanged.
+
+- SELECTED WINDOW ::
+
+  In  each frame,  at  any time,  exactly  one Emacs  window  is designated  as
+  *selected* within the frame.
+
+- WINDOW TREE ::
+
+  The windows in each frame are organized into a window tree.
+
+  - LEAF NODES :: The leaf nodes of  each window tree are live windows—the ones
+    actually displaying buffers.
+
+  - INTERNAL  NODES ::  The  internal nodes  of the  window  tree are  internal
+    windows, which are not live.
+
+#+attr_texinfo: :options selected-window
+#+begin_defun
+  This function returns the selected window (which is always a live window).
+#+end_defun
+
+#+attr_texinfo: :options windowp object
+#+begin_defun
+  Returns t if object is a window, otherwise returns nil.
+#+end_defun
+
+#+attr_texinfo: :options window-live-p object
+#+begin_defun
+  Returns t if object is a live window and nil otherwise.
+#+end_defun
+
+#+attr_texinfo: :options window-valid-p object
+#+begin_defun
+  You can distinguish valid windows from deleted windows with ~window-valid-p~.
+
+  This function returns t if object is a /live window/, or an /internal window/
+  in a /window  tree/. Otherwise, it returns nil, including  for the case where
+  object is a /deleted window/.
+#+end_defun
+
+*** Displaying a Buffer in a Window
+** Frames and Terminals
+- FRAME ::
+
+  A “frame”  is a  screen object that  contains one or  more Emacs  windows. In
+  Emacs Lisp, a “frame object” is a  Lisp object that represents a frame on the
+  screen.
+
+  A frame initially  contains a single main window and/or  a minibuffer window;
+  you can  subdivide the  main window vertically  or horizontally  into smaller
+  windows.
+
+- TERMINAL ::
+
+  A “terminal”  is a  display device  capable of displaying  one or  more Emacs
+  frames. In Emacs Lisp, a “terminal object” is a Lisp object that represents a
+  terminal.There is no  primitive for creating terminal objects.  There are two
+  classes of terminals:
+  1. “text  terminals”; non-graphics-capable  displays, including  ‘xterm’ and
+    other terminal  emulators. On a  text terminal, each Emacs  frame occupies
+    the terminal’s  entire screen; although  you can create  additional frames
+    and switch between them, the terminal only shows one frame at a time.
+  2. “graphical  terminals”; are managed  by graphical display systems  such as
+     the  X  Window   System,  which  allow  Emacs  to   show  multiple  frames
+     simultaneously on the same display.
+
+  Each terminal object has the following ATTRIBUTES:
+
+  - *name* of device used by the terminal, e.g. =/dev/tty=
+
+  - terminal and keyboard *coding systems* used on the terminal
+
+  - kind of *display* associated with the terminal
+    - x
+    - t
+    - w32
+    - ns
+    - pc
+
+  - list of terminal *parameters*
+
+- MULTIPLE TERMINALS ::
+
+  On GNU  and Unix systems, you  can create additional frames  on any available
+  terminal,  within a  single Emacs  session, regardless  of whether  Emacs was
+  started on a text or graphical  terminal. Emacs can display on both graphical
+  and text  terminals simultaneously. This  comes in handy, for  instance, when
+  you connect to the same session from several remote locations. *Note Multiple
+  Terminals.
+
+*** Frame and Terminal Functions
+#+attr_texinfo: :options framep object
+#+begin_defun
+  This predicate  returns a  non-‘nil’ value  if OBJECT is  a frame,  and ‘nil’
+  otherwise. For a  frame, the value indicates which kind  of display the frame
+  uses:
+
+  - t :: text terminal
+  - x :: x graphical terminal
+  - w32 :: MS-Windows graphical terminal
+  - ns :: GNUstep or Macintosh Cocoa graphical terminal
+  - pc :: MS-DOS terminal
+#+end_defun
+
+#+attr_texinfo: :options frame-terminal &optional frame
+#+begin_defun
+  This function returns  the terminal object that displays  =FRAME=. If =FRAME=
+  is ‘nil’ or unspecified, it defaults to the selected frame.
+#+end_defun
+
+#+attr_texinfo: :options terminal-live-p object
+#+begin_defun
+  This predicate  returns a non-‘nil’ value  if =OBJECT= is a  terminal that is
+  live (i.e., not deleted), and ‘nil’ otherwise. For live terminals, the return
+  value indicates what kind of frames  are displayed on that terminal; the list
+  of possible values is the same as for ‘framep’ above.
+#+end_defun
+
+#+attr_texinfo: :options terminal-name &optional terminal
+#+begin_defun
+  This  function returns  the file  name  of the  device used  by TERMINAL.
+
+  - TERMINAL ::
+
+    If =TERMINAL=  is omitted  or ‘nil’,  it defaults  to the  selected frame’s
+    terminal.
+
+    =TERMINAL= can also be a frame, meaning that frame’s terminal.
+#+end_defun
+
+#+attr_texinfo: :options terminal-list
+#+begin_defun
+  This function returns a list of all live terminal objects.
+#+end_defun
+
+#+attr_texinfo: :options get-device-terminal device
+#+begin_defun
+  This function returns a terminal whose device name is given by =DEVICE=.
+
+  - DEVICE ::
+
+    If DEVICE is a string, it can be either the file name of a terminal device,
+    or the name of an X display  of the form ‘HOST:SERVER.SCREEN’.
+
+    If DEVICE  is a frame, this  function returns that frame’s  terminal;
+
+    ‘nil’ means  the selected frame.
+
+    Finally, if  DEVICE is a terminal  object that represents a  live terminal,
+    that terminal is returned.
+#+end_defun
+
+#+attr_texinfo: :options delete-terminal &optional terminal force
+#+begin_defun
+  - TERMINAL ::
+
+    This function deletes all frames on =TERMINAL= and frees the resources used
+    by  it.  It runs  the  abnormal  hook ~delete-terminal-functions~,  passing
+    =TERMINAL= as  the argument  to each  function. If  TERMINAL is  omitted or
+    ‘nil’, it defaults to the selected frame’s terminal. TERMINAL can also be a
+    frame, meaning that frame’s terminal.
+
+  - FORCE ::
+
+    Normally, this function signals an error  if you attempt to delete the sole
+    active terminal, but if =FORCE= is non-‘nil’, you are allowed to do so.
+#+end_defun
+
+*** Creating Frames
+Call the function ~make-frame~.
+
+#+attr_texinfo: :options Command make-frame &optional parameters
+#+begin_deffn
+This function creates and returns a new frame, displaying the current buffer.
+
+- PARAMETERS ::
+
+  an alist  of frame parameters for  the new frame. Each  element of PARAMETERS
+  should have the form (NAME . VALUE)
+
+  - (name . STRING) -- frame is named STRING
+
+  - (width . NUMBER) -- frame should be NUMBER characters in width
+
+  - (height . NUMBER) -- frame should be NUMBER text lines high
+
+  - (minibuffer . t) -- the frame should have a minibuffer
+
+  - (minibuffer . nil) -- the frame should have no minibuffer
+
+  - (minibuffer . only) -- the frame should contain only a minibuffer window
+
+  - (minibuffer . WINDOW) -- the frame should use WINDOW as its minibuffer window
+
+  - (window-system . nil) -- the frame should be displayed on a terminal device
+
+  - (window-system . x) -- the frame should be displayed in an X window
+
+  - (display . ":0") -- the frame should appear on display :0
+
+  - (terminal . TERMINAL) -- the frame should use the terminal object TERMINAL
+
+  - any  parameter not  specified in  =PARAMETERS= default  to values  found in
+    ~default-frame-alist~.
+
+- HOOKS ::
+
+  - ~before-make-frame-hook~ ::  A normal  hook run  by ‘make-frame’  before it
+    creates the frame.
+
+  - ~after-make-frame-functions~ :: An abnormal  hook run by ~make-frame~ after
+    it  created  the  frame.   Each  function  in  ~after-make-frame-functions~
+    receives one argument, the frame just created.
+
+  - ~server-after-make-frame-hook~ :: A  normal hook run when  the Emacs server
+    creates a client frame. When this hook  is called, the created frame is the
+    selected one.
+
+- PARAMETER-VARIABLE ::
+
+  - ~frame-inherited-parameters~ ::  This variable specifies the  list of frame
+    parameters that a newly created  frame inherits from the currently selected
+    frame.
+#+end_deffn
+
 * Display of Buffers
 Here are some functions, macros, and  user options Relating to the display that
 Emacs presents.
@@ -11475,8 +11728,53 @@ then present it to the user for perusal rather than for editing.
 
    - ACTION ::
 
-     It passes the =ACTION= argument to ~display-buffer~ in order to display the
-     buffer.
+     The ACTION argument  can have a non-nil and non-list  value. This means to
+     display the buffer in a window other  than the selected one, even if it is
+     already  displayed in  the selected  window. Non-interactive  calls should
+     always supply a list or nil.
+
+     It passes  the =ACTION= argument  to ~display-buffer~ in order  to display
+     the  buffer.  It should  specify  a  buffer  display  action of  the  form
+     =(FUNCTIONS . ALIST)=.
+
+     - =FUNCTIONS= is either  an "action function" or a possibly  empty list of
+       action functions.  An /action function/  is a function that  accepts two
+       arguments:
+       1. the  buffer to display;  and
+       2. an action  alist.
+       Based  on those  arguments, it  should try  to display  the buffer  in a
+       window and  return that  window. Action functions  use the  action alist
+       passed to them to fine-tune their behaviors.
+
+     - =ALIST= is  a possibly  empty "action  alist". An  /action alist/  is an
+       association list mapping symbols to values.
+
+     - ACTION FUNCTIONS :: Action functions and  the action they try to perform
+       are:
+
+       - ‘display-buffer-same-window’
+       - ‘display-buffer-reuse-window’
+       - ‘display-buffer-in-previous-window’
+       - ‘display-buffer-use-some-window’
+       - ‘display-buffer-pop-up-window’
+       - ‘display-buffer-below-selected’
+       - ‘display-buffer-at-bottom’
+       - ‘display-buffer-pop-up-frame’
+       - ‘display-buffer-in-child-frame’
+       - ‘display-buffer-no-window’
+
+   - ACTION-ALIST ENTRIES ::
+
+     - ‘inhibit-same-window’
+     - ‘inhibit-switch-frame’
+     - ‘reusable-frames’
+     - ‘pop-up-frame-parameters’
+     - ‘window-height’
+     - ‘window-width’
+     - ‘preserve-size’
+     - ‘window-parameters’
+     - ‘allow-no-window’
+     - ‘body-function’
 
    - QUIT-FUNCTION ::
 
@@ -11562,7 +11860,6 @@ using the following mode:
 
    - RETURN :: This function’s return value is not meaningful.
  #+end_defun
-
 
 * Interacting with the System
 :PROPERTIES:
