@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-25 22:28
-#+macro:version Version 0.0.184
+#+date:2021-01-25 22:37
+#+macro:version Version 0.0.185
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -11403,6 +11403,37 @@ way to fix this bug, but at least it is very unlikely.
 * Files---Buffers---Windows---Frames---Terminals
 ** Files
 ** Buffers
+- BUFFER ::
+
+  A “buffer” is a Lisp object containing text to be edited. Buffers are used to
+  hold the contents of files that are  being visited; there may also be buffers
+  that  are not  visiting files.  Only one  buffer is  designated the  “current
+  buffer” at  any time. Each buffer,  including the current buffer,  may or may
+  not be displayed in any windows.
+
+  Buffers appear to Lisp programs as a  special data type. You can think of the
+  contents  of  a buffer  as  a  string that  you  can  extend; insertions  and
+  deletions may occur in any part of the buffer.
+
+  A Lisp  buffer object contains numerous  pieces of information. Some  of this
+  information is directly accessible to the programmer through variables, while
+  other information is accessible only through special-purpose functions.
+
+- BUFFER-LOCAL VARIABLES ::
+
+  Buffer-specific  information  that  is   directly  accessible  is  stored  in
+  “buffer-local”  variable  bindings,  which   are  variable  values  that  are
+  effective only  in a particular  buffer. This  feature allows each  buffer to
+  override the values of certain variables. Most major modes override variables
+  such as ‘fill-column’ or ‘comment-column’ in this way.
+
+Some functions and variables relate to  visiting files in buffers, while others
+relate to the display of buffers in windows.
+
+#+attr_texinfo: :options bufferp object
+#+begin_defun
+  This function returns ‘t’ if OBJECT is a buffer, ‘nil’ otherwise.
+#+end_defun
 ** Windows
 This section describes the functions and variables related to Emacs windows.
 *** Concepts of Windows
