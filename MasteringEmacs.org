@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-25 22:37
-#+macro:version Version 0.0.185
+#+date:2021-01-27 22:51
+#+macro:version Version 0.0.186
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -6386,23 +6386,46 @@ characters.  Each difference has one of these seven states:
 
 ** Dired
 #+cindex:dired
-You can manipulate directories and files using Emacs’s directory editor, dired.
+You  can  manipulate directories  and  files  using Emacs’s  directory  editor,
+=Dired=. =Dired= makes an Emacs buffer containing a listing of a directory, and
+optionally  some  of its  subdirectories.  The  buffer is  normally  read-only.
+=Dired= also works with remote directories.
 
-Ways to access dired:
+Ways to access =Dired=:
 
 - From IDO Mode :: =C-x C-f C-d= when finding files to open a dired buffer in
                    that file's current directory.
 
-- As a command :: =M-x dired=
+- As a command :: =M-x dired= [directory|pattern]
 
-- As a key bind :: =C-x d= =C-x 4 d=
+- As a key bind :: =C-x d=; =C-x 4 d=; =C-x 5 d= [directory|pattern]
 
+: Ex: M-x dired <RET> ~/foo/ | ~/foo/*.el | ~/foo/*/*.el <RET>
+
+- ~dired-jump~  :: =C-x C-j=; =C-x 4 C-j= open a Dired buffer and move point to
+  the line corresponding to the current file.
+
+- =C-u= ~dired~ :: specify the ~ls~ switches in the minibuffer
 
 #+cindex:@command{dired-listing-switches}
 Dired Buffer is usually based upon ~ls -al~.  This can be configured using
 ~dired-listing-switches~.
 
+#+TEXINFO: @heading See also the following extensions:
+
+- =Wdired= :: allows one to edit the Dired buffer directly to make changes
+- =Dired-X= :: =Dired Extra= --- the extra features of Dired mode
+
 *** Dired Navigation
+
+- ~dired-next-line~ :: =C-n=; =n=; =<SPC>=
+- ~direct-previous-line~ :: =C-p=; =p=
+- ~dired-unmark-backward~ :: =<DEL>=
+- ~dired-goto-file~ :: =j=
+- ~dired-isearch-filenames~ :: =M-s f C-s=
+- ~dired-isearch-filenames-regexp~ :: =M-s f M-C-s=
+- ~dired-isearch-filenames~ :: variable; default value is nil; non-nil values
+  are t and =dwim=
 
 *** Dired Marking and Unmarking
 
