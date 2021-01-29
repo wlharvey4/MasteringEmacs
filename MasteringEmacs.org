@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-27 22:51
-#+macro:version Version 0.0.186
+#+date:2021-01-29 08:51
+#+macro:version Version 0.0.187
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -4836,6 +4836,36 @@ metadata and the buffer’s particular coding system) is only slightly bigger
 than the byte size of the characters in it.  A typical Emacs session lasts
 weeks between restarts and most Emacs hackers have many hundreds of buffers
 running without issue.
+
+** List of Syntactical Elements
+- =char= ::
+
+  - ~left-char~ (=C-f=), ~right-char~ (=C-b=)
+
+- =word= ::
+
+  - ~forward-word~ (=M-f=) (=C-<right>=), ~backward-word~ (=M-b=) (=C-<left>=)
+
+- =line= ::
+
+  #+findex:line-move-visual
+  #+cindex:logical line
+  #+cindex:Visual Line Mode
+  #+cindex:visual line
+  #+findex:toggle-truncate-lines
+  #+findex:toggle-word-wrap
+  - *visual*, *screen* --- what you see; the default way to move
+    - =Visual Line Mode= wraps by /word boundaries/
+    - =M-x customize-option RET global-visual-line-mode=
+  - *logical* --- what Emacs sees
+    - =M-x customize-option RET line-move-visual nil= --- move by logical lines
+    - ~toggle-truncate-lines~
+    - ~toggle-word-wrap~
+
+  - ~next-line~ (=C-n=), ~previous-line~ (=C-p=)
+  - ~beginning-of-line~ (=C-a=) (=<home>=), ~end-of-line~ (=C-e=) (=<end>=)
+  - ~forward-line~
+  - ~back-to-indentation~ (=M-m=)
 
 ** The Basics
 Learning the basic key bindings to:
