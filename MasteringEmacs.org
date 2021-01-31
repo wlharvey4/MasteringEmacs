@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-29 08:51
-#+macro:version Version 0.0.187
+#+date:2021-01-30 22:42
+#+macro:version Version 0.0.188
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1120,7 +1120,7 @@ This directory contains the following files:
 ** Installing
 *** What is Your Version
 #+CINDEX: version
-To check your Emacs' version, type: ~emacs --version~
+To check your Emacs' version, type:
 
 #+caption:Your Emacs Version using the Shell
 #+name:your-emacs-version-via-shell
@@ -1129,7 +1129,9 @@ To check your Emacs' version, type: ~emacs --version~
 emacs --version
 #+end_src
 
-The version can also be checked from within Emacs, using ~M-x version~:
+The version can also be checked from within Emacs, using:
+: M-x emacs-version
+: M-x version ; an alias for 'emacs-version'
 
 #+caption:Your Emacs Version using Emacs
 #+name:your-emacs-version-via-emacs
@@ -1818,6 +1820,15 @@ you want =super= use the prefix key =s-= (lower case).
 "Configuring" are  things that "should" be  done or "should" be  checked, while
 "Customizing"  are things  that "can"  be done  to create  a more  personalized
 experience.
+
+*** Emacs Directory
+
+    #+vindex:user-emacs-directory
+- ~user-emacs-directory~ :: src_elisp{(symbol-value 'user-emacs-directory)}
+
+  Directory beneath which additional  per-user Emacs-specific files are placed.
+  Various programs in Emacs store information in this directory.
+
 *** Must Do’s
 **** Add to Init File
 
