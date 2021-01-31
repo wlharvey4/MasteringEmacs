@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-30 23:24
-#+macro:version Version 0.0.189
+#+date:2021-01-31 00:32
+#+macro:version Version 0.0.190
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1566,6 +1566,105 @@ key combo.
 "Configuring" are  things that "should" be  done or "should" be  checked, while
 "Customizing"  are things  that "can"  be done  to create  a more  personalized
 experience.
+
+*** Environment
+#+ATTR_texinfo::options initial-environment
+#+BEGIN_defvar
+  =initial-environment= is a  list of environment variables  inherited from the
+  parent process. Each element should be a string of the form 'ENVVARNAME=VALUE'.
+#+END_defvar
+
+*** Emacs Initialization
+#+TEXINFO: @heading The Emacs =Initialization= File
+
+When  Emacs is  started, it  normally  tries to  load  a Lisp  program from  an
+“initialization  file”, or  “init file”  for short.  This file,  if it  exists,
+specifies how to initialize Emacs for you.
+
+Emacs looks for your =init= file using the filenames (in this order):
+
+- =~/.emacs=
+- =~/.emacs.el=
+- =~/.emacs.d/init.el=
+- =~/.config/emacs/init.el=
+- =$XDG_CONFIG_HOME/emacs/init.el=
+- modern  POSIX  platforms  prefer  putting  your  initialization  files  under
+  ‘~/.config’ so that troubleshooting a problem that might be due to a bad init
+  file, or archiving a  collection of init files, can be  done by renaming that
+  directory.
+- Note that if neither the XDG location nor ‘~/.emacs.d’ exist, then Emacs will
+  create ‘~/.emacs.d’ (and therefore use it during subsequent invocations).
+- Emacs will set [[*Emacs Directory][‘user-emacs-directory’]] to the directory it decides to use
+
+If your =init= file defines many  functions, consider moving them to a separate
+(byte-compiled) file that you load in your =init= file.
+
+To prevent  loading the  =init= file,  using the  command-line switch  =-q=. To
+specify a unique file  to load as the =init= file,  use the command-line switch
+=-u, --user=.
+
+#+TEXINFO: @subheading Use @code{setq-default}
+
+Some variables automatically become buffer-local when set with ‘setq’; what you
+want in the init file is to set the default value, using ‘setq-default’.
+
+#+ATTR_texinfo: :options setq-default [var value] ...
+#+BEGIN_defun
+  Set  the default  value of  variable VAR  to VALUE.  The default  value of  a
+  variable  is seen  in buffers  that  do not  have  their own  values for  the
+  variable.
+
+  - VAR :: the variable name, is literal (not evaluated);
+
+  - VALUE :: is an expression: it is evaluated and its value returned.
+
+  More generally, you can use multiple variables and values, as in
+  : (setq-default VAR VALUE VAR VALUE...)
+#+END_defun
+
+#+TEXINFO: @heading Site Startup File
+
+#+cindex:site startup file
+#+vindex:site-start.el
+Your site may  also have a “site startup file”;  this is named ‘site-start.el’,
+if it  exists. Emacs  finds this  file via  the standard  search path  for Lisp
+libraries. Emacs loads this library before it loads your =init= file.
+
+To inhibit loading of this library, use the option ‘--no-site-file’.
+
+#+TEXINFO: @heading Default Init File
+
+#+cindex:default init file
+#+vindex:default.el
+#+findex:inhibit-default-init
+There  can  also  be  a  “default  init  file”,  which  is  the  library  named
+‘default.el’,  found via  the standard  search  path for  libraries. The  Emacs
+distribution  contains no  such library;  your site  may create  one for  local
+customizations. If this  library exists, it is loaded whenever  you start Emacs
+(except when you specify ‘-q’). But your init file, if any, is loaded first; if
+it sets ‘inhibit-default-init’ non-‘nil’, then ‘default’ is not loaded.
+
+#+TEXINFO: @heading Location of Init Files
+#+vindex:load-path
+You can place ‘default.el’ and ‘site-start.el’  in any of the directories which
+Emacs  searches  for  Lisp  libraries. The  variable  ‘load-path’  (*note  Lisp
+Libraries) specifies these directories.
+
+#+TEXINFO: @heading The Early Init File
+Most customizations for Emacs should be put in the normal init file. *Note Init
+File.  However, it  is sometimes  desirable  to have  customizations that  take
+effect during  Emacs startup earlier  than the  normal init file  is processed.
+Such customizations can be put in the early init file,
+
+- =~/.config/emacs/early-init.el=
+- =~/.emacs.d/early-init.el=
+
+This file is loaded before the package  system and GUI is initialized, so in it
+you can customize variables that affect frame appearance as well as the package
+initialization process, such as
+- ‘package-enable-at-startup’,
+- ‘package-load-list’, and
+- ‘package-user-dir’.
 
 *** Emacs Directory
 
