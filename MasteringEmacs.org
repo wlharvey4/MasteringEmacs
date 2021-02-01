@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-31 22:49
-#+macro:version Version 0.0.192
+#+date:2021-01-31 22:52
+#+macro:version Version 0.0.193
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1116,7 +1116,7 @@ This directory contains the following files:
   (directory-files doc-directory)
 #+end_src
 
-* First Steps
+* Installation---Configuration---Customization---Starting
 ** Installing
 *** What is Your Version
 #+CINDEX: version
@@ -2210,12 +2210,12 @@ ways to start an Emacs server:
       connects to the first server it finds.
 
 ** Interface
-** Keys
-*** Control
-*** Extended
-*** Universal
-*** Remembering Keys
-*** Mastering Key Bindings in Emacs
+* Keys
+** Control
+** Extended
+** Universal
+** Remembering Keys
+** Mastering Key Bindings in Emacs
 - https://www.masteringemacs.org/article/mastering-key-bindings-emacs
 
 
@@ -2224,7 +2224,7 @@ in great detail, all the subtleties and nuances of how to bind keys.  I’ve
 written a guide that covers what you need to know to bind keys to even complex
 commands, and a set of templates you can use in your own code.
 
-**** Key Sequences
+*** Key Sequences
 A {{{dfn(key sequence)}}} (=key= for short), is a sequence of one or more input
 events  that  is  meaningful  as   a  unit.   {{{dfn(Input  events)}}}  include
 characters, function keys, and mouse buttons---al  the inputs that you can send
@@ -2241,7 +2241,7 @@ to the  length of key  sequences, but in practice  they are seldom  longer than
 three or four input events.  An input  event cannot be combined with a complete
 key.
 
-***** Default Prefix Keys
+**** Default Prefix Keys
 The default prefix keys in Emacs are:
 - =C-c=
 - =C-h= & =<F1>=
@@ -2263,7 +2263,7 @@ The default prefix keys in Emacs are:
 
 You can make new prefix keys by customizing Emacs.
 
-**** Keymaps
+*** Keymaps
 #+cindex:keymap
 Emacs  does not  assign  meanings  to keys  directly.   Instead, Emacs  assigns
 meanings to named  “commands”, and then gives keys their  meanings by “binding”
@@ -2302,7 +2302,7 @@ to get a list of all keys that belong to that sequence.
 - =C-h=
 
 
-***** Global Keymap
+**** Global Keymap
 The  “global” keymap  is the  most  important keymap  because it  is always  in
 effect.  The  global keymap defines  keys for  Fundamental mode; most  of these
 definitions are common  to most or all  major modes.  Each major  or minor mode
@@ -2311,7 +2311,7 @@ can have its own keymap which overrides the global definitions of some keys.
 Commands to rebind keys, such as  ‘M-x global-set-key’, work by storing the new
 binding  in the  proper place  in  the global  map.   To view  the current  key
 bindings, use the ‘C-h b’ command.
-**** Key Bindings
+*** Key Bindings
 {{{dfn(Key  binding)}}}  means  to  map keys  to  commands.   "Keymaps"  record
 keybindings.  Modes define  their own key bindings, so activating  a mode might
 override custom key bindings.
@@ -2361,7 +2361,7 @@ There are several ways you can define (or undefine) keys.
      #+cindex:keymap, local
      Removes KEY from the active, local keymap.
 
-**** Representing Keys in Code
+*** Representing Keys in Code
 {{{heading(@@texinfo:@code{@@kbd@@texinfo:}@@)}}}
 
 #+cindex:key as string, vector
@@ -2380,7 +2380,7 @@ One important point to note is that you must surround /function/ and
 home row keys, like so: =<home>=, =<f8>= and =<down>=.  But if you want to
 represent the key =C-c p= then write ~(kbd "C-c p")~.
 
-**** Remapping Commands
+*** Remapping Commands
 {{{heading(@@texinfo:@code{@@remap@@texinfo:}@@---Replace)}}}
 
 #+cindex:@code{remap} event
@@ -2399,7 +2399,7 @@ Here I globally remap all key binds that point to ~kill-line~ to
 #+cindex:transient mark mode
 For some more hands-on examples read my article [[https://www.masteringemacs.org/article/fixing-mark-commands-transient-mark-mode][Fixing the Mark Commands in Transient Mark Mode]].
 
-**** Reserved Keys
+*** Reserved Keys
 You can pick any keyboard combination you desire---even if that key bind is
 already taken, so be careful.  But Emacs has set aside certain keys for use by
 users.  Generally, all keys prefixed with =C-c ?= (where =?= is a single
@@ -2445,6 +2445,676 @@ you want =super= use the prefix key =s-= (lower case).
 (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
 #+end_src
 
+* Movement
+
+Movement in Emacs is more than characters in a buffer; there’s a host of
+supplementary skills that make up navigation, like:
+
+#+cindex:windowing system
+- understanding Emacs’s rather complicated windowing system
+
+- movement in Emacs is /local/, /regional/ or /global/.
+  #+cindex:local movement
+- /local movement/ is what you do when you edit and move around text near to
+  the point.
+  #+cindex:syntactic unit
+- A /syntactic unit/ --- a semi-formal term for commands that operate on a
+  group of characters --- is a character, word, line, sentence, paragraph,
+  balanced expression, and so forth.
+  #+cindex:regional movement
+- /regional movement/ involves whole functions or class definitions, if you are
+  writing code; or chapters and such constructs, if you are writing prose.
+  #+cindex:global movement
+- /global movement/ is anything that takes you from one buffer to another, or
+  from one window to the next.
+
+#+texinfo:@heading Windows
+
+#+cindex:windows
+#+cindex:tiling window manager
+Emacs has a penchant for creating windows: when you view a help file, when you
+compile a file, or when you open a shell.  Emacs is a /tiling window manager/.
+
+In Emacs, windows are transient; they come and go as you need them.  You can
+save your window configuration (and there are several ways of doing this) but
+they were never meant to be immutable, like so many editors --- set once and
+then never changed again.
+
+#+texinfo:@heading Buffers
+
+#+cindex:buffers
+Buffers are rarely killed (that is, closed) when they are no longer needed;
+most Emacs hackers will simply switch away to something else, only to return to
+it when needed.  That may seem wasteful, but each buffer (aside from assorted
+metadata and the buffer’s particular coding system) is only slightly bigger
+than the byte size of the characters in it.  A typical Emacs session lasts
+weeks between restarts and most Emacs hackers have many hundreds of buffers
+running without issue.
+
+** List of Syntactical Elements
+- =char= ::
+
+  - ~left-char~ (=C-f=), ~right-char~ (=C-b=)
+
+- =word= ::
+
+  - ~forward-word~ (=M-f=) (=C-<right>=), ~backward-word~ (=M-b=) (=C-<left>=)
+
+- =line= ::
+
+  #+findex:line-move-visual
+  #+cindex:logical line
+  #+cindex:Visual Line Mode
+  #+cindex:visual line
+  #+findex:toggle-truncate-lines
+  #+findex:toggle-word-wrap
+  - *visual*, *screen* --- what you see; the default way to move
+    - =Visual Line Mode= wraps by /word boundaries/
+    - =M-x customize-option RET global-visual-line-mode=
+  - *logical* --- what Emacs sees
+    - =M-x customize-option RET line-move-visual nil= --- move by logical lines
+    - ~toggle-truncate-lines~
+    - ~toggle-word-wrap~
+
+  - ~next-line~ (=C-n=), ~previous-line~ (=C-p=)
+  - ~beginning-of-line~ (=C-a=) (=<home>=), ~end-of-line~ (=C-e=) (=<end>=)
+  - ~forward-line~
+  - ~back-to-indentation~ (=M-m=)
+
+** The Basics
+Learning the basic key bindings to:
+
+- find and save files,
+- change buffers, and
+- the bare essentials of day-to-day use
+
+
+{{{noindent}}}is the first step on the path to mastering Emacs.
+
+#+caption:Basic Commands
+#+name:basic-commands
+| Key Binding | Command                      | Purpose                                     |
+|-------------+------------------------------+---------------------------------------------|
+| C-x C-f     | ~find-file~                  | Find and open a file                        |
+| C-x C-s     | ~save-buffer~                | Save the buffer                             |
+| C-x b       | ~switch-to-buffer~           | Switch buffer                               |
+| C-x k       | ~kill-buffer~                | Kill (close) a buffer                       |
+| C-x C-b     | ~list-buffers~               | Display all open buffers                    |
+| C-x C-c     | ~save-buffers-kill-terminal~ | Exit Emacs                                  |
+| esc-esc-esc | ~keyboard-escape-quit~       | Exit the current mode; return to one window |
+| C-/         | ~undo~                       | Undo changes                                |
+| F-10        | ~menu-bar-open~              | Activate the menu bar                       |
+|-------------+------------------------------+---------------------------------------------|
+
+*** find-file =C-x C-f=
+#+findex:find-file
+To *open* a file is to /find/ or /visit/ it.  The two are synonymous.  If the
+file does not exist, Emacs will open an empty buffer associated with that
+filename.  If the file exists, Emacs will place the contents into a buffer
+associated with that filename.
+
+#+texinfo:@heading Major Mode Load Order
+
+When you visit a file, Emacs will pick a major mode.  Emacs supports an array
+of detection mechanisms that can all be changed to suit your needs.  They are
+listed here in the order they are applied.
+
+**** File-local variables
+
+**** Program loader directives
+
+**** Magic mode detection
+
+**** Automatic mode detection
+
+*** Coding Systems and Line Endings
+Emacs applies two other important heuristics you should know about:
+- coding systems and
+- line endings.
+
+**** Coding Systems
+#+cindex:coding system
+Emacs has excellent Unicode support, including:
+- transparently reading and writing between different coding systems,
+- bidirectional right-to-left script support,
+- keyboard input method switching, and more.
+
+
+#+findex:describe-coding-system
+- ~describe-coding-system~ (=C-h C=) ::
+
+  To see the coding system in use for the current buffer.  Emacs will display a
+  lot of information, including all the coding systems associated with the
+  buffer.  For files, they are almost always set to the same coding system.
+
+
+The modeline will also provide some information:
+
+: U:**-  helloworld.c       92% of 5k   ...
+
+#+cindex:multi-byte
+The first character, =U=, means the buffer ~helloworld.c~ has a *multi-byte*
+coding system.
+
+#+cindex:ISO character encoding
+If it said =1=, it would typically be part 1 of any number of ISO character
+encodings.  The exact mnemonic will depend on which of the hundreds of
+supported coding systems you are using.
+
+**** Line Endings
+#+cindex:line endings
+When you open a file, Emacs will determine the line endings used.
+
+#+cindex:DOS line endings
+#+cindex:UNIX line endings
+If the file uses DOS or UNIX line endings, they will be preserved when you open
+and save a file.
+
+The modeline will tell you what line ending you are using:
+
+: U:**-  helloworld.c       92% of 5k   ...
+
+The : means it’s UNIX-style line endings.  For DOS it would say =(DOS)=.
+
+** Window Management
+
+** Frame Management
+
+** Elemental Movement
+
+*** Navigation Keys---Arrow Keys Etc
+Arrow keys move  by character; can combine the arrow  keys with the =<control>=
+key to move by word.
+
+- =<left>=, =C-<left>=
+- =<right>=, =C-<right>=
+- =<up>=, =C-<up>=
+- =<down>=, =C-<down>=
+- =<insert>=: activate =overwrite-mode=
+- =<delete>=: delete character after point
+- =<prior>=, =<next>=: Page-up, Page-down move by full page
+- =<home>=, =<end>=: Move to beginning, end of  line
+
+#+attr_texinfo: :options next-screen-context-lines
+#+begin_defvar
+Variable  controlling  number   of  lines  of  continuity   when  scrolling  by
+screenfuls; default is 2.
+#+end_defvar
+
+*** Moving by Character
+|-----------------+-------------+------------------------|
+| Command         | Key Binding | Purpose                |
+|-----------------+-------------+------------------------|
+| ~forward-char~  | =C-f=       | Forward character      |
+| ~backward-char~ | =C-b=       | Backward character     |
+| ~next-line~     | =C-n=       | Next (visual) line     |
+| ~previous-line~ | =C-p=       | Previous (visual) line |
+|-----------------+-------------+------------------------|
+
+*** Moving by Line
+|------------------+-------------------------|
+| Key Binding      | Purpose                 |
+|------------------+-------------------------|
+| =C-a= / =<home>= | Beginning of line       |
+| =C-e= / =<end>=  | End of line             |
+| =M-m=            | First character on line |
+|------------------+-------------------------|
+
+**** Lines
+- Visual :: physical lines; "what you see"
+- Screen :: identical to visual line
+- Logical :: buffer lines; opposite of visual or screen lines
+
+#+attr_texinfo: :options line-move-visual arg &optional noerror
+#+begin_defun
+  Move =ARG= lines forward.
+#+end_defun
+
+#+attr_texinfo: :options line-move-visual
+#+begin_defvar
+  When non-=nil=, ‘line-move’ moves point by /visual lines/.
+
+  If =nil=, ‘line-move’ moves point by /logical lines/.
+#+end_defvar
+
+**** Visual Line Mode
+A  minor mode  that  builds on  the  concept of  visual  lines with  additional
+functionality. *Visual Line Mode* wraps by word boundary resulting in “cleaner”
+word wrapping  like what you’d see  in a traditional word  processor. The minor
+mode will also disable the fringe indicators.
+
+Additionally,  *Visual Line  Mode* replaces  a number  of movement  and editing
+commands with  visual equivalents. =C-p=  and =C-n= will  behave as they  do in
+default Emacs installations with the ~line-move-visual~ option enabled.
+
+Furthermore, commands  like moving  to the  beginning and end  of a  line (with
+=C-a= and =C-e=) now work on visual lines instead of logical lines.
+
+The ~kill~ command (bound to =C-k=) will also work on visual lines.
+
+#+attr_texinfo: :options visual-line-mode &optional arg
+#+begin_defun
+  Toggle visual line-based editing (*Visual Line mode*) in the current buffer.
+
+  When *Visual Line mode* is enabled,  ‘word-wrap’ is turned on in this buffer,
+  and simple editing commands are redefined to act on visual lines, not logical
+  lines.
+#+end_defun
+
+#+attr_texinfo: :options global-visual-line-mode
+#+begin_defun
+  *Visual-Line mode* is enabled in all buffers where ‘turn-on-visual-line-mode’
+  would do it.
+#+end_defun
+
+#+attr_texinfo: :options toggle-truncate-lines &optional ARG
+#+begin_defun
+  When truncating is off, long lines are folded.
+#+end_defun
+
+*** Moving by Word and Paragraph
+|----------------------+---------------------+--------------------|
+| Command              | Key Binding         | Purpose            |
+|----------------------+---------------------+--------------------|
+| ~forward-word~       | =M-f= / =C-<left>=  | Forward word       |
+| ~backward-word~      | =M-b= / =C-<right>= | Backward word      |
+| ~forward-paragraph~  | =M-}=               | Next paragraph     |
+| ~backward-paragraph~ | =M-{=               | Previous paragraph |
+|----------------------+---------------------+--------------------|
+
+**** What Constitutes a Word
+
+#+cindex:syntax table
+Mode  writers make  assumptions  about the  nature  of the  text  in a  buffer.
+Different modes  require different assumptions  about text. Every  character is
+given a meaning by the mode author,  directly or indirectly, in a registry that
+maps the characters to a particular  syntactic meaning. This registry is called
+a /syntax table/.
+
+- Syntax Table ::
+
+  Every character ---  printable characters, including Unicode  code points ---
+  are given a meaning by the mode author, directly or indirectly, in a registry
+  that maps the characters to a  particular syntactic meaning. The syntax table
+  keeps track of things like, "What characters are used for comments?" or "What
+  characters make up  a word?" and, although obscured from  view, affects every
+  part of Emacs.
+
+  The syntax table alone decides the  makeup of a word (or symbol, punctuation,
+  comment, etc.) as a syntactic unit. So  when you move the point around on the
+  screen,  it  moves according  to  the  syntax  table  and the  general  rules
+  governing ~forward-word~ and ~backward-word~.
+
+  What sets Emacs apart  from other editors is that you  can inspect and change
+  the syntax table, which  in turn will affect how your  point moves across the
+  screen when you invoke certain commands.
+
+  You can view your current buffer’s syntax  table by typing =C-h s=. In it you
+  will see a human readable version of the characters and their assigned syntax
+  class.
+
+#+ATTR_texinfo: :options describe-syntax &optional buffer (C-h s)
+#+BEGIN_defun
+  Describe  the syntax  specifications in  the  syntax table  of =BUFFER=.  The
+  descriptions are inserted in a help buffer, which is then displayed.
+
+  - BUFFER :: defaults to the current buffer.
+#+END_defun
+
+Emacs will generally ignore non-word characters immediately following the point
+in the direction you are travelling.
+
+**** Sub- and Superword Movement---Glasses Mode
+#+cindex:camel case
+=Subword= mode ("camel case") is a buffer-local minor mode. Enabling it changes
+the definition of  a word so that word-based commands  stop inside symbols with
+mixed  uppercase and  lowercase letters,  e.g. "GtkWidget",  "EmacsFrameClass",
+"NSGraphicsContext".
+
+Here we  call these  mixed case symbols  ‘nomenclatures’. Each  capitalized (or
+completely uppercase) part of a nomenclature is called a ‘subword’.
+
+This  mode  changes the  definition  of  a word  so  that  word commands  treat
+nomenclature boundaries as word boundaries.
+
+#+ATTR_texinfo: :options subword-mode &optional arg
+#+BEGIN_defun
+  Toggle subword movement and editing (Subword mode).
+
+  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
+    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
+    mode if =ARG= is a negative number.
+#+END_defun
+
+#+cindex:snake case
+=Superword=  mode ("snake  case") is  a  buffer-local minor  mode. Enabling  it
+changes the  definition of words  such that  symbols characters are  treated as
+parts of  words: e.g.,  in ‘superword-mode’,  "this_is_a_symbol" counts  as one
+word.
+
+#+ATTR_texinfo: :options superword-mode &optional arg
+#+BEGIN_defun
+  Toggle superword movement and editing (Superword mode).
+
+  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
+    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
+    mode if =ARG= is a negative number.
+#+END_defun
+
+#+TEXINFO: @subheading Glasses Minor Mode
+
+#+ATTR_texinfo: :options glasses-mode &optional arg
+#+BEGIN_defun
+  Minor mode for making identifiers =likeThis= readable.
+
+  When  this  mode  is  active,  it  tries  to  add  virtual  separators  (like
+  underscores) at places they belong to.
+
+  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
+    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
+    mode if =ARG= is a negative number.
+#+END_defun
+
+#+TEXINFO: @heading Global Minor Modes
+
+#+ATTR_texinfo: :options global-subword-mode &optional arg
+#+BEGIN_defun
+#+TEXINFO: @defunx global-superword-mode &optional arg
+  Toggle Subword/Superword mode in all buffers.
+  - ARG :: If called from Lisp, enable the mode if ARG is omitted or nil.
+#+END_defun
+
+**** What Constitutes a Paragraph
+The paragraph commands rely on a set of variables that define the beginning and
+end of a paragraph:
+
+#+ATTR_texinfo: :options paragraph-start
+#+BEGIN_defvar
+  Regexp for  beginning of  a line  that starts  OR separates  paragraphs. This
+  regexp  should match  lines that  separate paragraphs  and should  also match
+  lines that start a paragraph (and are part of that paragraph).
+#+END_defvar
+
+#+ATTR_texinfo: :options paragraph-separate
+#+BEGIN_defvar
+  Regexp for beginning of a line that separates paragraphs.
+
+  This specifies how to distinguish lines that start paragraphs from lines that
+  separate them.
+#+END_defvar
+
+#+ATTR_texinfo: :options use-hard-newlines
+#+BEGIN_defvar
+  Non-nil   if   =Use-Hard-Newlines=  mode   is   enabled.   Use  the   command
+  ‘use-hard-newlines’ to change this variable.
+#+END_defvar
+
+#+ATTR_texinfo: :options use-hard-newlines &optional arg insert
+#+BEGIN_defun
+  Toggle between hard and soft newlines in the current buffer.
+
+  - hard newlines :: text-property ‘hard’ on newlines
+
+  - soft newlines  :: Newlines  not marked  "hard" are  called "soft",  and are
+    always internal  to paragraphs. The  fill functions insert and  delete only
+    soft newlines.
+
+  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
+    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
+    mode if =ARG= is a negative number.
+
+  - INSERT :: When  enabling, if there are  newlines in the buffer  but no hard
+    newlines, ask  the user whether  to mark as  hard any newlines  preceding a
+    ‘paragraph-start’  line.  From a  program,  second  arg =INSERT=  specifies
+    whether to do this;
+    - never :: to change nothing,
+    - t /  always  :: to force  marking, ‘guess’ to  try to do the  right thing
+      with no questions,
+    - nil :: or anything else to ask the user.
+
+  When enabled, the  functions ‘newline’ and ‘open-line’  add the text-property
+  ‘hard’ to  newlines that  they insert,  and a  line is  only considered  as a
+  candidate to match ‘paragraph-start’ or  ‘paragraph-separate’ if it follows a
+  hard newline.
+#+END_defun
+
+#+ATTR_texinfo: :options paragraph-indent-minor-mode &optional arg
+#+BEGIN_defun
+  *Minor mode* for editing text, with leading spaces starting a paragraph.
+
+  In this mode, you  do not need blank lines between  paragraphs when the first
+  line   of  the   following  paragraph   starts  with   whitespace,  as   with
+  ‘paragraph-indent-text-mode’.
+#+END_defun
+
+#+ATTR_texinfo: :options paragraph-indent-text-mode
+#+BEGIN_defun
+  *Major mode* for editing text, with leading spaces starting a paragraph.
+
+  In this mode, you  do not need blank lines between  paragraphs when the first
+  line of the following paragraph starts with whitespace.
+
+  - ~ispell-complete-word~ (=C-M-i=) ::
+
+    Try to complete the word before or at point.
+
+    - =INTERIOR-FRAG= ::  when non-nil,  the word may  be a  character sequence
+      inside of a word.
+#+END_defun
+
+*** Moving by Sentences
+|---------------------+-------------+------------------------------------|
+| Command             | Key Binding | Purpose                            |
+|---------------------+-------------+------------------------------------|
+| ~backward-sentence~ | =M-a=       | Move backward to start of sentence |
+| ~forward-sentence~  | =M-e=       | Move forward to end of sentence    |
+|                     |             |                                    |
+|---------------------+-------------+------------------------------------|
+
+#+ATTR_texinfo: :options sentence-end
+#+BEGIN_defvar
+  A regular expression that matches ends of sentences. Every paragraph boundary
+  terminates sentences as well. The value includes the whitespace following the
+  sentence.
+#+END_defvar
+
+#+ATTR_texinfo: :options sentence-end
+#+BEGIN_defun
+  Return the regexp describing the end of a sentence.
+
+  This function returns  either the value of the variable
+  - ‘sentence-end’ if it is   non-nil,  or
+  - the  default   value  constructed   from  the   variables
+    - ‘sentence-end-base’,
+    - ‘sentence-end-double-space’,
+    - ‘sentence-end-without-period’ and
+    - ‘sentence-end-without-space’.
+
+  The default value  specifies that in order  to be recognized as the  end of a
+  sentence,  the ending  period, question  mark, or  exclamation point  must be
+  followed by two spaces, with perhaps some closing delimiters in between.
+#+END_defun
+
+You can alter this behavior by customizing the following variables:
+
+- sentence-end-double-space ::  non-nil means a  single space does *not*  end a
+  sentence
+- sentence-end-without-period ::  non-nil means a  sentence will end  without a
+  period
+- sentence-end-without-space ::  a string  of characgters  that end  a sentence
+  /without/ requiring spaces after
+
+*** Moving by S-Expression
+|--------------------+-------------+----------------------------------|
+| Command            | Key Binding | Purpose                          |
+|--------------------+-------------+----------------------------------|
+| ~forward-sexp~     | =C-M-f=     | Move forward by sexp             |
+| ~backward-sexp~    | =C-M-b=     | Move backward by sexp            |
+| ~down-list~        | =C-M-d=     | Move down into list              |
+|                    | =<ESC> C-d= |                                  |
+| ~backward-up-list~ | =C-M-u=     | Move up out of a list            |
+| ~forward-list~     | =C-M=n=     | Move forward to next list =(..)= |
+| ~backward-list~    | =C-M=p=     | Move backward to previous list   |
+|--------------------+-------------+----------------------------------|
+
+- =sexp= :: is a Lisp term that covers a wide range of commands that operate on
+  /balanced expressions/.
+
+- balanced expressions :: can span multiple lines; can consist of:
+
+  - strings :: are balanced expressions that begin and end with ="= or ='=.
+
+  - brackets  :: are  balanced expressions  that  have defined  open and  close
+    characters:
+    - =[ ]=
+    - =( )=
+    - ={ }=
+    - =< >=
+
+*** Moving by Defun
+|----------------------+-------------+----------------------------|
+| Command              | Key Binding | Purpose                    |
+|----------------------+-------------+----------------------------|
+| ~beginning of defun~ | =C-M-a=     | Move to beginning of defun |
+| ~end-of-defun~       | =C-M-e=     | Move to end of defun       |
+|----------------------+-------------+----------------------------|
+
+The ~defun~ commands move to the logical beginning or end of the function point
+is in.  =function= is really a rather loose term.
+
+*** Moving by Pages
+| Command          | Key Binding | Purpose                                     |
+|------------------+-------------+---------------------------------------------|
+| ~forward-page~   | =C-x ]=     | Move forward to page boundary               |
+| ~backward-page~  | =C-x [=     | Move backward to page boundary              |
+| ~mark-page~      | =C-x C-p=   | Put mark at end of page, point at beginning |
+| ~narrow-to-page~ | =C-x n p=   | Mark text outside page invisible.           |
+|------------------+-------------+---------------------------------------------|
+
+A  =page= is  anything  delimited  by the  character  defined  in the  variable
+=page-delimiter=, which  defaults to the control  code =^L=, also known  as the
+ASCII control code =form feed=.
+
+In some LISP circles, it is common to group things by *pages* and as Emacs has
+close ties to the LISP community it comes with a battery of commands to
+interact with pages.
+
+*** Scrolling
+| Command                   | Key Binding       | Purpose                      |
+|---------------------------+-------------------+------------------------------|
+| ~scroll-up-command~       | =C-v= / =<prior>= | Scroll text upward           |
+| ~scroll-down-command~     | =M-v= / =<next>=  | Scroll text downward         |
+| ~scroll-other-window~     | =C-M-v=           | Scroll other window upward   |
+| ~scrol-other-window-down~ | =C-M-S-v=         | Scroll other window downward |
+|                           | =C-M- - C-M-v=    |                              |
+| ~scroll-left~             | =C-x <=           | Scroll window display left   |
+| ~scroll-right~            | =C-x >=           | Scroll window display right  |
+| ~beginning-of-buffer~     | =M-<=             | Move to beginning of buffer  |
+| ~end-of-buffer~           | =M->=             | Moving to end of buffer      |
+|---------------------------+-------------------+------------------------------|
+
+#+ATTR_texinfo: :options next-screen-context-lines
+#+BEGIN_defvar
+  Number of lines of continuity when scrolling by screenfuls.
+#+END_defvar
+
+** Bookmarks and Registers
+
+[[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#index-bookmarks-559][Bookmarks in Manual §13.8]]
+
+/Bookmarks/ record positions you can jump to.  They have long names, and they
+persist automatically from one Emacs session to the next.  The prototypical use
+of bookmarks is to record where you were reading in various files.
+
+#+cindex:bookmark
+Bookmarks in Emacs work identically to the ones in your web browser but with
+the notable exception of supporting a wider variety of sources.  That makes
+Emacs’s bookmarking system flexible enough for you to bookmark:
+
+- info pages
+- files
+- dired directories
+- remote files using Emacs' Tramp system
+
+
+Bookmarks are a very efficient way of jumping to frequently-used files or
+directories; it is also useful if there are sections of Emacs’s manual that you
+want to return to frequently.  And because of the unified nature of Emacs ---
+buffers --- the three are seamlessly stored and recalled from the same list of
+bookmarks.
+
+#+cindex:bookmark file
+Bookmarks are saved to a bookmark file in ~$HOME/.emacs.d/~ called ~bookmarks~.
+
+#+texinfo:@heading Bookmark File
+
+#+vindex:bookmark-default-file
+The variable ~bookmark-default-file~ determines where Emacs stores your
+bookmarks.
+
+#+cindex:s-expression
+The file is plain text (elisp =s-expressions=, actually) meaning it is possible
+edit it manually (if you absolutely must) or merge the files if you regularly
+add or remove bookmarks from multiple machines.
+
+Here is a sample entry:
+
+#+begin_src elisp :eval never
+("mastering-emacs.org"
+ (filename . "~/Dev/Emacs/MasteringEmacs/MasteringEmacs.org")
+ (front-context-string . "# -*- mode: org;")
+ (rear-context-string)
+ (position . 1))
+#+end_src
+
+#+texinfo:@heading Bookmark Commands
+
+#+caption: Bookmark Commands
+#+name:bookmark-commands
+|-------------+---------------------|
+| Key Binding | Purpose             |
+|-------------+---------------------|
+| C-x r m     | Set a bookmark      |
+| C-x r l     | List bookmarks      |
+| C-x r b     | Jump to a bookmark  |
+|-------------+---------------------|
+
+#+texinfo:@heading Register Commands
+
+#+cindex:register
+Registers, however, are different; they are the flip side of the coin --- where
+bookmarks are permanent, registers are transient.  A /register/ is a
+single-character store-and-recall mechanism for several types of data,
+including:
+
+- Window configurations and framesets
+- Points
+- Numbers and Text
+
+
+A register is a single character only.  When you want to store or recall
+something, you are asked for a single character to query.
+
+#+caption:Register Commands
+#+name:register-commands
+|-------------+----------------------------------------|
+| Key Binding | Purpose                                |
+|-------------+----------------------------------------|
+| C-x r n     | Store number in register               |
+| C-x r s     | Store region in register               |
+| C-x r SPC   | Store point in register                |
+| C-x r +     | Increment number in register           |
+| C-x r j     | Jumpt to register                      |
+| C-x r i     | Insert content in register             |
+| C-x r w     | Store window configuration in register |
+| C-x r f     | Store frameset in register             |
+|-------------+----------------------------------------|
+
+** Selections and Regions
+
+** Searching and Indexing
+
+** Other Movement Commands
 * Directories---Files---Buffers
 ** File Directories
 A /directory listing/ is a list of all the files in a directory.
@@ -4946,677 +5616,6 @@ Visiting the file is not necessary and takes longer.
        REPLACE is non-nil, the second return value is the number of characters
        that replace previous buffer contents.
      #+end_defun
-* Movement
-
-Movement in Emacs is more than characters in a buffer; there’s a host of
-supplementary skills that make up navigation, like:
-
-#+cindex:windowing system
-- understanding Emacs’s rather complicated windowing system
-
-- movement in Emacs is /local/, /regional/ or /global/.
-  #+cindex:local movement
-- /local movement/ is what you do when you edit and move around text near to
-  the point.
-  #+cindex:syntactic unit
-- A /syntactic unit/ --- a semi-formal term for commands that operate on a
-  group of characters --- is a character, word, line, sentence, paragraph,
-  balanced expression, and so forth.
-  #+cindex:regional movement
-- /regional movement/ involves whole functions or class definitions, if you are
-  writing code; or chapters and such constructs, if you are writing prose.
-  #+cindex:global movement
-- /global movement/ is anything that takes you from one buffer to another, or
-  from one window to the next.
-
-#+texinfo:@heading Windows
-
-#+cindex:windows
-#+cindex:tiling window manager
-Emacs has a penchant for creating windows: when you view a help file, when you
-compile a file, or when you open a shell.  Emacs is a /tiling window manager/.
-
-In Emacs, windows are transient; they come and go as you need them.  You can
-save your window configuration (and there are several ways of doing this) but
-they were never meant to be immutable, like so many editors --- set once and
-then never changed again.
-
-#+texinfo:@heading Buffers
-
-#+cindex:buffers
-Buffers are rarely killed (that is, closed) when they are no longer needed;
-most Emacs hackers will simply switch away to something else, only to return to
-it when needed.  That may seem wasteful, but each buffer (aside from assorted
-metadata and the buffer’s particular coding system) is only slightly bigger
-than the byte size of the characters in it.  A typical Emacs session lasts
-weeks between restarts and most Emacs hackers have many hundreds of buffers
-running without issue.
-
-** List of Syntactical Elements
-- =char= ::
-
-  - ~left-char~ (=C-f=), ~right-char~ (=C-b=)
-
-- =word= ::
-
-  - ~forward-word~ (=M-f=) (=C-<right>=), ~backward-word~ (=M-b=) (=C-<left>=)
-
-- =line= ::
-
-  #+findex:line-move-visual
-  #+cindex:logical line
-  #+cindex:Visual Line Mode
-  #+cindex:visual line
-  #+findex:toggle-truncate-lines
-  #+findex:toggle-word-wrap
-  - *visual*, *screen* --- what you see; the default way to move
-    - =Visual Line Mode= wraps by /word boundaries/
-    - =M-x customize-option RET global-visual-line-mode=
-  - *logical* --- what Emacs sees
-    - =M-x customize-option RET line-move-visual nil= --- move by logical lines
-    - ~toggle-truncate-lines~
-    - ~toggle-word-wrap~
-
-  - ~next-line~ (=C-n=), ~previous-line~ (=C-p=)
-  - ~beginning-of-line~ (=C-a=) (=<home>=), ~end-of-line~ (=C-e=) (=<end>=)
-  - ~forward-line~
-  - ~back-to-indentation~ (=M-m=)
-
-** The Basics
-Learning the basic key bindings to:
-
-- find and save files,
-- change buffers, and
-- the bare essentials of day-to-day use
-
-
-{{{noindent}}}is the first step on the path to mastering Emacs.
-
-#+caption:Basic Commands
-#+name:basic-commands
-| Key Binding | Command                      | Purpose                                     |
-|-------------+------------------------------+---------------------------------------------|
-| C-x C-f     | ~find-file~                  | Find and open a file                        |
-| C-x C-s     | ~save-buffer~                | Save the buffer                             |
-| C-x b       | ~switch-to-buffer~           | Switch buffer                               |
-| C-x k       | ~kill-buffer~                | Kill (close) a buffer                       |
-| C-x C-b     | ~list-buffers~               | Display all open buffers                    |
-| C-x C-c     | ~save-buffers-kill-terminal~ | Exit Emacs                                  |
-| esc-esc-esc | ~keyboard-escape-quit~       | Exit the current mode; return to one window |
-| C-/         | ~undo~                       | Undo changes                                |
-| F-10        | ~menu-bar-open~              | Activate the menu bar                       |
-|-------------+------------------------------+---------------------------------------------|
-
-*** find-file =C-x C-f=
-#+findex:find-file
-To *open* a file is to /find/ or /visit/ it.  The two are synonymous.  If the
-file does not exist, Emacs will open an empty buffer associated with that
-filename.  If the file exists, Emacs will place the contents into a buffer
-associated with that filename.
-
-#+texinfo:@heading Major Mode Load Order
-
-When you visit a file, Emacs will pick a major mode.  Emacs supports an array
-of detection mechanisms that can all be changed to suit your needs.  They are
-listed here in the order they are applied.
-
-**** File-local variables
-
-**** Program loader directives
-
-**** Magic mode detection
-
-**** Automatic mode detection
-
-*** Coding Systems and Line Endings
-Emacs applies two other important heuristics you should know about:
-- coding systems and
-- line endings.
-
-**** Coding Systems
-#+cindex:coding system
-Emacs has excellent Unicode support, including:
-- transparently reading and writing between different coding systems,
-- bidirectional right-to-left script support,
-- keyboard input method switching, and more.
-
-
-#+findex:describe-coding-system
-- ~describe-coding-system~ (=C-h C=) ::
-
-  To see the coding system in use for the current buffer.  Emacs will display a
-  lot of information, including all the coding systems associated with the
-  buffer.  For files, they are almost always set to the same coding system.
-
-
-The modeline will also provide some information:
-
-: U:**-  helloworld.c       92% of 5k   ...
-
-#+cindex:multi-byte
-The first character, =U=, means the buffer ~helloworld.c~ has a *multi-byte*
-coding system.
-
-#+cindex:ISO character encoding
-If it said =1=, it would typically be part 1 of any number of ISO character
-encodings.  The exact mnemonic will depend on which of the hundreds of
-supported coding systems you are using.
-
-**** Line Endings
-#+cindex:line endings
-When you open a file, Emacs will determine the line endings used.
-
-#+cindex:DOS line endings
-#+cindex:UNIX line endings
-If the file uses DOS or UNIX line endings, they will be preserved when you open
-and save a file.
-
-The modeline will tell you what line ending you are using:
-
-: U:**-  helloworld.c       92% of 5k   ...
-
-The : means it’s UNIX-style line endings.  For DOS it would say =(DOS)=.
-
-** Window Management
-
-** Frame Management
-
-** Elemental Movement
-
-*** Navigation Keys---Arrow Keys Etc
-Arrow keys move  by character; can combine the arrow  keys with the =<control>=
-key to move by word.
-
-- =<left>=, =C-<left>=
-- =<right>=, =C-<right>=
-- =<up>=, =C-<up>=
-- =<down>=, =C-<down>=
-- =<insert>=: activate =overwrite-mode=
-- =<delete>=: delete character after point
-- =<prior>=, =<next>=: Page-up, Page-down move by full page
-- =<home>=, =<end>=: Move to beginning, end of  line
-
-#+attr_texinfo: :options next-screen-context-lines
-#+begin_defvar
-Variable  controlling  number   of  lines  of  continuity   when  scrolling  by
-screenfuls; default is 2.
-#+end_defvar
-
-*** Moving by Character
-|-----------------+-------------+------------------------|
-| Command         | Key Binding | Purpose                |
-|-----------------+-------------+------------------------|
-| ~forward-char~  | =C-f=       | Forward character      |
-| ~backward-char~ | =C-b=       | Backward character     |
-| ~next-line~     | =C-n=       | Next (visual) line     |
-| ~previous-line~ | =C-p=       | Previous (visual) line |
-|-----------------+-------------+------------------------|
-
-*** Moving by Line
-|------------------+-------------------------|
-| Key Binding      | Purpose                 |
-|------------------+-------------------------|
-| =C-a= / =<home>= | Beginning of line       |
-| =C-e= / =<end>=  | End of line             |
-| =M-m=            | First character on line |
-|------------------+-------------------------|
-
-**** Lines
-- Visual :: physical lines; "what you see"
-- Screen :: identical to visual line
-- Logical :: buffer lines; opposite of visual or screen lines
-
-#+attr_texinfo: :options line-move-visual arg &optional noerror
-#+begin_defun
-  Move =ARG= lines forward.
-#+end_defun
-
-#+attr_texinfo: :options line-move-visual
-#+begin_defvar
-  When non-=nil=, ‘line-move’ moves point by /visual lines/.
-
-  If =nil=, ‘line-move’ moves point by /logical lines/.
-#+end_defvar
-
-**** Visual Line Mode
-A  minor mode  that  builds on  the  concept of  visual  lines with  additional
-functionality. *Visual Line Mode* wraps by word boundary resulting in “cleaner”
-word wrapping  like what you’d see  in a traditional word  processor. The minor
-mode will also disable the fringe indicators.
-
-Additionally,  *Visual Line  Mode* replaces  a number  of movement  and editing
-commands with  visual equivalents. =C-p=  and =C-n= will  behave as they  do in
-default Emacs installations with the ~line-move-visual~ option enabled.
-
-Furthermore, commands  like moving  to the  beginning and end  of a  line (with
-=C-a= and =C-e=) now work on visual lines instead of logical lines.
-
-The ~kill~ command (bound to =C-k=) will also work on visual lines.
-
-#+attr_texinfo: :options visual-line-mode &optional arg
-#+begin_defun
-  Toggle visual line-based editing (*Visual Line mode*) in the current buffer.
-
-  When *Visual Line mode* is enabled,  ‘word-wrap’ is turned on in this buffer,
-  and simple editing commands are redefined to act on visual lines, not logical
-  lines.
-#+end_defun
-
-#+attr_texinfo: :options global-visual-line-mode
-#+begin_defun
-  *Visual-Line mode* is enabled in all buffers where ‘turn-on-visual-line-mode’
-  would do it.
-#+end_defun
-
-#+attr_texinfo: :options toggle-truncate-lines &optional ARG
-#+begin_defun
-  When truncating is off, long lines are folded.
-#+end_defun
-
-*** Moving by Word and Paragraph
-|----------------------+---------------------+--------------------|
-| Command              | Key Binding         | Purpose            |
-|----------------------+---------------------+--------------------|
-| ~forward-word~       | =M-f= / =C-<left>=  | Forward word       |
-| ~backward-word~      | =M-b= / =C-<right>= | Backward word      |
-| ~forward-paragraph~  | =M-}=               | Next paragraph     |
-| ~backward-paragraph~ | =M-{=               | Previous paragraph |
-|----------------------+---------------------+--------------------|
-
-**** What Constitutes a Word
-
-#+cindex:syntax table
-Mode  writers make  assumptions  about the  nature  of the  text  in a  buffer.
-Different modes  require different assumptions  about text. Every  character is
-given a meaning by the mode author,  directly or indirectly, in a registry that
-maps the characters to a particular  syntactic meaning. This registry is called
-a /syntax table/.
-
-- Syntax Table ::
-
-  Every character ---  printable characters, including Unicode  code points ---
-  are given a meaning by the mode author, directly or indirectly, in a registry
-  that maps the characters to a  particular syntactic meaning. The syntax table
-  keeps track of things like, "What characters are used for comments?" or "What
-  characters make up  a word?" and, although obscured from  view, affects every
-  part of Emacs.
-
-  The syntax table alone decides the  makeup of a word (or symbol, punctuation,
-  comment, etc.) as a syntactic unit. So  when you move the point around on the
-  screen,  it  moves according  to  the  syntax  table  and the  general  rules
-  governing ~forward-word~ and ~backward-word~.
-
-  What sets Emacs apart  from other editors is that you  can inspect and change
-  the syntax table, which  in turn will affect how your  point moves across the
-  screen when you invoke certain commands.
-
-  You can view your current buffer’s syntax  table by typing =C-h s=. In it you
-  will see a human readable version of the characters and their assigned syntax
-  class.
-
-#+ATTR_texinfo: :options describe-syntax &optional buffer (C-h s)
-#+BEGIN_defun
-  Describe  the syntax  specifications in  the  syntax table  of =BUFFER=.  The
-  descriptions are inserted in a help buffer, which is then displayed.
-
-  - BUFFER :: defaults to the current buffer.
-#+END_defun
-
-Emacs will generally ignore non-word characters immediately following the point
-in the direction you are travelling.
-
-**** Sub- and Superword Movement---Glasses Mode
-#+cindex:camel case
-=Subword= mode ("camel case") is a buffer-local minor mode. Enabling it changes
-the definition of  a word so that word-based commands  stop inside symbols with
-mixed  uppercase and  lowercase letters,  e.g. "GtkWidget",  "EmacsFrameClass",
-"NSGraphicsContext".
-
-Here we  call these  mixed case symbols  ‘nomenclatures’. Each  capitalized (or
-completely uppercase) part of a nomenclature is called a ‘subword’.
-
-This  mode  changes the  definition  of  a word  so  that  word commands  treat
-nomenclature boundaries as word boundaries.
-
-#+ATTR_texinfo: :options subword-mode &optional arg
-#+BEGIN_defun
-  Toggle subword movement and editing (Subword mode).
-
-  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
-    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
-    mode if =ARG= is a negative number.
-#+END_defun
-
-#+cindex:snake case
-=Superword=  mode ("snake  case") is  a  buffer-local minor  mode. Enabling  it
-changes the  definition of words  such that  symbols characters are  treated as
-parts of  words: e.g.,  in ‘superword-mode’,  "this_is_a_symbol" counts  as one
-word.
-
-#+ATTR_texinfo: :options superword-mode &optional arg
-#+BEGIN_defun
-  Toggle superword movement and editing (Superword mode).
-
-  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
-    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
-    mode if =ARG= is a negative number.
-#+END_defun
-
-#+TEXINFO: @subheading Glasses Minor Mode
-
-#+ATTR_texinfo: :options glasses-mode &optional arg
-#+BEGIN_defun
-  Minor mode for making identifiers =likeThis= readable.
-
-  When  this  mode  is  active,  it  tries  to  add  virtual  separators  (like
-  underscores) at places they belong to.
-
-  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
-    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
-    mode if =ARG= is a negative number.
-#+END_defun
-
-#+TEXINFO: @heading Global Minor Modes
-
-#+ATTR_texinfo: :options global-subword-mode &optional arg
-#+BEGIN_defun
-#+TEXINFO: @defunx global-superword-mode &optional arg
-  Toggle Subword/Superword mode in all buffers.
-  - ARG :: If called from Lisp, enable the mode if ARG is omitted or nil.
-#+END_defun
-
-**** What Constitutes a Paragraph
-The paragraph commands rely on a set of variables that define the beginning and
-end of a paragraph:
-
-#+ATTR_texinfo: :options paragraph-start
-#+BEGIN_defvar
-  Regexp for  beginning of  a line  that starts  OR separates  paragraphs. This
-  regexp  should match  lines that  separate paragraphs  and should  also match
-  lines that start a paragraph (and are part of that paragraph).
-#+END_defvar
-
-#+ATTR_texinfo: :options paragraph-separate
-#+BEGIN_defvar
-  Regexp for beginning of a line that separates paragraphs.
-
-  This specifies how to distinguish lines that start paragraphs from lines that
-  separate them.
-#+END_defvar
-
-#+ATTR_texinfo: :options use-hard-newlines
-#+BEGIN_defvar
-  Non-nil   if   =Use-Hard-Newlines=  mode   is   enabled.   Use  the   command
-  ‘use-hard-newlines’ to change this variable.
-#+END_defvar
-
-#+ATTR_texinfo: :options use-hard-newlines &optional arg insert
-#+BEGIN_defun
-  Toggle between hard and soft newlines in the current buffer.
-
-  - hard newlines :: text-property ‘hard’ on newlines
-
-  - soft newlines  :: Newlines  not marked  "hard" are  called "soft",  and are
-    always internal  to paragraphs. The  fill functions insert and  delete only
-    soft newlines.
-
-  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
-    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
-    mode if =ARG= is a negative number.
-
-  - INSERT :: When  enabling, if there are  newlines in the buffer  but no hard
-    newlines, ask  the user whether  to mark as  hard any newlines  preceding a
-    ‘paragraph-start’  line.  From a  program,  second  arg =INSERT=  specifies
-    whether to do this;
-    - never :: to change nothing,
-    - t /  always  :: to force  marking, ‘guess’ to  try to do the  right thing
-      with no questions,
-    - nil :: or anything else to ask the user.
-
-  When enabled, the  functions ‘newline’ and ‘open-line’  add the text-property
-  ‘hard’ to  newlines that  they insert,  and a  line is  only considered  as a
-  candidate to match ‘paragraph-start’ or  ‘paragraph-separate’ if it follows a
-  hard newline.
-#+END_defun
-
-#+ATTR_texinfo: :options paragraph-indent-minor-mode &optional arg
-#+BEGIN_defun
-  *Minor mode* for editing text, with leading spaces starting a paragraph.
-
-  In this mode, you  do not need blank lines between  paragraphs when the first
-  line   of  the   following  paragraph   starts  with   whitespace,  as   with
-  ‘paragraph-indent-text-mode’.
-#+END_defun
-
-#+ATTR_texinfo: :options paragraph-indent-text-mode
-#+BEGIN_defun
-  *Major mode* for editing text, with leading spaces starting a paragraph.
-
-  In this mode, you  do not need blank lines between  paragraphs when the first
-  line of the following paragraph starts with whitespace.
-
-  - ~ispell-complete-word~ (=C-M-i=) ::
-
-    Try to complete the word before or at point.
-
-    - =INTERIOR-FRAG= ::  when non-nil,  the word may  be a  character sequence
-      inside of a word.
-#+END_defun
-
-*** Moving by Sentences
-|---------------------+-------------+------------------------------------|
-| Command             | Key Binding | Purpose                            |
-|---------------------+-------------+------------------------------------|
-| ~backward-sentence~ | =M-a=       | Move backward to start of sentence |
-| ~forward-sentence~  | =M-e=       | Move forward to end of sentence    |
-|                     |             |                                    |
-|---------------------+-------------+------------------------------------|
-
-#+ATTR_texinfo: :options sentence-end
-#+BEGIN_defvar
-  A regular expression that matches ends of sentences. Every paragraph boundary
-  terminates sentences as well. The value includes the whitespace following the
-  sentence.
-#+END_defvar
-
-#+ATTR_texinfo: :options sentence-end
-#+BEGIN_defun
-  Return the regexp describing the end of a sentence.
-
-  This function returns  either the value of the variable
-  - ‘sentence-end’ if it is   non-nil,  or
-  - the  default   value  constructed   from  the   variables
-    - ‘sentence-end-base’,
-    - ‘sentence-end-double-space’,
-    - ‘sentence-end-without-period’ and
-    - ‘sentence-end-without-space’.
-
-  The default value  specifies that in order  to be recognized as the  end of a
-  sentence,  the ending  period, question  mark, or  exclamation point  must be
-  followed by two spaces, with perhaps some closing delimiters in between.
-#+END_defun
-
-You can alter this behavior by customizing the following variables:
-
-- sentence-end-double-space ::  non-nil means a  single space does *not*  end a
-  sentence
-- sentence-end-without-period ::  non-nil means a  sentence will end  without a
-  period
-- sentence-end-without-space ::  a string  of characgters  that end  a sentence
-  /without/ requiring spaces after
-
-*** Moving by S-Expression
-|--------------------+-------------+----------------------------------|
-| Command            | Key Binding | Purpose                          |
-|--------------------+-------------+----------------------------------|
-| ~forward-sexp~     | =C-M-f=     | Move forward by sexp             |
-| ~backward-sexp~    | =C-M-b=     | Move backward by sexp            |
-| ~down-list~        | =C-M-d=     | Move down into list              |
-|                    | =<ESC> C-d= |                                  |
-| ~backward-up-list~ | =C-M-u=     | Move up out of a list            |
-| ~forward-list~     | =C-M=n=     | Move forward to next list =(..)= |
-| ~backward-list~    | =C-M=p=     | Move backward to previous list   |
-|--------------------+-------------+----------------------------------|
-
-- =sexp= :: is a Lisp term that covers a wide range of commands that operate on
-  /balanced expressions/.
-
-- balanced expressions :: can span multiple lines; can consist of:
-
-  - strings :: are balanced expressions that begin and end with ="= or ='=.
-
-  - brackets  :: are  balanced expressions  that  have defined  open and  close
-    characters:
-    - =[ ]=
-    - =( )=
-    - ={ }=
-    - =< >=
-
-*** Moving by Defun
-|----------------------+-------------+----------------------------|
-| Command              | Key Binding | Purpose                    |
-|----------------------+-------------+----------------------------|
-| ~beginning of defun~ | =C-M-a=     | Move to beginning of defun |
-| ~end-of-defun~       | =C-M-e=     | Move to end of defun       |
-|----------------------+-------------+----------------------------|
-
-The ~defun~ commands move to the logical beginning or end of the function point
-is in.  =function= is really a rather loose term.
-
-*** Moving by Pages
-| Command          | Key Binding | Purpose                                     |
-|------------------+-------------+---------------------------------------------|
-| ~forward-page~   | =C-x ]=     | Move forward to page boundary               |
-| ~backward-page~  | =C-x [=     | Move backward to page boundary              |
-| ~mark-page~      | =C-x C-p=   | Put mark at end of page, point at beginning |
-| ~narrow-to-page~ | =C-x n p=   | Mark text outside page invisible.           |
-|------------------+-------------+---------------------------------------------|
-
-A  =page= is  anything  delimited  by the  character  defined  in the  variable
-=page-delimiter=, which  defaults to the control  code =^L=, also known  as the
-ASCII control code =form feed=.
-
-In some LISP circles, it is common to group things by *pages* and as Emacs has
-close ties to the LISP community it comes with a battery of commands to
-interact with pages.
-
-*** Scrolling
-| Command                   | Key Binding       | Purpose                      |
-|---------------------------+-------------------+------------------------------|
-| ~scroll-up-command~       | =C-v= / =<prior>= | Scroll text upward           |
-| ~scroll-down-command~     | =M-v= / =<next>=  | Scroll text downward         |
-| ~scroll-other-window~     | =C-M-v=           | Scroll other window upward   |
-| ~scrol-other-window-down~ | =C-M-S-v=         | Scroll other window downward |
-|                           | =C-M- - C-M-v=    |                              |
-| ~scroll-left~             | =C-x <=           | Scroll window display left   |
-| ~scroll-right~            | =C-x >=           | Scroll window display right  |
-| ~beginning-of-buffer~     | =M-<=             | Move to beginning of buffer  |
-| ~end-of-buffer~           | =M->=             | Moving to end of buffer      |
-|---------------------------+-------------------+------------------------------|
-
-#+ATTR_texinfo: :options next-screen-context-lines
-#+BEGIN_defvar
-  Number of lines of continuity when scrolling by screenfuls.
-#+END_defvar
-
-** Bookmarks and Registers
-
-[[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#index-bookmarks-559][Bookmarks in Manual §13.8]]
-
-/Bookmarks/ record positions you can jump to.  They have long names, and they
-persist automatically from one Emacs session to the next.  The prototypical use
-of bookmarks is to record where you were reading in various files.
-
-#+cindex:bookmark
-Bookmarks in Emacs work identically to the ones in your web browser but with
-the notable exception of supporting a wider variety of sources.  That makes
-Emacs’s bookmarking system flexible enough for you to bookmark:
-
-- info pages
-- files
-- dired directories
-- remote files using Emacs' Tramp system
-
-
-Bookmarks are a very efficient way of jumping to frequently-used files or
-directories; it is also useful if there are sections of Emacs’s manual that you
-want to return to frequently.  And because of the unified nature of Emacs ---
-buffers --- the three are seamlessly stored and recalled from the same list of
-bookmarks.
-
-#+cindex:bookmark file
-Bookmarks are saved to a bookmark file in ~$HOME/.emacs.d/~ called ~bookmarks~.
-
-#+texinfo:@heading Bookmark File
-
-#+vindex:bookmark-default-file
-The variable ~bookmark-default-file~ determines where Emacs stores your
-bookmarks.
-
-#+cindex:s-expression
-The file is plain text (elisp =s-expressions=, actually) meaning it is possible
-edit it manually (if you absolutely must) or merge the files if you regularly
-add or remove bookmarks from multiple machines.
-
-Here is a sample entry:
-
-#+begin_src elisp :eval never
-("mastering-emacs.org"
- (filename . "~/Dev/Emacs/MasteringEmacs/MasteringEmacs.org")
- (front-context-string . "# -*- mode: org;")
- (rear-context-string)
- (position . 1))
-#+end_src
-
-#+texinfo:@heading Bookmark Commands
-
-#+caption: Bookmark Commands
-#+name:bookmark-commands
-|-------------+---------------------|
-| Key Binding | Purpose             |
-|-------------+---------------------|
-| C-x r m     | Set a bookmark      |
-| C-x r l     | List bookmarks      |
-| C-x r b     | Jump to a bookmark  |
-|-------------+---------------------|
-
-#+texinfo:@heading Register Commands
-
-#+cindex:register
-Registers, however, are different; they are the flip side of the coin --- where
-bookmarks are permanent, registers are transient.  A /register/ is a
-single-character store-and-recall mechanism for several types of data,
-including:
-
-- Window configurations and framesets
-- Points
-- Numbers and Text
-
-
-A register is a single character only.  When you want to store or recall
-something, you are asked for a single character to query.
-
-#+caption:Register Commands
-#+name:register-commands
-|-------------+----------------------------------------|
-| Key Binding | Purpose                                |
-|-------------+----------------------------------------|
-| C-x r n     | Store number in register               |
-| C-x r s     | Store region in register               |
-| C-x r SPC   | Store point in register                |
-| C-x r +     | Increment number in register           |
-| C-x r j     | Jumpt to register                      |
-| C-x r i     | Insert content in register             |
-| C-x r w     | Store window configuration in register |
-| C-x r f     | Store frameset in register             |
-|-------------+----------------------------------------|
-
-** Selections and Regions
-
-** Searching and Indexing
-
-** Other Movement Commands
-
 * Editing
 ** Killing and Yanking
 
