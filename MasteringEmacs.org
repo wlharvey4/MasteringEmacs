@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-31 20:40
-#+macro:version Version 0.0.191
+#+date:2021-01-31 22:49
+#+macro:version Version 0.0.192
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -5143,16 +5143,16 @@ screenfuls; default is 2.
 #+end_defvar
 
 *** Moving by Character
-|-------------+------------------------|
-| Key Binding | Purpose                |
-|-------------+------------------------|
-| =C-f=       | Forward character      |
-| =C-b=       | Backward character     |
-| =C-p=       | Previous (visual) line |
-| =C-n=       | Next (visual) line     |
-|-------------+------------------------|
+|-----------------+-------------+------------------------|
+| Command         | Key Binding | Purpose                |
+|-----------------+-------------+------------------------|
+| ~forward-char~  | =C-f=       | Forward character      |
+| ~backward-char~ | =C-b=       | Backward character     |
+| ~next-line~     | =C-n=       | Next (visual) line     |
+| ~previous-line~ | =C-p=       | Previous (visual) line |
+|-----------------+-------------+------------------------|
 
-*** Moving By Line
+*** Moving by Line
 |------------------+-------------------------|
 | Key Binding      | Purpose                 |
 |------------------+-------------------------|
@@ -5213,13 +5213,15 @@ The ~kill~ command (bound to =C-k=) will also work on visual lines.
   When truncating is off, long lines are folded.
 #+end_defun
 
-*** Moving By Word
-|---------------------+---------------|
-| Key Binding         | Purpose       |
-|---------------------+---------------|
-| =M-f= / =C-<left>=  | Forward word  |
-| =M-b= / =C-<right>= | Backward word |
-|---------------------+---------------|
+*** Moving by Word and Paragraph
+|----------------------+---------------------+--------------------|
+| Command              | Key Binding         | Purpose            |
+|----------------------+---------------------+--------------------|
+| ~forward-word~       | =M-f= / =C-<left>=  | Forward word       |
+| ~backward-word~      | =M-b= / =C-<right>= | Backward word      |
+| ~forward-paragraph~  | =M-}=               | Next paragraph     |
+| ~backward-paragraph~ | =M-{=               | Previous paragraph |
+|----------------------+---------------------+--------------------|
 
 **** What Constitutes a Word
 
@@ -5323,11 +5325,199 @@ word.
   - ARG :: If called from Lisp, enable the mode if ARG is omitted or nil.
 #+END_defun
 
-*** Moving By S-Expression
+**** What Constitutes a Paragraph
+The paragraph commands rely on a set of variables that define the beginning and
+end of a paragraph:
 
-*** Other Movement Commands
+#+ATTR_texinfo: :options paragraph-start
+#+BEGIN_defvar
+  Regexp for  beginning of  a line  that starts  OR separates  paragraphs. This
+  regexp  should match  lines that  separate paragraphs  and should  also match
+  lines that start a paragraph (and are part of that paragraph).
+#+END_defvar
+
+#+ATTR_texinfo: :options paragraph-separate
+#+BEGIN_defvar
+  Regexp for beginning of a line that separates paragraphs.
+
+  This specifies how to distinguish lines that start paragraphs from lines that
+  separate them.
+#+END_defvar
+
+#+ATTR_texinfo: :options use-hard-newlines
+#+BEGIN_defvar
+  Non-nil   if   =Use-Hard-Newlines=  mode   is   enabled.   Use  the   command
+  ‘use-hard-newlines’ to change this variable.
+#+END_defvar
+
+#+ATTR_texinfo: :options use-hard-newlines &optional arg insert
+#+BEGIN_defun
+  Toggle between hard and soft newlines in the current buffer.
+
+  - hard newlines :: text-property ‘hard’ on newlines
+
+  - soft newlines  :: Newlines  not marked  "hard" are  called "soft",  and are
+    always internal  to paragraphs. The  fill functions insert and  delete only
+    soft newlines.
+
+  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
+    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
+    mode if =ARG= is a negative number.
+
+  - INSERT :: When  enabling, if there are  newlines in the buffer  but no hard
+    newlines, ask  the user whether  to mark as  hard any newlines  preceding a
+    ‘paragraph-start’  line.  From a  program,  second  arg =INSERT=  specifies
+    whether to do this;
+    - never :: to change nothing,
+    - t /  always  :: to force  marking, ‘guess’ to  try to do the  right thing
+      with no questions,
+    - nil :: or anything else to ask the user.
+
+  When enabled, the  functions ‘newline’ and ‘open-line’  add the text-property
+  ‘hard’ to  newlines that  they insert,  and a  line is  only considered  as a
+  candidate to match ‘paragraph-start’ or  ‘paragraph-separate’ if it follows a
+  hard newline.
+#+END_defun
+
+#+ATTR_texinfo: :options paragraph-indent-minor-mode &optional arg
+#+BEGIN_defun
+  *Minor mode* for editing text, with leading spaces starting a paragraph.
+
+  In this mode, you  do not need blank lines between  paragraphs when the first
+  line   of  the   following  paragraph   starts  with   whitespace,  as   with
+  ‘paragraph-indent-text-mode’.
+#+END_defun
+
+#+ATTR_texinfo: :options paragraph-indent-text-mode
+#+BEGIN_defun
+  *Major mode* for editing text, with leading spaces starting a paragraph.
+
+  In this mode, you  do not need blank lines between  paragraphs when the first
+  line of the following paragraph starts with whitespace.
+
+  - ~ispell-complete-word~ (=C-M-i=) ::
+
+    Try to complete the word before or at point.
+
+    - =INTERIOR-FRAG= ::  when non-nil,  the word may  be a  character sequence
+      inside of a word.
+#+END_defun
+
+*** Moving by Sentences
+|---------------------+-------------+------------------------------------|
+| Command             | Key Binding | Purpose                            |
+|---------------------+-------------+------------------------------------|
+| ~backward-sentence~ | =M-a=       | Move backward to start of sentence |
+| ~forward-sentence~  | =M-e=       | Move forward to end of sentence    |
+|                     |             |                                    |
+|---------------------+-------------+------------------------------------|
+
+#+ATTR_texinfo: :options sentence-end
+#+BEGIN_defvar
+  A regular expression that matches ends of sentences. Every paragraph boundary
+  terminates sentences as well. The value includes the whitespace following the
+  sentence.
+#+END_defvar
+
+#+ATTR_texinfo: :options sentence-end
+#+BEGIN_defun
+  Return the regexp describing the end of a sentence.
+
+  This function returns  either the value of the variable
+  - ‘sentence-end’ if it is   non-nil,  or
+  - the  default   value  constructed   from  the   variables
+    - ‘sentence-end-base’,
+    - ‘sentence-end-double-space’,
+    - ‘sentence-end-without-period’ and
+    - ‘sentence-end-without-space’.
+
+  The default value  specifies that in order  to be recognized as the  end of a
+  sentence,  the ending  period, question  mark, or  exclamation point  must be
+  followed by two spaces, with perhaps some closing delimiters in between.
+#+END_defun
+
+You can alter this behavior by customizing the following variables:
+
+- sentence-end-double-space ::  non-nil means a  single space does *not*  end a
+  sentence
+- sentence-end-without-period ::  non-nil means a  sentence will end  without a
+  period
+- sentence-end-without-space ::  a string  of characgters  that end  a sentence
+  /without/ requiring spaces after
+
+*** Moving by S-Expression
+|--------------------+-------------+----------------------------------|
+| Command            | Key Binding | Purpose                          |
+|--------------------+-------------+----------------------------------|
+| ~forward-sexp~     | =C-M-f=     | Move forward by sexp             |
+| ~backward-sexp~    | =C-M-b=     | Move backward by sexp            |
+| ~down-list~        | =C-M-d=     | Move down into list              |
+|                    | =<ESC> C-d= |                                  |
+| ~backward-up-list~ | =C-M-u=     | Move up out of a list            |
+| ~forward-list~     | =C-M=n=     | Move forward to next list =(..)= |
+| ~backward-list~    | =C-M=p=     | Move backward to previous list   |
+|--------------------+-------------+----------------------------------|
+
+- =sexp= :: is a Lisp term that covers a wide range of commands that operate on
+  /balanced expressions/.
+
+- balanced expressions :: can span multiple lines; can consist of:
+
+  - strings :: are balanced expressions that begin and end with ="= or ='=.
+
+  - brackets  :: are  balanced expressions  that  have defined  open and  close
+    characters:
+    - =[ ]=
+    - =( )=
+    - ={ }=
+    - =< >=
+
+*** Moving by Defun
+|----------------------+-------------+----------------------------|
+| Command              | Key Binding | Purpose                    |
+|----------------------+-------------+----------------------------|
+| ~beginning of defun~ | =C-M-a=     | Move to beginning of defun |
+| ~end-of-defun~       | =C-M-e=     | Move to end of defun       |
+|----------------------+-------------+----------------------------|
+
+The ~defun~ commands move to the logical beginning or end of the function point
+is in.  =function= is really a rather loose term.
+
+*** Moving by Pages
+| Command          | Key Binding | Purpose                                     |
+|------------------+-------------+---------------------------------------------|
+| ~forward-page~   | =C-x ]=     | Move forward to page boundary               |
+| ~backward-page~  | =C-x [=     | Move backward to page boundary              |
+| ~mark-page~      | =C-x C-p=   | Put mark at end of page, point at beginning |
+| ~narrow-to-page~ | =C-x n p=   | Mark text outside page invisible.           |
+|------------------+-------------+---------------------------------------------|
+
+A  =page= is  anything  delimited  by the  character  defined  in the  variable
+=page-delimiter=, which  defaults to the control  code =^L=, also known  as the
+ASCII control code =form feed=.
+
+In some LISP circles, it is common to group things by *pages* and as Emacs has
+close ties to the LISP community it comes with a battery of commands to
+interact with pages.
 
 *** Scrolling
+| Command                   | Key Binding       | Purpose                      |
+|---------------------------+-------------------+------------------------------|
+| ~scroll-up-command~       | =C-v= / =<prior>= | Scroll text upward           |
+| ~scroll-down-command~     | =M-v= / =<next>=  | Scroll text downward         |
+| ~scroll-other-window~     | =C-M-v=           | Scroll other window upward   |
+| ~scrol-other-window-down~ | =C-M-S-v=         | Scroll other window downward |
+|                           | =C-M- - C-M-v=    |                              |
+| ~scroll-left~             | =C-x <=           | Scroll window display left   |
+| ~scroll-right~            | =C-x >=           | Scroll window display right  |
+| ~beginning-of-buffer~     | =M-<=             | Move to beginning of buffer  |
+| ~end-of-buffer~           | =M->=             | Moving to end of buffer      |
+|---------------------------+-------------------+------------------------------|
+
+#+ATTR_texinfo: :options next-screen-context-lines
+#+BEGIN_defvar
+  Number of lines of continuity when scrolling by screenfuls.
+#+END_defvar
 
 ** Bookmarks and Registers
 
