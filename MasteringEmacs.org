@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-31 22:52
-#+macro:version Version 0.0.193
+#+date:2021-02-01 00:06
+#+macro:version Version 0.0.194
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -2621,7 +2621,6 @@ The : means it’s UNIX-style line endings.  For DOS it would say =(DOS)=.
 ** Frame Management
 
 ** Elemental Movement
-
 *** Navigation Keys---Arrow Keys Etc
 Arrow keys move  by character; can combine the arrow  keys with the =<control>=
 key to move by word.
@@ -2641,24 +2640,55 @@ Variable  controlling  number   of  lines  of  continuity   when  scrolling  by
 screenfuls; default is 2.
 #+end_defvar
 
-*** Moving by Character
-|-----------------+-------------+------------------------|
-| Command         | Key Binding | Purpose                |
-|-----------------+-------------+------------------------|
-| ~forward-char~  | =C-f=       | Forward character      |
-| ~backward-char~ | =C-b=       | Backward character     |
-| ~next-line~     | =C-n=       | Next (visual) line     |
-| ~previous-line~ | =C-p=       | Previous (visual) line |
-|-----------------+-------------+------------------------|
+ *** Moving by Character
+|-----------------------+-------------+-------------------------------------------|
+| Command               | Key Binding | Purpose                                   |
+|-----------------------+-------------+-------------------------------------------|
+| ~forward-char~        | =C-f=       | Forward character                         |
+| ~backward-char~       | =C-b=       | Backward character                        |
+| ~next-line~           | =C-n=       | Next (visual) line                        |
+| ~previous-line~       | =C-p=       | Previous (visual) line                    |
+|-----------------------+-------------+-------------------------------------------|
+| ~point~               |             | return the value of point                 |
+| ~point-min~           |             | minimum possible value of point           |
+| ~point-max~           |             | maximum possible value of point           |
+| ~buffer-end~          |             | return the far-end position of buffer     |
+| ~buffer-size~         |             | return the number of characters in buffer |
+|-----------------------+-------------+-------------------------------------------|
+| ~goto-char~           |             | Set point to =POS=                        |
+| ~forward-char~        |             | Move point =COUNT= chars foward           |
+| ~backward-char~       |             | Move point =COUNT= chars backward         |
+|-----------------------+-------------+-------------------------------------------|
+| ~skip-chars-forward~  |             |                                           |
+| ~skip-chars-backward~ |             |                                           |
+|-----------------------+-------------+-------------------------------------------|
 
 *** Moving by Line
-|------------------+-------------------------|
-| Key Binding      | Purpose                 |
-|------------------+-------------------------|
-| =C-a= / =<home>= | Beginning of line       |
-| =C-e= / =<end>=  | End of line             |
-| =M-m=            | First character on line |
-|------------------+-------------------------|
+|---------------------------+------------------+-------------------------------------------------|
+| Command                   | Key Binding      | Purpose                                         |
+|---------------------------+------------------+-------------------------------------------------|
+| ~beginning-of-line~       | =C-a= / =<home>= | Beginning of line                               |
+| ~end-of-line~             | =C-e= / =<end>=  | End of line                                     |
+| ~back-to-indentation~     | =M-m=            | First character on line                         |
+| ~forward-line~            |                  | Move N lines forward (no error)                 |
+|                           |                  | Return COUNT of lines left to move              |
+| ~vertical-motion~         |                  | Moves point to start of the screen line         |
+|---------------------------+------------------+-------------------------------------------------|
+| ~line-beginning-position~ |                  | Return char pos of first character              |
+| ~line-end-position~       |                  | Return char pos of last character               |
+| ~count-lines~             |                  | Return no. lines between START and END          |
+| ~line-number-at-pos~      |                  | Return line number of posotion POS              |
+|---------------------------+------------------+-------------------------------------------------|
+| ~bolp~                    |                  | Return t if point is at the beginning of a line |
+| ~eolp~                    |                  | Return t if point point is at the end of a line |
+|---------------------------+------------------+-------------------------------------------------|
+
+Text  lines are  portions  of  the buffer  delimited  by =newline=  characters.
+=newline= characters are regarded as part of the previous line.
+
+The first text  line begins at the  beginning of the buffer, and  the last text
+line ends  at the end  of the buffer,  whether or not  the last character  is a
+newline.
 
 **** Lines
 - Visual :: physical lines; "what you see"
@@ -2713,14 +2743,15 @@ The ~kill~ command (bound to =C-k=) will also work on visual lines.
 #+end_defun
 
 *** Moving by Word and Paragraph
-|----------------------+---------------------+--------------------|
-| Command              | Key Binding         | Purpose            |
-|----------------------+---------------------+--------------------|
-| ~forward-word~       | =M-f= / =C-<left>=  | Forward word       |
-| ~backward-word~      | =M-b= / =C-<right>= | Backward word      |
-| ~forward-paragraph~  | =M-}=               | Next paragraph     |
-| ~backward-paragraph~ | =M-{=               | Previous paragraph |
-|----------------------+---------------------+--------------------|
+|----------------------+---------------------+----------------------------------------|
+| Command              | Key Binding         | Purpose                                |
+|----------------------+---------------------+----------------------------------------|
+| ~forward-word~       | =M-f= / =C-<left>=  | Forward word                           |
+| ~backward-word~      | =M-b= / =C-<right>= | Backward word                          |
+| ~forward-paragraph~  | =M-}=               | Next paragraph                         |
+| ~backward-paragraph~ | =M-{=               | Previous paragraph                     |
+| ~count-words~        |                     | Returns no. wods between START and END |
+|----------------------+---------------------+----------------------------------------|
 
 **** What Constitutes a Word
 
@@ -2945,17 +2976,19 @@ You can alter this behavior by customizing the following variables:
   /without/ requiring spaces after
 
 *** Moving by S-Expression
-|--------------------+-------------+----------------------------------|
-| Command            | Key Binding | Purpose                          |
-|--------------------+-------------+----------------------------------|
-| ~forward-sexp~     | =C-M-f=     | Move forward by sexp             |
-| ~backward-sexp~    | =C-M-b=     | Move backward by sexp            |
-| ~down-list~        | =C-M-d=     | Move down into list              |
-|                    | =<ESC> C-d= |                                  |
-| ~backward-up-list~ | =C-M-u=     | Move up out of a list            |
-| ~forward-list~     | =C-M=n=     | Move forward to next list =(..)= |
-| ~backward-list~    | =C-M=p=     | Move backward to previous list   |
-|--------------------+-------------+----------------------------------|
+|--------------------+-------------+--------------------------------------------------|
+| Command            | Key Binding | Purpose                                          |
+|--------------------+-------------+--------------------------------------------------|
+| ~forward-sexp~     | =C-M-f=     | Move forward by sexp                             |
+| ~backward-sexp~    | =C-M-b=     | Move backward by sexp                            |
+|                    | =<ESC> C-d= |                                                  |
+| ~up-list~          |             | Move forward out of one level of parentheses     |
+| ~backward-up-list~ | =C-M-u=     | Move up out of a list                            |
+| ~down-list~        | =C-M-d=     | Move down into list                              |
+|                    |             | just like ‘up-list’, but with a negated argument |
+| ~forward-list~     | =C-M=n=     | Move forward to next list =(..)=                 |
+| ~backward-list~    | =C-M=p=     | Move backward to previous list                   |
+|--------------------+-------------+--------------------------------------------------|
 
 - =sexp= :: is a Lisp term that covers a wide range of commands that operate on
   /balanced expressions/.
@@ -2972,12 +3005,18 @@ You can alter this behavior by customizing the following variables:
     - =< >=
 
 *** Moving by Defun
-|----------------------+-------------+----------------------------|
-| Command              | Key Binding | Purpose                    |
-|----------------------+-------------+----------------------------|
-| ~beginning of defun~ | =C-M-a=     | Move to beginning of defun |
-| ~end-of-defun~       | =C-M-e=     | Move to end of defun       |
-|----------------------+-------------+----------------------------|
+|------------------------------------------+-------------+----------------------------------------|
+| Command                                  | Key Binding | Purpose                                |
+|------------------------------------------+-------------+----------------------------------------|
+| ~beginning of defun~                     | =C-M-a=     | Move to beginning of defun             |
+| ~end-of-defun~                           | =C-M-e=     | Move to end of defun                   |
+| ~defun-prompt-regexp~                    |             | User option; what text can             |
+|                                          |             | can appear before the open-paren       |
+|                                          |             | that starts a defun                    |
+| ~open-paren-in-columnn-0-is-defun-start~ |             | Variable; open paren in col 0 is defun |
+| ~beginning-of-defun-function~            |             | Function to find beginning of a defun  |
+| ~end-of-defun-function~                  |             | Function to find end of defun          |
+|------------------------------------------+-------------+----------------------------------------|
 
 The ~defun~ commands move to the logical beginning or end of the function point
 is in.  =function= is really a rather loose term.
@@ -2999,6 +3038,16 @@ In some LISP circles, it is common to group things by *pages* and as Emacs has
 close ties to the LISP community it comes with a battery of commands to
 interact with pages.
 
+*** Moving to End of Buffer
+| Command               | Key Binding | Purpose                     |
+|-----------------------+-------------+-----------------------------|
+| ~beginning-of-buffer~ | =M-<=       | Move to beginning of buffer |
+| ~goto-char POINT-MIN~ |             | Move to beginning of buffer |
+| ~end-of-buffer~       | =M->=       | Move to end of buffer       |
+| ~goto-char POINT-MAX~ |             | Move to end of buffer       |
+|-----------------------+-------------+-----------------------------|
+ 
+
 *** Scrolling
 | Command                   | Key Binding       | Purpose                      |
 |---------------------------+-------------------+------------------------------|
@@ -3009,8 +3058,6 @@ interact with pages.
 |                           | =C-M- - C-M-v=    |                              |
 | ~scroll-left~             | =C-x <=           | Scroll window display left   |
 | ~scroll-right~            | =C-x >=           | Scroll window display right  |
-| ~beginning-of-buffer~     | =M-<=             | Move to beginning of buffer  |
-| ~end-of-buffer~           | =M->=             | Moving to end of buffer      |
 |---------------------------+-------------------+------------------------------|
 
 #+ATTR_texinfo: :options next-screen-context-lines
