@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-01-31 00:32
-#+macro:version Version 0.0.190
+#+date:2021-01-31 20:40
+#+macro:version Version 0.0.191
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -5223,6 +5223,13 @@ The ~kill~ command (bound to =C-k=) will also work on visual lines.
 
 **** What Constitutes a Word
 
+#+cindex:syntax table
+Mode  writers make  assumptions  about the  nature  of the  text  in a  buffer.
+Different modes  require different assumptions  about text. Every  character is
+given a meaning by the mode author,  directly or indirectly, in a registry that
+maps the characters to a particular  syntactic meaning. This registry is called
+a /syntax table/.
+
 - Syntax Table ::
 
   Every character ---  printable characters, including Unicode  code points ---
@@ -5234,7 +5241,7 @@ The ~kill~ command (bound to =C-k=) will also work on visual lines.
 
   The syntax table alone decides the  makeup of a word (or symbol, punctuation,
   comment, etc.) as a syntactic unit. So  when you move the point around on the
-  screen,  it  move saccording  to  the  syntax  table  and the  general  rules
+  screen,  it  moves according  to  the  syntax  table  and the  general  rules
   governing ~forward-word~ and ~backward-word~.
 
   What sets Emacs apart  from other editors is that you  can inspect and change
@@ -5244,6 +5251,77 @@ The ~kill~ command (bound to =C-k=) will also work on visual lines.
   You can view your current buffer’s syntax  table by typing =C-h s=. In it you
   will see a human readable version of the characters and their assigned syntax
   class.
+
+#+ATTR_texinfo: :options describe-syntax &optional buffer (C-h s)
+#+BEGIN_defun
+  Describe  the syntax  specifications in  the  syntax table  of =BUFFER=.  The
+  descriptions are inserted in a help buffer, which is then displayed.
+
+  - BUFFER :: defaults to the current buffer.
+#+END_defun
+
+Emacs will generally ignore non-word characters immediately following the point
+in the direction you are travelling.
+
+**** Sub- and Superword Movement---Glasses Mode
+#+cindex:camel case
+=Subword= mode ("camel case") is a buffer-local minor mode. Enabling it changes
+the definition of  a word so that word-based commands  stop inside symbols with
+mixed  uppercase and  lowercase letters,  e.g. "GtkWidget",  "EmacsFrameClass",
+"NSGraphicsContext".
+
+Here we  call these  mixed case symbols  ‘nomenclatures’. Each  capitalized (or
+completely uppercase) part of a nomenclature is called a ‘subword’.
+
+This  mode  changes the  definition  of  a word  so  that  word commands  treat
+nomenclature boundaries as word boundaries.
+
+#+ATTR_texinfo: :options subword-mode &optional arg
+#+BEGIN_defun
+  Toggle subword movement and editing (Subword mode).
+
+  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
+    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
+    mode if =ARG= is a negative number.
+#+END_defun
+
+#+cindex:snake case
+=Superword=  mode ("snake  case") is  a  buffer-local minor  mode. Enabling  it
+changes the  definition of words  such that  symbols characters are  treated as
+parts of  words: e.g.,  in ‘superword-mode’,  "this_is_a_symbol" counts  as one
+word.
+
+#+ATTR_texinfo: :options superword-mode &optional arg
+#+BEGIN_defun
+  Toggle superword movement and editing (Superword mode).
+
+  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
+    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
+    mode if =ARG= is a negative number.
+#+END_defun
+
+#+TEXINFO: @subheading Glasses Minor Mode
+
+#+ATTR_texinfo: :options glasses-mode &optional arg
+#+BEGIN_defun
+  Minor mode for making identifiers =likeThis= readable.
+
+  When  this  mode  is  active,  it  tries  to  add  virtual  separators  (like
+  underscores) at places they belong to.
+
+  - ARG :: If  called from Lisp, toggle  the mode if =ARG=  is ‘toggle’. Enable
+    the mode  if =ARG= is  nil, omitted, or is  a positive number.  Disable the
+    mode if =ARG= is a negative number.
+#+END_defun
+
+#+TEXINFO: @heading Global Minor Modes
+
+#+ATTR_texinfo: :options global-subword-mode &optional arg
+#+BEGIN_defun
+#+TEXINFO: @defunx global-superword-mode &optional arg
+  Toggle Subword/Superword mode in all buffers.
+  - ARG :: If called from Lisp, enable the mode if ARG is omitted or nil.
+#+END_defun
 
 *** Moving By S-Expression
 
