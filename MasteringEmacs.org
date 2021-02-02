@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-02-01 00:06
-#+macro:version Version 0.0.194
+#+date:2021-02-01 22:45
+#+macro:version Version 0.0.195
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1567,13 +1567,6 @@ key combo.
 "Customizing"  are things  that "can"  be done  to create  a more  personalized
 experience.
 
-*** Environment
-#+ATTR_texinfo::options initial-environment
-#+BEGIN_defvar
-  =initial-environment= is a  list of environment variables  inherited from the
-  parent process. Each element should be a string of the form 'ENVVARNAME=VALUE'.
-#+END_defvar
-
 *** Emacs Initialization
 #+TEXINFO: @heading The Emacs =Initialization= File
 
@@ -2161,6 +2154,42 @@ live coding with Overtone and Quil.
 *** Advanced Customization Examples
 **** Bastien Guerry
 - https://github.com/bzg/dotemacs/blob/master/emacs.org
+*** Environment Variables
+#+cindex:environment variables
+**** Initial Environment
+#+ATTR_texinfo::options initial-environment
+#+BEGIN_defvar
+  =initial-environment= is a  list of environment variables  inherited from the
+  parent process. Each element should be a string of the form 'ENVVARNAME=VALUE'.
+#+END_defvar
+
+**** Executable Programs Environment
+#+cindex:executable programs
+#+vindex:exec-path
+#+vindex:PATH env var
+Emacs searches for  an executable program name in directories  specified by the
+variable  =exec-path=.  This  variable holds  a list  of directories,  with the
+default value being initialized from the environment variable =PATH= when Emacs
+is started.
+
+#+TEXINFO: @heading Value of @code{exec-path}
+
+#+CAPTION: Value of ~exec-path~
+#+NAME: value-of-exec-path
+#+HEADER: :results value list :exports results
+#+begin_src elisp
+(exec-path) 
+#+end_src
+
+#+TEXINFO: @heading Value of @code{$PATH}
+
+#+CAPTION: Value of $PATH Env Var
+#+NAME: value-of-path-env-var
+#+HEADER: :results value :exports results
+#+begin_src elisp
+(getenv "PATH")
+#+end_src
+
 ** Starting
 *** Starting the Emacs Server
 #+cindex:@var{EDITOR}
@@ -3005,18 +3034,18 @@ You can alter this behavior by customizing the following variables:
     - =< >=
 
 *** Moving by Defun
-|------------------------------------------+-------------+----------------------------------------|
-| Command                                  | Key Binding | Purpose                                |
-|------------------------------------------+-------------+----------------------------------------|
-| ~beginning of defun~                     | =C-M-a=     | Move to beginning of defun             |
-| ~end-of-defun~                           | =C-M-e=     | Move to end of defun                   |
-| ~defun-prompt-regexp~                    |             | User option; what text can             |
-|                                          |             | can appear before the open-paren       |
-|                                          |             | that starts a defun                    |
-| ~open-paren-in-columnn-0-is-defun-start~ |             | Variable; open paren in col 0 is defun |
-| ~beginning-of-defun-function~            |             | Function to find beginning of a defun  |
-| ~end-of-defun-function~                  |             | Function to find end of defun          |
-|------------------------------------------+-------------+----------------------------------------|
+|------------------------------------------+-------------+----------------------------------------+-------------------------------------------------------|
+| Command                                  | Key Binding | Purpose                                | Curent Value                                          |
+|------------------------------------------+-------------+----------------------------------------+-------------------------------------------------------|
+| ~beginning of defun~                     | =C-M-a=     | Move to beginning of defun             |                                                       |
+| ~end-of-defun~                           | =C-M-e=     | Move to end of defun                   |                                                       |
+| ~defun-prompt-regexp~                    |             | User option; what text can             |                                                       |
+|                                          |             | can appear before the open-paren       |                                                       |
+|                                          |             | that starts a defun                    |                                                       |
+| ~open-paren-in-columnn-0-is-defun-start~ |             | Variable; open paren in col 0 is defun | src_emacs_lisp{open-paren-in-column-0-is-defun-start} |
+| ~beginning-of-defun-function~            |             | Function to find beginning of a defun  |                                                       |
+| ~end-of-defun-function~                  |             | Function to find end of defun          |                                                       |
+|------------------------------------------+-------------+----------------------------------------+-------------------------------------------------------|
 
 The ~defun~ commands move to the logical beginning or end of the function point
 is in.  =function= is really a rather loose term.
@@ -3047,7 +3076,6 @@ interact with pages.
 | ~goto-char POINT-MAX~ |             | Move to end of buffer       |
 |-----------------------+-------------+-----------------------------|
  
-
 *** Scrolling
 | Command                   | Key Binding       | Purpose                      |
 |---------------------------+-------------------+------------------------------|
