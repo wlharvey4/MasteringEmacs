@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-11-16 07:13
-#+macro:version Version 0.0.197
+#+date:2021-11-16 07:49
+#+macro:version Version 0.0.198
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -9284,9 +9284,9 @@ As an exception, Emacs never asks for confirmation to evaluate any
 - expression :: In Lisp, an /expression/ is primarily a Lisp object and only
   secondarily the /text/ that is the object’s read syntax.
 
-- evaluation :: When one evaluates a expression interactively, the Lisp
-  interpreter first /reads/ the textual representation of it, producing a Lisp
-  object, and then /evaluates/ that object.  See [[info:elisp#Evaluation][Evaluation]].  Evaluation and
+- evaluation  ::  When one  evaluates  an  expression interactively,  the  Lisp
+  interpreter first /reads/ the textual  representation of it, producing a Lisp
+  object, and  then /evaluates/ that  object.  See [[info:elisp#Evaluation][Evaluation]].   Evaluation and
   reading are separate activities.  Reading returns the Lisp object represented
   by the text that is read; the object may or may not be evaluated later.
 
@@ -14636,6 +14636,8 @@ return, which is something that the native profiler will not report on).
 
 ~log4e.el~ provides a logging framework for Elisp.
 ** GUD---Grand Unified Debugger Mode
+#+cindex:GUD Grand Unified Debugger
+#+cindex:Grand Unified Debugger (GUD)
 - GUD Library manual entry---[[info:emacs#Debuggers][(emacs)Debuggers]]
 
 The GUD (Grand Unified Debugger) library  provides an Emacs interface to a wide
@@ -14644,6 +14646,7 @@ DBX, SDB,  XDB, Guile REPL  debug commands,  Perl’s debugging mode,  the Pytho
 debugger PDB, and the Java Debugger JDB.
 
 *** Starting GUD
+#+cindex:GUD, starting
 
 Each of these commands  reads a command line to invoke  the debugger, using the
 minibuffer.  The minibuffer’s initial  contents contain the standard executable
@@ -14691,12 +14694,14 @@ which does not start with a ‘-’ is the executable file name.
   Run the SDB debugger.
 
 *** GUD Operation
+#+cindex:GUD interaction buffer
 #+texinfo:@heading Interaction Buffer
 The “GUD  interaction buffer”  is an Emacs  buffer which is  used to  send text
 commands to  a debugger subprocess, and  record its output.  This  is the basic
 interface for  interacting with  a debugger,  used by  ‘M-x gud-gdb’  and other
 commands listed  in *note Starting GUD.
 
+#+cindex:@command{gdb} start GDB
 The  ‘M-x  gdb’ command  extends  this  interface with  additional  specialized
 buffers for  controlling breakpoints,  stack frames, and  other aspects  of the
 debugger state
@@ -14719,6 +14724,7 @@ figure out  which edited source  line corresponds to  the line reported  by the
 debugger  subprocess.   To  update  this information,  you  typically  have  to
 recompile and restart the program.
 
+#+cindex:Tooltip mode
 #+texinfo:@heading GUD Tooltip Mode
 GUD Tooltip mode is  a global minor mode that adds tooltip  support to GUD.  To
 toggle this mode, type ‘M-x gud-tooltip-mode’.   It is disabled by default.  If
@@ -14730,6 +14736,7 @@ to evaluate by  dragging the mouse over the expression,  then leaving the mouse
 inside the marked area.
 
 *** GUD Commands
+#+cindex:GUD commands
 GUD provides  commands for  setting and  clearing breakpoints,  selecting stack
 frames, and stepping through the program.
 * Email
@@ -15321,8 +15328,8 @@ to be case-sensitive.
 #+end_src
 
 *** TODO Next
-1. The CloudFront configuration needs to be updated recognize the new version
-   directory that is created as part of the ~sync~ operation.
+1.  The CloudFront  configuration  needs to  be updated  to  recognize the  new
+   version directory that is created as part of the ~sync~ operation.
 
 2. Update the GitHub HOME website link for each new sync operation.
 
