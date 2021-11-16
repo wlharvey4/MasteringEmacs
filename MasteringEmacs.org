@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-11-16 07:49
-#+macro:version Version 0.0.198
+#+date:2021-11-16 08:47
+#+macro:version Version 0.0.199
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -13910,6 +13910,161 @@ the current value of the idleness time, as described below.
 	       'my-timer-function))))
  #+end_src
 #+end_defun
+* Programs
+** Editing Programs
+• *Defuns*---Find or move over top-level definitions (*note Defuns::).
+• *Indent*---Apply the usual indentation conventions of the language (*note
+  Program Indent::).
+• *Parentheses*---Balance parentheses (*note Parentheses::).
+• *Comments*---Insert, kill or align comments (*note Comments::).
+• *Font Lock*---Highlight program syntax (*note Font Lock::).
+
+*** Programming Major Modes
+#+cindex:programming languages, list
+- Lisp,
+- Scheme,
+- the Scheme-based DSSSL expression language,
+- Ada,
+- ASM,
+- AWK,
+- C,
+- C++,
+- Fortran,
+- Icon,
+- IDL (CORBA),
+- IDLWAVE, Java,
+- Javascript,
+- M4,
+- Makefiles,
+- Metafont (TeX’s companion for font creation),
+- Modula2,
+- Object Pascal,
+- Objective-C,
+- Octave,
+- Pascal,
+- Perl, CPerl
+- Pike,
+- PostScript,
+- Prolog,
+- Python,
+- Ruby,
+- Simula,
+- SQL,
+- Tcl,
+- Verilog, and
+- VHDL.
+- scripting languages of the common GNU and Unix shells, and
+- MS-DOS/MS-Windows ‘BAT’ files,
+- and for makefiles,
+- DNS master files,
+- and various sorts of configuration files.
+
+#+texinfo:@heading Program Indent
+#+cindex:indent
+#+cindex:program indent
+In most  programming languages, indentation  should vary  from line to  line to
+illustrate  the  structure of  the  program.   Therefore, in  most  programming
+language modes, typing ‘<TAB>’ updates the indentation of the current line.
+
+#+texinfo:@heading Delete
+#+cindex:delete
+Furthermore, ‘<DEL>’ is usually bound to ‘backward-delete-char-untabify’, which
+deletes  backward treating  each tab  as if  it were  the equivalent  number of
+spaces,  so that  you can  delete one  column of  indentation without  worrying
+whether the whitespace consists of spaces or tabs.
+
+#+texinfo:@heading @command{prog-mode-hook}
+#+cindex:@command{prog-mode-hook}
+Entering a programming  language mode runs the custom  Lisp functions specified
+in  the hook  variable ‘prog-mode-hook’,  followed  by those  specified in  the
+mode’s own mode hook.
+
+*** Defuns
+In  Emacs, a  major  definition at  the  top level  in the  buffer,  such as  a
+function, is called a  “defun”.  The name comes from Lisp, but  in Emacs we use
+it for all languages.
+
+**** Moving by Defuns
+These  commands move  point  or set  up  the region  based  on top-level  major
+definitions, also called “defuns”.
+
+- ~beginning-of-defun~ :: =C-M-a=
+
+  Move to beginning of current or preceding defun.
+
+  With a negative argument −N moves forward  N times to the next beginning of a
+  defun.
+
+- ~end-of-defun~ :: =C-M-e=
+
+  Move to end of current or following defun.
+
+  With a negative argument moves back to an end of a defun.
+
+- ~mark-defun~ :: =C-M-h=
+
+  Put region around whole current or following defun.
+
+  This is the easiest way to get ready to kill the defun in order to move it to
+  a different place in the file.  If the defun is directly preceded by comments
+  (with no intervening blank lines), they are marked, too.
+
+**** Imenu
+The Imenu  facility offers a  way to  find the major  definitions in a  file by
+name.  It is  also useful in text  formatter major modes, where  it treats each
+chapter, section, etc., as a definition.
+
+- ~imenu~ :: =M-x imenu=
+
+  If  you type  ‘M-x  imenu’, it  reads  the  name of  a  definition using  the
+  minibuffer, then moves  point to that definition.  You can  use completion to
+  specify the name; the command always displays the whole list of valid names.
+
+- ~imenu-auto-rescan~ ::
+
+  Rescanning  happens  automatically  if   you  set  ‘imenu-auto-rescan’  to  a
+  non-‘nil’ value.
+
+**** Which Function Mode
+Which Function mode is a global  minor mode which displays the current function
+name in the mode line, updating it as you move around in a buffer.
+
+- ~which-function-mode~ :: =M-x which-function-mode=
+
+  Which Function mode is  a global minor mode.  By default,  it takes effect in
+  all major modes that  know how to support it (i.e., all  the major modes that
+  support Imenu).
+
+*** Indentation
+
+*** Parentheses
+
+*** Comments
+
+*** Documentation Lookup
+
+*** Hideshow Minor Mode
+
+*** Completion of Symbol Names
+
+*** Mixed Case Words
+
+*** Semantic Package
+
+*** Features
+
+**** Words---Sentences---Paragraphs
+
+**** Superword Mode
+
+**** Electric Layout Mode
+
+**** Selective Display
+
+**** Prettify Symbols Mode
+
+** Compiling and Testing Programs
+** Maintaining Programs
 * Debugging
 :PROPERTIES:
 :appendix: t
