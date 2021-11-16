@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-02-01 22:45
-#+macro:version Version 0.0.195
+#+date:2021-11-16 07:13
+#+macro:version Version 0.0.197
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -10549,8 +10549,8 @@ in LIST, ‘delete-dups’ keeps the first one.
 *** Eval S-Expression
 - =(eval-last-sexp)= :: =C-x C-e=
 
-  Evaluate sexp before point; print value in the echo area. Interactively, with
-  a non ‘-’ prefix argument, print output into current buffer.
+  Evaluate sexp  before point; print  value in the echo  area. Interactively,
+  with a non ‘-’ prefix argument, print output into current buffer.
 
   It is one of few commands that are globally available to most modes, and it
   only works if you have the point at the end of an s-expression.
@@ -10671,38 +10671,6 @@ interpreter as a subprocess of Emacs, with Lisp I/O through an Emacs buffer.
 
   controls which Lisp interpreter is run.
 
-**** Scheme Mode
-Parent mode is *Prog Mode*.
-
-Major mode for editing Scheme code. Editing commands are similar to
-those of ‘lisp-mode’.
-
-In addition, if an inferior Scheme process is running, some additional
-commands will be defined, for evaluating expressions and controlling
-the interpreter, and the state of the process will be displayed in the
-mode line of all Scheme buffers.
-
-Use =M-x run-scheme= to start an inferior Scheme using the more
-general ‘cmuscheme’ package.
-
-- =scheme-send-last-sexp= :: =C-x C-e=
-
-  Send the previous sexp to the inferior Scheme process.
-
-- =scheme-mode-hook= ::
-
-**** Inferior Scheme Mode
-Major mode for interacting with an inferior Scheme process. Like
-Inferior Lisp mode, but for Scheme.
-
-Parent mode is *Comint Mode*.
-
-A Scheme process can be fired up with =M-x run-scheme=.
-
-- =scheme-send-last-sexp= :: =C-x C-e=
-
-- =inferior-scheme-mode-hook= ::
-
 **** Emacs Lisp Mode
 Major mode for editing Lisp code and Lisp source files to run in
 Emacs.
@@ -10738,10 +10706,13 @@ Emacs.
 Parent mode is *Lisp Data Mode*.
 
 **** Lisp Interaction Mode
-When Emacs starts up, it contains a buffer named =*scratch*=, which is provided
-for evaluating Emacs Lisp expressions  interactively using the major mode *Lisp
-Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode is
-*Lisp Data Mode*.  It’s parent mode is *Prog Mode*.
+#+cindex:scratch buffer
+#+cindex:lisp interaction mode
+#+cindex:mode, lisp interaction
+When  Emacs starts  up,  it contains  a buffer  named  =*scratch*=, which  is
+provided for evaluating Emacs Lisp  expressions interactively using the major
+mode *Lisp Interaction  Mode*, whose parent mode is *Emacs  Lisp Mode*, whose
+parent mode is *Lisp Data Mode*, and whose parent mode is *Prog Mode*.
 
 - =M-x lisp-interaction-mode= ::
 
@@ -10785,8 +10756,16 @@ Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode
 
   Variable to  control the initial  message in the buffer.  Set it to  either a
   documentation string or ’nil’ to suppress it.
-
 **** The Interactive Emacs Lisp Mode---ielm
+#+cindex:interactive emacs lisp mode (ielm)
+#+cindex:mode, interactive emacs lisp (ielm)
+#+cindex:ielm
+An  alternative way  (to *Lisp  Interactive Mode*)  of evaluating  Emacs Lisp
+expressions  interactively  is  to  use *Inferior  Emacs  Lisp  mode*,  which
+provides  an interface  rather like  *Shell mode*  for evaluating  Emacs Lisp
+expressions.  Type  ~M-x ielm~  to create  an *ielm*  buffer which  uses this
+mode.
+
 - =M-x ielm= ::
 
   Run the elisp REPL. The mode inherits from =comint= (command history, limited
@@ -10819,8 +10798,72 @@ Interaction Mode*. It’s  parent mode is *Emacs Lisp Mode*.  It’s parent mode
   (add-hook 'ielm-mode-hook 'ielm-auto-complete)
 #+end_src
 
+**** Scheme Mode
+Parent mode is *Prog Mode*.
+
+Major mode for editing Scheme code. Editing commands are similar to
+those of ‘lisp-mode’.
+
+In addition, if an inferior Scheme process is running, some additional
+commands will be defined, for evaluating expressions and controlling
+the interpreter, and the state of the process will be displayed in the
+mode line of all Scheme buffers.
+
+Use =M-x run-scheme= to start an inferior Scheme using the more
+general ‘cmuscheme’ package.
+
+- =scheme-send-last-sexp= :: =C-x C-e=
+
+  Send the previous sexp to the inferior Scheme process.
+
+- =scheme-mode-hook= ::
+
+**** Inferior Scheme Mode
+Major mode for interacting with an inferior Scheme process. Like
+Inferior Lisp mode, but for Scheme.
+
+Parent mode is *Comint Mode*.
+
+A Scheme process can be fired up with =M-x run-scheme=.
+
+- =scheme-send-last-sexp= :: =C-x C-e=
+
+- =inferior-scheme-mode-hook= ::
+
+**** Shell Mode
+The  major mode  for Shell  buffers  is *Shell  mode*.  Many  of its  special
+commands are  bound to the ‘C-c’  prefix, and resemble the  usual editing and
+job control characters present in ordinary  shells, except that you must type
+‘C-c’ first.
+
+Shell  mode is  a derivative  of *Comint  mode*, a  general-purpose mode  for
+communicating with interactive  subprocesses.  Most of the  features of Shell
+mode actually  come from  Comint mode.   The special  features of  Shell mode
+include
+- the directory tracking feature, and
+- a few user commands.
+
 **** Eshell
-You can evaluate elisp in Eshell directly from the prompt.
+*Eshell* is a  shell-like command interpreter implemented in  Emacs Lisp.  It
+invokes no external processes except for  those requested by the user.  It is
+intended to  be an  alternative to  the IELM  (*note Emacs  Lisp Interaction:
+(emacs)Lisp Interaction.) REPL  for Emacs _and_ with an  interface similar to
+command shells such as  ‘bash’, ‘zsh’, ‘rc’, or ‘4dos’.  It  has its own Info
+manual.
+
+*Eshell* is a “command shell” written  in Emacs Lisp.  Everything it does, it
+uses Emacs’s  facilities to  do.  This  means that Eshell  is as  portable as
+Emacs itself.  It  also means that cooperation with Lisp  code is natural and
+seamless.
+
+You can evaluate elisp in *Eshell* directly from the prompt.
+
+Unlike  regular  system  shells,  *Eshell*  never  invokes  kernel  functions
+directly, such as  ‘exec(3)’.  Instead, it uses the  Lisp functions available
+in the Emacs Lisp library.  It does  this by transforming the input line into
+a callable  Lisp form.   The command can  be either an  Elisp function  or an
+external  command.   To  see  the  Lisp form  that  will  be  invoked,  type:
+‘eshell-parse-command "echo hello"’
 
 ** Functions
 *** Calling--Invoking Functions
@@ -14592,6 +14635,103 @@ return, which is something that the native profiler will not report on).
 
 
 ~log4e.el~ provides a logging framework for Elisp.
+** GUD---Grand Unified Debugger Mode
+- GUD Library manual entry---[[info:emacs#Debuggers][(emacs)Debuggers]]
+
+The GUD (Grand Unified Debugger) library  provides an Emacs interface to a wide
+variety of symbolic debuggers.   It can run the GNU Debugger  (GDB), as well as
+DBX, SDB,  XDB, Guile REPL  debug commands,  Perl’s debugging mode,  the Python
+debugger PDB, and the Java Debugger JDB.
+
+*** Starting GUD
+
+Each of these commands  reads a command line to invoke  the debugger, using the
+minibuffer.  The minibuffer’s initial  contents contain the standard executable
+name and options for  the debugger, and sometimes also a guess  for the name of
+the executable file  you want to debug.  Shell wildcards  and variables are not
+allowed in  this command line.  Emacs  assumes that the first  command argument
+which does not start with a ‘-’ is the executable file name.
+
+- ~gdb~ :: =M-x gdb=
+
+  Run  GDB  as  a subprocess,  and  interact  with  it  via an  IDE-like  Emacs
+  interface.
+
+- ~gud-gdb~ :: =M-x gud-gdb=
+
+  Run GDB,  using a  GUD interaction  buffer for  input and  output to  the GDB
+  subprocess
+
+- ~perldb~ :: =M-x perldb=
+
+  Run the Perl interpreter in debug mode.
+
+- ~jdb~ :: =M-x jdb=
+
+  Run the Java debugger.
+
+- ~pdb~ :: =M-x pdb=
+
+  Run the Python debugger.
+
+- ~guiler~ :: =M-x guiler=
+
+  Run Guile REPL for debugging Guile Scheme programs.
+
+- ~dbx~ :: =M-x dbx=
+
+  Run the DBX debugger.
+
+- ~xdb~ :: =M-x xdb=
+
+  Run the XDB debugger.
+
+- ~sdb~ :: =M-x sdb=
+
+  Run the SDB debugger.
+
+*** GUD Operation
+#+texinfo:@heading Interaction Buffer
+The “GUD  interaction buffer”  is an Emacs  buffer which is  used to  send text
+commands to  a debugger subprocess, and  record its output.  This  is the basic
+interface for  interacting with  a debugger,  used by  ‘M-x gud-gdb’  and other
+commands listed  in *note Starting GUD.
+
+The  ‘M-x  gdb’ command  extends  this  interface with  additional  specialized
+buffers for  controlling breakpoints,  stack frames, and  other aspects  of the
+debugger state
+
+#+texinfo:@heading Shell Mode
+The  GUD interaction  buffer  uses a  variant  of *Shell  mode*,  so the  Emacs
+commands defined  by Shell mode  are available.  *Completion* is  available for
+most debugger commands,  and you can use the usual  Shell mode history commands
+to repeat them.  *Note  Commands of GUD, for special commands  that can be used
+in the GUD interaction buffer.
+
+#+texinfo:@heading Source Files
+As you  debug a program, Emacs  displays the relevant source  files by visiting
+them in Emacs buffers, with an arrow  in the left fringe indicating the current
+execution line.   (On a text terminal,  the arrow appears as  ‘=>’, overlaid on
+the first two text  columns.)  Moving point in such a buffer  does not move the
+arrow.  You  are free to  edit these source files,  but note that  inserting or
+deleting lines will throw  off the arrow’s positioning, as Emacs  has no way to
+figure out  which edited source  line corresponds to  the line reported  by the
+debugger  subprocess.   To  update  this information,  you  typically  have  to
+recompile and restart the program.
+
+#+texinfo:@heading GUD Tooltip Mode
+GUD Tooltip mode is  a global minor mode that adds tooltip  support to GUD.  To
+toggle this mode, type ‘M-x gud-tooltip-mode’.   It is disabled by default.  If
+enabled, you can move the mouse pointer over a variable, a function, or a macro
+(collectively called “identifiers”) to show their values in tooltips .  If just
+placing the  mouse pointer  over an  expression doesn’t show  the value  of the
+expression you had in mind, you  can tell Emacs more explicitly what expression
+to evaluate by  dragging the mouse over the expression,  then leaving the mouse
+inside the marked area.
+
+*** GUD Commands
+GUD provides  commands for  setting and  clearing breakpoints,  selecting stack
+frames, and stepping through the program.
 * Email
 ** Leaving Gmail Behind
 - https://nullprogram.com/blog/2013/09/03/
