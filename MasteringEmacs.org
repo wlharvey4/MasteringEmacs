@@ -3,8 +3,8 @@
 #+title:Mastering Emacs---Notes and Outline
 #+subtitle:{{{version}}} {{{date}}}
 #+author:Pinecone062
-#+date:2021-11-16 08:47
-#+macro:version Version 0.0.199
+#+date:2021-12-02 09:06
+#+macro:version Version 0.0.200
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1117,7 +1117,8 @@ This directory contains the following files:
 #+end_src
 
 * Installation---Configuration---Customization---Starting
-** Installing
+** Installing Emacs
+
 *** What is Your Version
 #+CINDEX: version
 To check your Emacs' version from the shell, type:
@@ -1562,13 +1563,444 @@ key combo.
  +  Now  you can  make  loads  more keybindings  for  all  your favorite  Emacs
    commands.
 
+** System Information
+
+- system-type :: The value of this variable  is a symbol indicating the type of
+  operating system Emacs is running on.
+
+  - aix (IBM)
+  - berkeley-unix (BSD and variants)
+  - cygwin (POSIX layer on MS-Windows)
+  - darwin (macOS)
+  - gnu (GNU kernel of HURD and Mach)
+  - gnu/linux (Gnu/Linux system using Linux kernel)
+  - gnu/kfreebsd (GNU (glibc-based) system using FreeBSD kernel)
+  - hpux (HP HPUX)
+  - nacl (Google Native Client NaCl)
+  - ms-dos (MS-DOS)
+  - usg-unix-v (AT&T Unix System V)
+  - windows-nt (Microsoft Windows, 9X and later, Windows 10)
+
+- system-configuration ::  This variable  holds the standard  GNU configuration
+  name for the hardware/software configuration of your system, as a string.
+  : "x86_64-apple-darwin19.6.0"
+
+- system-name :: This function returns the  name of the machine you are running
+  on, as a string.
+  : LOLH.lolh
+
+- initial-window-system :: variable identifying  type of windowing system being
+  used.
+  : ns
+
+- mail-host-address ::  When  non-nil, it is used instead  of ‘system-name’ for
+  purposes of  generating email  addresses.  It is  used when  constructing the
+  default value of ‘user-mail-address’.
+
+- invocation-name :: This variable holds the program name under which Emacs was
+  invoked.  The value is a string, and does not include a directory name.
+  : Emacs
+
+- invocation-directory :: This variable holds  the directory in which the Emacs
+  executable was located when it was run,  or ‘nil’ if that directory cannot be
+  determined.
+  : "/Applications/Emacs.app/Contents/MacOS/"
+
+- emacs-pid :: This function returns the process ID of the Emacs process, as an
+  integer.
+  : 51831
+
+- process-environment ::  This variable is  a list of strings,  each describing
+  one environment variable.  The functions  ‘getenv’ and ‘setenv’ work by means
+  of this variable.
+
+  - getenv var["string"]; returns the value of the environment variable VAR, as
+    a string
+  - setenv  var["string"]   &optional  value  substitute;  ‘setenv’   works  by
+    modifying ‘process-environment’;  binding that variable with  ‘let’ is also
+    reasonable practice.
+
+** Starting and Stopping Emacs
+
+*** Starting Emacs
+
+**** Emacs Starting Operations
+
+When  Emacs  is   started  up,  it  performs  the   following  operations  (see
+‘normal-top-level’ in ‘startup.el’):
+
+1. It  adds   subdirectories  to  ‘load-path’,  by  running   the  file  named
+  ~subdirs.el~ in  each directory in the  list.  Normally, this file  adds the
+  directory’s subdirectories to the list, and those are scanned in their turn.
+  The files  ‘subdirs.el’ are normally  generated automatically when  Emacs is
+  installed.
+
+2. It  loads any ‘leim-list.el’ that  it finds in the  ‘load-path’ directories.
+   This file is intended for registering input methods.
+
+3. It sets the variable ‘before-init-time’  to the value of ‘current-time’.  It
+   also sets  ‘after-init-time’ to ‘nil’,  which signals to Lisp  programs that
+   Emacs is being initialized.
+
+4. It  sets the  language  environment  and  the  terminal coding  system,  if
+  requested by environment variables such as ‘LANG’.
+
+5. It does some basic parsing of the command-line arguments.
+
+6. It loads your early init file.  This  is not done if the options ‘-q’, ‘-Q’,
+   or ‘--batch’ were specified.  If the  ‘-u’ option was specified, Emacs looks
+   for the init file in that user’s home directory instead.
+
+7. It calls the function  ~package-activate-all~ to activate any optional Emacs
+   Lisp package that  has been installed.  However, Emacs  doesn’t activate the
+   packages when ~package-enable-at-startup~ is ‘nil’ or when it’s started with
+   one of  the options ‘-q’, ‘-Q’,  or ‘--batch’.  To activate  the packages in
+   the latter  case, ~package-activate-all~ should be  called explicitly (e.g.,
+   via the =--funcall= option).
+
+8. If  not running  in batch mode,  it initializes the  window system  that the
+   variable ~initial-window-system~ specifies.
+   #+cindex:hook, before-init-hook
+9. It runs the normal hook ‘before-init-hook’.
+
+10. If  appropriate, it  creates a  graphical frame.  As  part of  creating the
+    graphical   frame,  it   initializes   the  window   system  specified   by
+    ‘initial-frame-alist’ and ‘default-frame-alist’ for the graphical frame, by
+    calling the ‘window-system-initialization’ function for that window system.
+    This is not done in batch (noninteractive) or daemon mode.
+
+11. It initializes the initial frame’s faces, and sets up the menu bar and tool
+    bar if needed.
+
+12. It use ‘custom-reevaluate-setting’ to re-initialize the members of the list
+    ‘custom-delayed-init-variables’.   These are  any  pre-loaded user  options
+    whose  default  value depends  on  the  run-time, rather  than  build-time,
+    context.
+
+13. It loads the  library ‘site-start’, if it exists.  This is  not done if the
+    options ‘-Q’ or ‘--no-site-file’ were specified.
+
+14. It loads  your init file.  This is  not done if the options  ‘-q’, ‘-Q’, or
+    ‘--batch’ were  specified.  If the  ‘-u’ option was specified,  Emacs looks
+    for the init file in that user’s home directory instead.
+
+15. It loads  the  library ‘default’,  if  it  exists.  This  is  not done  if
+   ‘inhibit-default-init’  is non-‘nil’,  nor if  the options  ‘-q’, ‘-Q’,  or
+   ‘--batch’ were specified.
+
+16. It  loads your abbrevs  from the  file specified by  ‘abbrev-file-name’, if
+    that file exists and can be read.  This is not done if the option ‘--batch’
+    was specified.
+
+17. It sets  the variable  ‘after-init-time’ to  the value  of ‘current-time’.
+   This variable  was set  to ‘nil’  earlier; setting it  to the  current time
+   signals  that  the  initialization  phase   is  over,  and,  together  with
+   ‘before-init-time’, provides the measurement of how long it took.
+   #+cindex:hook, after-init-hook
+18. It runs the normal hook ‘after-init-hook’.
+
+19. If the  buffer ‘*scratch*’ exists and  is still in Fundamental  mode (as it
+    should   be  by   default),   it   sets  its   major   mode  according   to
+    ‘initial-major-mode’.
+    #+cindex:hook, tty-setup-hook
+20. If started on a text terminal, it loads the terminal-specific Lisp library,
+    and runs  the hook ‘tty-setup-hook’.  This  is not done in  ‘--batch’ mode,
+    nor if ‘term-file-prefix’ is ‘nil’.
+
+21. It displays the initial echo  area message, unless you have suppressed that
+    with ‘inhibit-startup-echo-area-message’.
+
+22. It processes any command-line options that were not handled earlier.
+
+23. It now exits if the option ‘--batch’ was specified.
+
+24. If   the  ‘*scratch*’   buffer   exists   and   is  empty,   it   inserts
+  ‘(substitute-command-keys initial-scratch-message)’ into that buffer.
+
+25. If ‘initial-buffer-choice’  is a string, it visits the  file (or directory)
+    with  that name.   If it  is  a function,  it  calls the  function with  no
+    arguments and selects the buffer that it  returns.  If one file is given as
+    a command  line argument,  that file  is visited  and its  buffer displayed
+    alongside ‘initial-buffer-choice’.  If more than  one file is given, all of
+    the files are visited and the ‘*Buffer List*’ buffer is displayed alongside
+    ‘initial-buffer-choice’.
+    #+cindex:hook, emacs-startup-hook
+26. It runs ‘emacs-startup-hook’.
+
+27. It calls ‘frame-notice-user-settings’, which modifies the parameters of the
+    selected frame according to whatever the init files specify.
+    #+cindex:hook, windows-setup-hook
+28. It  runs ‘window-setup-hook’.   The only difference  between this  hook and
+    ‘emacs-startup-hook’ is that  this one runs after  the previously mentioned
+    modifications to the frame parameters.
+
+29. It displays  the “startup screen”, which is a  special buffer that contains
+    information about  copyleft and  basic Emacs  usage.  This  is not  done if
+    ‘inhibit-startup-screen’  or ‘initial-buffer-choice’  are non-‘nil’,  or if
+    the ‘--no-splash’ or ‘-Q’ command-line options were specified.
+
+30. If a daemon was requested,  it calls ‘server-start’.  (On POSIX systems, if
+    a background  daemon was requested,  it then detaches from  the controlling
+    terminal.)
+
+31.  If started  by the  X  session manager,  it calls  ‘emacs-session-restore’
+    passing it as argument the ID of the previous session.
+
+***** Terminal-Specific Initialization
+
+Each terminal type can  have its own Lisp library that Emacs  loads when run on
+that type of terminal.
+
+The usual role of a terminal-specific library is to enable special keys to send
+sequences  that Emacs  can  recognize.  It  may  also  need to  set  or add  to
+‘input-decode-map’ if  the Termcap or Terminfo  entry does not specify  all the
+terminal’s function keys.
+
+**** Emacs Starting Options
+
+The following options affect some aspects of the startup sequence.
+
+- inhibit-startup-screen ::  This variable, if non-‘nil’,  inhibits the startup
+  screen.  In that  case, Emacs typically displays the  ‘*scratch*’ buffer; but
+  see ‘initial-buffer-choice’, below.
+
+  ‘inhibit-startup-message’  and ‘inhibit-splash-screen’  are aliases  for this
+  variable.
+
+- initial-buffer-choice  ::  If  non-‘nil’,  this variable  is  a  string  that
+  specifies a file or directory for Emacs to display after starting up, instead
+  of the startup screen.  If its value is a function, Emacs calls that function
+  which must  return a buffer  which is then displayed.   If its value  is ‘t’,
+  Emacs displays the ‘*scratch*’ buffer.
+
+- inhibit-startup-echo-area-message ::  This variable  controls the  display of
+  the  startup echo  area  message.  You  can suppress  the  startup echo  area
+  message by adding text with this form to your init file:
+
+  #+begin_src elisp
+    (setq inhibit-startup-echo-area-message
+          "YOUR-LOGIN-NAME")
+  #+end_src
+
+  Emacs explicitly checks  for an expression as shown above  in your init file;
+  your login name must appear in the expression as a Lisp string constant.  You
+  can   also  use   the  Customize   interface.   Other   methods  of   setting
+  ‘inhibit-startup-echo-area-message’  to the  same  value do  not inhibit  the
+  startup message.  This  way, you can easily inhibit the  message for yourself
+  if you wish, but  thoughtless copying of your init file  will not inhibit the
+  message for someone else.
+
+- initial-scratch-message :: This  variable, if non-‘nil’, should  be a string,
+  which is treated as documentation to  be inserted into the ‘*scratch*’ buffer
+  when Emacs starts up.  If it is ‘nil’, the ‘*scratch*’ buffer is empty.
+
+**** Emacs Command-Line Options Affecting Startup Sequence
+
+The following command-line options affect some aspects of the startup sequence.
+
+- =--no-splace= :: Do not display a splash screen.
+
+- =--batch= :: Run without an interactive terminal.
+
+- =--daemon=, =--bg-daemon=,  =--fg-daemon= ::  Do not initialize  any display;
+  just  start a  server.   (A  “background” daemon  automatically  runs in  the
+  background.)
+
+- =--no-init-file=, =-q= :: Do not load  either the init file, or the ‘default’
+  library.
+
+- =--no-site-file= :: Do not load the ‘site-start’ library.
+
+- =--quick=, =-Q= :: Equivalent to ‘-q --no-site-file --no-splash’.
+
+**** Emacs Command-Line Initial Options
+
+The initial options specify parameters for the Emacs session.
+
+Some initial options affect the  loading of the initialization file.  Normally,
+Emacs first  loads ‘site-start.el’ if  it exists, then your  own initialization
+file if it exists, and finally  the default initialization file ‘default.el’ if
+it exists  (*note Init  File::).  Certain  options prevent  loading of  some of
+these files or substitute other files for them.
+
+- =--chdir=DIRECTORY=  :: Change  to  =DIRECTORY= before  doing anything  else.
+  This is mainly  used by session management  in X so that Emacs  starts in the
+  same  directory as  it  stopped.   This makes  desktop  saving and  restoring
+  easier.
+
+- =--terminal=DEVICE=, =-t= :: Use DEVICE as  the device for terminal input and
+  output.  This option implies ‘--no-window-system’.
+
+- =--no-window-system-=, =-nw=   :: Don’t communicate directly  with the window
+  system, disregarding  the =DISPLAY= environment  variable even if it  is set.
+  This means that  Emacs uses the terminal  from which it was  launched for all
+  its display and input.
+
+- =--batch=  ::   Run Emacs in  “batch mode”.  Batch  mode is used  for running
+  programs written in Emacs Lisp from  shell scripts, makefiles, and so on.  To
+  invoke a  Lisp program, use the  ‘--batch’ option in conjunction  with one or
+  more of ‘-l’, ‘-f’ or ‘--eval’.
+
+  In batch mode, Emacs does not display the text being edited, and the standard
+  terminal  interrupt characters  such  as  ‘C-z’ and  ‘C-c’  have their  usual
+  effect.  Emacs functions that normally print  a message in the echo area will
+  print to either  the standard output stream (‘stdout’) or  the standard error
+  stream (‘stderr’) instead.
+
+  - ‘prin1’, ‘princ’ and  ‘print’  print  to  ‘stdout’,
+
+  - while ‘message’  and ‘error’ print  to ‘stderr’.
+
+  - Functions that normally read keyboard  input from the minibuffer take their
+    input from the terminal’s standard input stream (‘stdin’) instead.
+
+  This  option  implies  ‘-q’  (do   not  load  an  initialization  file),  but
+  ‘site-start.el’ is  loaded nonetheless.  It  also causes Emacs to  exit after
+  processing all  the command  options.  In  addition, it  disables auto-saving
+  except in  buffers for  which auto-saving is  explicitly requested,  and when
+  saving files it omits the ‘fsync’ system call unless otherwise requested.
+
+- =--script FILE= :: Run Emacs in batch mode, like ‘--batch’, and then read and
+  execute the Lisp code in FILE.
+
+  The normal use of  this option is in executable script  files that run Emacs.
+  They can start with this text on the first line:
+
+  : #!/usr/bin/emacs --script
+
+  which will  invoke Emacs with  ‘--script’ and supply  the name of  the script
+  file  as FILE.   Emacs Lisp  then treats  the ‘#!’  on this  first line  as a
+  comment delimiter.
+
+- =--no-init-file=, =-q=  ::  Do not  load any initialization file.  When Emacs
+  is invoked with this option, the Customize facility does not allow options to
+  be saved.  This option does not disable loading ‘site-start.el’.
+
+- =--no-site-file=, =-nsl=  :: Do  not load  ‘site-start.el’.  The  ‘-Q’ option
+  does this too, but other options like ‘-q’ do not.
+
+- =--no-site-lisp=   ::  Do   not  include   the  ‘site-lisp’   directories  in
+  ‘load-path’.  The ‘-Q’ option does this too.
+
+- =--no-splash= :: Do not display a  startup screen.  You can also achieve this
+  effect by setting the variable  ‘inhibit-startup-screen’ to non-‘nil’ in your
+  initialization file.
+
+- =--quick=, =-Q= :: Start Emacs  with minimum customizations.  This is similar
+  to  using ‘-q’,  ‘--no-site-file’, ‘--no-site-lisp’,  ‘--no-x-resources’, and
+  ‘--no-splash’ together.
+
+- =--daemon[=NAME]=  ::  Start Emacs  as a  daemon: after  Emacs starts  up, it
+  starts the  Emacs server without  opening any frames.   You can then  use the
+  ‘emacsclient’ command to connect to  Emacs for editing.  (Optionally, you can
+  specify an explicit NAME for the server;  if you do, you will need to specify
+  the same NAME when you  invoke ‘emacsclient’, via its ‘--socket-name’ option.
+  A  “background”  daemon  disconnects  from  the  terminal  and  runs  in  the
+  background (‘--daemon’ is an alias for ‘--bg-daemon’).
+
+- =--no-desktop= :: Do not reload any saved desktop.
+
+- =--debug-init= :: Enable the Emacs Lisp debugger for errors in the init file.
+
+*** Stopping Emacs
+
+There are two ways to get out of Emacs:
+- you can kill the Emacs job, which exits permanently, or
+- you can suspend it, which permits you to reenter the Emacs process later.
+
+**** Killing Emacs
+
+Killing Emacs means ending the execution  of the Emacs process.  If you started
+Emacs from a terminal, the parent process normally resumes control.
+
+The low-level primitive for killing Emacs is ‘kill-emacs’.
+
+- ~kill-emacs &optional exit-data~ ::
+  #+cindex:kill-emacs
+  #+cindex:hook, kill-emacs-hook
+  This command calls  the hook ‘kill-emacs-hook’, then exits  the Emacs process
+  and kills it.
+
+  If =EXIT-DATA= is  an integer, that is  used as the exit status  of the Emacs
+  process.  This is useful primarily in batch operations.
+
+  If =EXIT-DATA= is a string, its  contents are stuffed into the terminal input
+  buffer so  that the  shell (or  whatever program next  reads input)  can read
+  them.
+
+  If =EXIT-DATA= is neither an integer nor  a string, or is omitted, that means
+  to use the  (system-specific) exit status which  indicates successful program
+  termination.
+
+- ~save-buffers-kill-terminal~ :: =C-x C-x=
+  #+cindex:save-buffers-kill-terminal
+  The ‘kill-emacs’  function is  normally called  via the  higher-level command
+  ‘C-x C-c’ (‘save-buffers-kill-terminal’).
+
+  It is  also called automatically  if Emacs  receives a ‘SIGTERM’  or ‘SIGHUP’
+  operating   system   signal  (e.g.,   when   the   controlling  terminal   is
+  disconnected), or  if it receives  a ‘SIGINT’  signal while running  in batch
+  mode.
+
+  #+cindex:hook, kill-emacs-query-functions
+  It also runs the abnormal hook ‘kill-emacs-query-functions’
+
+**** Suspending Emacs
+On text  terminals, it  is possible  to “suspend  Emacs”, which  means stopping
+Emacs  temporarily and  returning control  to  its superior  process, which  is
+usually the shell.  This  allows you to resume editing later  in the same Emacs
+process, with the same buffers, the same  kill ring, the same undo history, and
+so on.  Suspending works only on a terminal device from which the Emacs session
+was started.  We call that device the “controlling terminal” of the session.
+
+- suspend-emacs  &optional string  ::  This function  stops  Emacs and  returns
+  control to  the superior process.  If  and when the superior  process resumes
+  Emacs, ‘suspend-emacs’ returns ‘nil’ to its caller in Lisp.
+
+  If =STRING= is non-‘nil’, its characters  are sent to Emacs’s superior shell,
+  to be read as  terminal input.  The characters in =STRING=  are not echoed by
+  the superior shell; only the results appear.
+  #+cindex:hook, suspend-hook, suspend-resume-hook
+  Before  suspending,  ‘suspend-emacs’  runs the  normal  hook  ‘suspend-hook’.
+  After  the  user   resumes  Emacs,  ‘suspend-emacs’  runs   the  normal  hook
+  ‘suspend-resume-hook’.
+
+#+texinfo:@heading Example of ~suspend-emacs~ Function
+
+#+begin_src elisp
+  (add-hook 'suspend-hook
+            (lambda () (or (y-or-n-p "Really suspend? ")
+                           (error "Suspend canceled"))))
+  (add-hook 'suspend-resume-hook (lambda () (message "Resumed!")
+                                   (sit-for 2)))
+#+end_src
+
+Here is what you would see upon evaluating ‘(suspend-emacs "pwd")’:
+
+#+begin_example
+          ---------- Buffer: Minibuffer ----------
+          Really suspend? y
+          ---------- Buffer: Minibuffer ----------
+
+          ---------- Parent Shell ----------
+          bash$ /home/username
+          bash$ fg
+
+          ---------- Echo Area ----------
+          Resumed!
+#+end_example
+
+Note that  ‘pwd’ is not echoed  after Emacs is  suspended.  But it is  read and
+executed by the shell.
+
 ** Configuring
 "Configuring" are  things that "should" be  done or "should" be  checked, while
 "Customizing"  are things  that "can"  be done  to create  a more  personalized
 experience.
 
 *** Emacs Initialization
-#+TEXINFO: @heading The Emacs =Initialization= File
+
+#+texinfo:@heading The Emacs =Initialization= File
 
 When  Emacs is  started, it  normally  tries to  load  a Lisp  program from  an
 “initialization  file”, or  “init file”  for short.  This file,  if it  exists,
